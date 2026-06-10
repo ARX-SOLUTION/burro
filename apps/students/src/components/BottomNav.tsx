@@ -1,0 +1,1 @@
+export function BottomNav({ active, onChange }: { active: string; onChange: (tab: string) => void }) { const tabs=["dashboard","modules","path","exercise","leaderboard","profile"]; return <nav className="bottom-nav">{tabs.map(t=><button key={t} className={active===t?"active":""} onClick={()=>onChange(t)}>{t.slice(0,4)}</button>)}</nav>; }

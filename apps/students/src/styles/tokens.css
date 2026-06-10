@@ -1,0 +1,17 @@
+:root {
+  --burro-bg-deep: #081B4A;
+  --burro-bg-navy: #0D255F;
+  --burro-primary: #1597EA;
+  --burro-primary-light: #58D8FF;
+  --burro-primary-dark: #006DE5;
+  --burro-success: #1FB24A;
+  --burro-danger: #F04444;
+  --burro-warning: #FFB800;
+  --burro-card: #FFFFFF;
+  --burro-text-main: #10204A;
+  --burro-text-muted: #7A8499;
+  --burro-radius-xl: 28px;
+  --burro-radius-lg: 22px;
+  --burro-shadow-card: 0 6px 0 rgba(0,0,0,0.18);
+  --burro-shadow-glow: 0 0 18px rgba(88,216,255,0.65);
+}

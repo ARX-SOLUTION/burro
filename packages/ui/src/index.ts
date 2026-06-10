@@ -1,1 +1,1 @@
-export const uiPackage = '@burro/ui';
+export * from "./tokens";

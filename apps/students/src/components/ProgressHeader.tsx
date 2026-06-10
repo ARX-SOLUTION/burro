@@ -1,0 +1,1 @@
+export function ProgressHeader({ title, progress }: { title: string; progress: string }) { return <header className="progress-header"><strong>{title}</strong><span className="pill">{progress}</span></header>; }
