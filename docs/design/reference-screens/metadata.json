@@ -1,0 +1,142 @@
+[
+  {
+    "file": "01-leaderboard.png",
+    "source": "iPhone 16 & 17 Pro - 31.png",
+    "width": 402,
+    "height": 874,
+    "description": "Leaderboard with top 3 podium, ranking list, pinned current student rank, bottom navigation"
+  },
+  {
+    "file": "02-welcome.png",
+    "source": "iPhone 16 & 17 Pro - 2.png",
+    "width": 402,
+    "height": 874,
+    "description": "Welcome / launch screen with Burro logo and Boshlash CTA"
+  },
+  {
+    "file": "03-login.png",
+    "source": "iPhone 16 & 17 Pro - 3.png",
+    "width": 402,
+    "height": 874,
+    "description": "Web login screen with username/password visual form"
+  },
+  {
+    "file": "04-home-dashboard.png",
+    "source": "iPhone 16 & 17 Pro - 4.png",
+    "width": 402,
+    "height": 874,
+    "description": "Student home dashboard with continue card, daily task, results, modules"
+  },
+  {
+    "file": "05-exercise-letter-default.png",
+    "source": "iPhone 16 & 17 Pro - 7.png",
+    "width": 402,
+    "height": 874,
+    "description": "Exercise default state: question card, Arabic letter, four options"
+  },
+  {
+    "file": "06-exercise-letter-selected.png",
+    "source": "iPhone 16 & 17 Pro - 8.png",
+    "width": 402,
+    "height": 874,
+    "description": "Exercise selected answer state before submit"
+  },
+  {
+    "file": "07-exercise-letter-correct.png",
+    "source": "iPhone 16 & 17 Pro - 9.png",
+    "width": 402,
+    "height": 874,
+    "description": "Exercise correct feedback state"
+  },
+  {
+    "file": "08-exercise-letter-wrong.png",
+    "source": "iPhone 16 & 17 Pro - 10.png",
+    "width": 402,
+    "height": 874,
+    "description": "Exercise wrong feedback state with correct + wrong options"
+  },
+  {
+    "file": "09-exercise-listen-default.png",
+    "source": "iPhone 16 & 17 Pro - 11.png",
+    "width": 402,
+    "height": 874,
+    "description": "Listen and choose default state"
+  },
+  {
+    "file": "10-exercise-listen-playing.png",
+    "source": "iPhone 16 & 17 Pro - 12.png",
+    "width": 402,
+    "height": 874,
+    "description": "Listen and choose audio playing state"
+  },
+  {
+    "file": "11-pronunciation-default.png",
+    "source": "iPhone 16 & 17 Pro - 13.png",
+    "width": 402,
+    "height": 874,
+    "description": "Pronunciation recording default screen, post-MVP feature flag"
+  },
+  {
+    "file": "12-pronunciation-recording.png",
+    "source": "iPhone 16 & 17 Pro - 14.png",
+    "width": 402,
+    "height": 874,
+    "description": "Pronunciation recording active state, post-MVP feature flag"
+  },
+  {
+    "file": "13-sound-info-default.png",
+    "source": "iPhone 16 & 17 Pro - 15.png",
+    "width": 402,
+    "height": 874,
+    "description": "Sound information screen with audio button"
+  },
+  {
+    "file": "14-sound-info-playing.png",
+    "source": "iPhone 16 & 17 Pro - 16.png",
+    "width": 402,
+    "height": 874,
+    "description": "Sound information audio playing state"
+  },
+  {
+    "file": "15-feedback-correct.png",
+    "source": "iPhone 16 & 17 Pro - 17.png",
+    "width": 402,
+    "height": 874,
+    "description": "Large correct answer feedback card"
+  },
+  {
+    "file": "16-module-completed.png",
+    "source": "iPhone 16 & 17 Pro - 18.png",
+    "width": 402,
+    "height": 874,
+    "description": "Module completion screen with XP and accuracy"
+  },
+  {
+    "file": "17-statistics.png",
+    "source": "iPhone 16 & 17 Pro - 19.png",
+    "width": 402,
+    "height": 874,
+    "description": "Statistics screen with 7-day XP chart and review recommendations"
+  },
+  {
+    "file": "18-profile-language-sheet.png",
+    "source": "iPhone 16 & 17 Pro - 20.png",
+    "width": 402,
+    "height": 874,
+    "description": "Profile settings with language selection bottom sheet"
+  },
+  {
+    "file": "19-modules-grid.png",
+    "source": "iPhone 16 & 17 Pro - 21.png",
+    "width": 402,
+    "height": 874,
+    "description": "Modules grid view with cards and view toggle"
+  },
+  {
+    "file": "20-modules-path.png",
+    "source": "iPhone 16 & 17 Pro - 22.png",
+    "width": 402,
+    "height": 874,
+    "description": "Modules path view with connected learning nodes"
+  }
+]

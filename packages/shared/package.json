@@ -1,0 +1,15 @@
+{
+  "name": "@burro/shared",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "lint": "echo 'TODO'",
+    "test": "echo 'TODO'",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "latest"
+  }
+}

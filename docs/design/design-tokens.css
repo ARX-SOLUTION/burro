@@ -1,0 +1,68 @@
+/* Burro Student App Design Tokens
+   Source: docs/12-FIGMA_FLOW_DESIGN.md and docs/design/reference-screens/
+*/
+:root {
+  --burro-bg-950: #061640;
+  --burro-bg-900: #081d4c;
+  --burro-bg-850: #0c285f;
+  --burro-navy: #102052;
+  --burro-text-primary: #101f4a;
+  --burro-text-on-dark: #ffffff;
+  --burro-text-muted: #8b95a7;
+
+  --burro-cyan-500: #15b9f0;
+  --burro-cyan-400: #55d8f6;
+  --burro-blue-500: #168de6;
+  --burro-blue-600: #0876d8;
+
+  --burro-green-500: #20b24b;
+  --burro-green-600: #15913d;
+  --burro-red-500: #f34343;
+  --burro-yellow-500: #ffb400;
+
+  --burro-card: #ffffff;
+  --burro-card-soft: #f7f9fc;
+  --burro-card-border: rgba(255,255,255,0.55);
+  --burro-overlay: rgba(4, 14, 45, 0.58);
+
+  --radius-xs: 10px;
+  --radius-sm: 14px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-xl: 30px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 6px 0 rgba(0,0,0,0.14), 0 14px 30px rgba(0,0,0,0.18);
+  --shadow-soft: 0 12px 28px rgba(5, 21, 60, 0.22);
+  --shadow-cyan-glow: 0 0 0 2px rgba(85,216,246,0.55), 0 8px 24px rgba(21,185,240,0.45);
+  --shadow-green-glow: 0 0 0 2px rgba(71,236,107,0.35), 0 8px 24px rgba(32,178,75,0.35);
+  --shadow-red-glow: 0 0 0 2px rgba(255,96,96,0.35), 0 8px 24px rgba(243,67,67,0.35);
+
+  --bottom-nav-height: 96px;
+  --screen-x-padding: 20px;
+}
+
+.burro-bg {
+  background-color: var(--burro-bg-950);
+  background-image:
+    linear-gradient(180deg, rgba(8,29,76,0.96), rgba(6,22,64,0.96)),
+    url('/assets/backgrounds/burro-mosque-bg.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.burro-glass-card {
+  background: rgba(255,255,255,0.96);
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.burro-primary-button {
+  height: 58px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--burro-cyan-400), var(--burro-blue-500));
+  color: white;
+  font-weight: 800;
+  box-shadow: var(--shadow-cyan-glow);
+}

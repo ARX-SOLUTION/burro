@@ -1,0 +1,36 @@
+{
+  "name": "@burro/backend",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "start": "node dist/main.js",
+    "lint": "echo 'TODO: add eslint'",
+    "test": "echo 'TODO: add tests'",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@nestjs/common": "latest",
+    "@nestjs/core": "latest",
+    "@nestjs/platform-fastify": "latest",
+    "@nestjs/websockets": "latest",
+    "@nestjs/platform-socket.io": "latest",
+    "drizzle-orm": "latest",
+    "pg": "latest",
+    "ioredis": "latest",
+    "bullmq": "latest",
+    "nestjs-telegraf": "latest",
+    "telegraf": "latest",
+    "zod": "latest",
+    "@burro/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "latest",
+    "drizzle-kit": "latest",
+    "typescript": "latest"
+  }
+}
