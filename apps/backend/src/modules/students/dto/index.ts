@@ -1,2 +1,1 @@
-// DTOs for StudentsModule will be added as endpoint contracts stabilize.
-export {};
+export * from "./check-exercise-answer.dto";
