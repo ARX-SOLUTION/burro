@@ -3,12 +3,13 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
+    "start:dev": "nest start --watch",
     "dev": "nest start --watch",
     "build": "nest build",
     "start": "node dist/main.js",
     "lint": "echo 'TODO: add eslint'",
-    "test": "echo 'TODO: add tests'",
     "typecheck": "tsc --noEmit",
+    "test": "echo 'TODO: add tests'",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio"
@@ -19,17 +20,18 @@
     "@nestjs/platform-fastify": "latest",
     "@nestjs/websockets": "latest",
     "@nestjs/platform-socket.io": "latest",
+    "reflect-metadata": "latest",
+    "rxjs": "latest",
     "drizzle-orm": "latest",
     "pg": "latest",
     "ioredis": "latest",
     "bullmq": "latest",
-    "nestjs-telegraf": "latest",
-    "telegraf": "latest",
     "zod": "latest",
     "@burro/shared": "workspace:*"
   },
   "devDependencies": {
     "@nestjs/cli": "latest",
+    "@types/node": "latest",
     "drizzle-kit": "latest",
     "typescript": "latest"
   }

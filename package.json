@@ -1,29 +1,20 @@
 {
   "name": "burro-fonetika-monorepo",
   "private": true,
-  "packageManager": "pnpm@latest",
   "scripts": {
     "dev": "pnpm -r --parallel dev",
-    "dev:student": "pnpm --filter @burro/students dev",
-    "dev:parent": "pnpm --filter @burro/parents dev",
+    "dev:students": "pnpm --filter @burro/students dev",
+    "dev:parents": "pnpm --filter @burro/parents dev",
     "dev:admin": "pnpm --filter @burro/adminpanel dev",
-    "dev:api": "pnpm --filter @burro/backend dev",
+    "dev:backend": "pnpm --filter @burro/backend start:dev",
     "build": "pnpm -r build",
-    "build:student": "pnpm --filter @burro/students build",
-    "build:parent": "pnpm --filter @burro/parents build",
+    "build:students": "pnpm --filter @burro/students build",
+    "build:parents": "pnpm --filter @burro/parents build",
     "build:admin": "pnpm --filter @burro/adminpanel build",
-    "build:api": "pnpm --filter @burro/backend build",
+    "build:backend": "pnpm --filter @burro/backend build",
     "lint": "pnpm -r lint",
-    "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
-    "db:generate": "pnpm --filter @burro/backend db:generate",
-    "db:migrate": "pnpm --filter @burro/backend db:migrate",
-    "db:studio": "pnpm --filter @burro/backend db:studio",
-    "pm2:start": "pm2 start ecosystem.config.cjs",
-    "pm2:reload": "pm2 reload ecosystem.config.cjs --update-env",
-    "pm2:logs": "pm2 logs",
-    "pm2:status": "pm2 status",
-    "docs:design": "node -e \"console.log('Open docs/12-FIGMA_FLOW_DESIGN.md')\""
+    "test": "pnpm -r test"
   },
   "devDependencies": {
     "typescript": "latest"
