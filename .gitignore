@@ -11,4 +11,5 @@ logs/*.log
 coverage/
 
 *.tsbuildinfo
+.beads
 .claude/state/
