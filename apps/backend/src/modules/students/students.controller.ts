@@ -2,14 +2,16 @@ import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import type { CheckExerciseAnswerDto } from "./dto";
 import { StudentsService } from "./students.service";
 
-@Controller("student")
+@Controller()
 export class StudentsController {
   constructor(private readonly service: StudentsService) {}
 
-  @Get()
-  index() { return this.service.status(); }
+  @Get("students")
+  index() {
+    return this.service.status();
+  }
 
-  @Post("exercises/:exerciseId/check")
+  @Post("student/exercises/:exerciseId/check")
   checkExerciseAnswer(
     @Param("exerciseId") exerciseId: string,
     @Body() body: Partial<CheckExerciseAnswerDto> = {}

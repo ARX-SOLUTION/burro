@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-import { CheckExerciseAnswerDto, CheckExerciseAnswerResponseDto } from "./dto";
+import type { CheckExerciseAnswerDto, CheckExerciseAnswerResponseDto } from "./dto";
 import { TemporaryStudentExerciseCheckMockService } from "./temporary-student-exercise-check-mock.service";
 
 @Injectable()
@@ -12,7 +12,10 @@ export class StudentsService {
   }
 
   // TODO: Replace mock-backed exercise checking with Drizzle-backed reads/writes for exercises, exercise_options, attempts, and attempt_answers.
-  checkExerciseAnswer(exerciseId: string, dto: Partial<CheckExerciseAnswerDto> = {}): CheckExerciseAnswerResponseDto {
+  checkExerciseAnswer(
+    exerciseId: string,
+    dto: Partial<CheckExerciseAnswerDto> = {}
+  ): CheckExerciseAnswerResponseDto {
     if (!exerciseId.trim()) {
       throw new BadRequestException("exerciseId is required");
     }
