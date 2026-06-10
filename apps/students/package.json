@@ -11,6 +11,7 @@
     "test": "echo 'TODO: add tests'"
   },
   "dependencies": {
+    "@tanstack/react-router": "latest",
     "@vitejs/plugin-react": "latest",
     "vite": "latest",
     "typescript": "latest",

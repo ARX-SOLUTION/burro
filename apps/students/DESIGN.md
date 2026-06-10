@@ -10,7 +10,7 @@ Primary docs:
 - [../../docs/13-STUDENT_FLOW_IMPLEMENTATION.md](../../docs/13-STUDENT_FLOW_IMPLEMENTATION.md)
 - [../../docs/design/reference-screens/README.md](../../docs/design/reference-screens/README.md)
 - [../../docs/design/design-tokens.css](../../docs/design/design-tokens.css)
-- [../../docs/design/tailwind.tokens.ts](../../docs/design/tailwind.tokens.ts)
+- [../../packages/ui/src/tailwind-preset.ts](../../packages/ui/src/tailwind-preset.ts)
 
 ## Product principle
 

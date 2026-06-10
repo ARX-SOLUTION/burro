@@ -41,6 +41,10 @@ Burro Fonetika is an Arabic phonetics learning platform for children aged 4–14
 - listen_find_letter
 - listen_find_sound
 
+## Attempt
+
+An Attempt is one run of a lesson module's exercises by a student in one mode (practice or final_quiz). The Attempt owns hearts, answer finality, XP idempotency, and pass/fail (≥ 80%). Contract: `@burro/shared` contracts/attempts; rules: backend attempts module.
+
 ## Gamification
 
 - XP ledger

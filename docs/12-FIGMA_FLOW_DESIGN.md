@@ -10,7 +10,7 @@ Source reference:
 - [Figma reference screens](design/reference-screens/README.md)
 - [Student implementation flow](13-STUDENT_FLOW_IMPLEMENTATION.md)
 - [Design tokens CSS](design/design-tokens.css)
-- [Tailwind tokens](design/tailwind.tokens.ts)
+- [Tailwind tokens](../packages/ui/src/tailwind-preset.ts)
 
 ## 2. Design Source of Truth
 

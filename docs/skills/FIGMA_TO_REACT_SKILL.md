@@ -9,7 +9,7 @@ Convert Figma reference screens into reusable React + Tailwind components withou
 1. Open [../12-FIGMA_FLOW_DESIGN.md](../12-FIGMA_FLOW_DESIGN.md).
 2. Open the matching image in [../design/reference-screens/README.md](../design/reference-screens/README.md).
 3. Identify reusable components before writing screen-specific code.
-4. Use tokens from [../design/tailwind.tokens.ts](../design/tailwind.tokens.ts).
+4. Use tokens from [../../packages/ui/src/tailwind-preset.ts](../../packages/ui/src/tailwind-preset.ts).
 5. Implement loading, error, empty, and forbidden states.
 6. Check safe-area and 402px mobile width.
 
