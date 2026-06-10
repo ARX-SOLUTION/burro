@@ -1,5 +1,39 @@
 # Planning
 
+Planning is beads-backed. Do not use markdown task lists as the source of truth for work state.
+
+## Execution model
+
+1. Run `bd prime`.
+2. Inspect `bd ready`.
+3. Use `bd show <id>` and `bd update <id> --claim` before implementation.
+4. If the user asks for new work that has no matching issue, create a beads issue with acceptance criteria.
+5. Load the smallest context pack from [08-CONTEXT.md](08-CONTEXT.md).
+6. Execute a narrow vertical change.
+7. Validate with the smallest meaningful command.
+8. Close the beads issue only after verification.
+
+## Planning record
+
+For large changes, record:
+- objective
+- scope included
+- scope excluded
+- dependencies and blockers
+- affected apps/packages
+- docs that must stay in sync
+- validation command
+- rollback or recovery path
+- beads issue id
+
+## Delivery gates
+
+- Contract gate: API, DB, shared types, Socket.IO events, and UI expectations agree.
+- Permission gate: roles, parent/student/admin boundaries, and private data exposure are checked.
+- Progress gate: student learning progress is never deleted by premium, block, or soft delete flows.
+- UX gate: loading, empty, error, forbidden, selected, correct, and wrong states exist where relevant.
+- Release gate: build/test result, backup, migration path, PM2 reload plan, and log verification are known.
+
 ## Phase 0 — Repository setup
 
 - pnpm workspace

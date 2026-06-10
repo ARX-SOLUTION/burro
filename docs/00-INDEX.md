@@ -23,6 +23,7 @@
 ## Agents
 
 - [agents/README.md](agents/README.md)
+- [agents/OPERATING_MODEL.md](agents/OPERATING_MODEL.md)
 - [subagents/README.md](subagents/README.md)
 - [skills/README.md](skills/README.md)
 
