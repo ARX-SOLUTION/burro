@@ -1,0 +1,1 @@
+export function LanguageModal({ onClose }: { onClose: () => void }) { return <aside className="modal"><h2>Tilni tanlang</h2><p>O‘zbek · Русский · English</p><button className="gradient-button" onClick={onClose}>Yopish</button></aside>; }

@@ -1,71 +1,50 @@
-SHELL := /bin/bash
-
-.PHONY: install dev build lint test typecheck clean pm2-start pm2-reload pm2-logs pm2-status db-generate db-migrate db-studio
-
 install:
 	pnpm install
 
 dev:
 	pnpm dev
 
-dev-student:
-	pnpm dev:student
+dev-students:
+	pnpm dev:students
 
-dev-parent:
-	pnpm dev:parent
+dev-parents:
+	pnpm dev:parents
 
 dev-admin:
 	pnpm dev:admin
 
-dev-api:
-	pnpm dev:api
+dev-backend:
+	pnpm dev:backend
 
 build:
 	pnpm build
 
-build-student:
-	pnpm build:student
+build-students:
+	pnpm build:students
 
-build-parent:
-	pnpm build:parent
+build-parents:
+	pnpm build:parents
 
 build-admin:
 	pnpm build:admin
 
-build-api:
-	pnpm build:api
+build-backend:
+	pnpm build:backend
 
 lint:
 	pnpm lint
 
-test:
-	pnpm test
-
 typecheck:
 	pnpm typecheck
 
-db-generate:
-	pnpm db:generate
-
-db-migrate:
-	pnpm db:migrate
-
-db-studio:
-	pnpm db:studio
+test:
+	pnpm test
 
 pm2-start:
-	pnpm build
 	pm2 start ecosystem.config.cjs
 
 pm2-reload:
-	pnpm build
-	pm2 reload ecosystem.config.cjs --update-env
+	pm2 reload ecosystem.config.cjs
 
 pm2-logs:
 	pm2 logs
-
-pm2-status:
-	pm2 status
-
-clean:
-	rm -rf apps/*/dist apps/*/.vite packages/*/dist node_modules
