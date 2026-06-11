@@ -1,4 +1,4 @@
-import { LeaderboardPodium, LeaderboardRow, PinnedRankCard } from "../components";
+import { LeaderboardPodium, LeaderboardRow, PinnedRankCard } from "@burro/ui";
 
 export function LeaderboardScreen() {
   return <>

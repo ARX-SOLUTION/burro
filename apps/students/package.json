@@ -11,14 +11,14 @@
     "test": "echo 'TODO: add tests'"
   },
   "dependencies": {
-    "@tanstack/react-router": "latest",
-    "@vitejs/plugin-react": "latest",
-    "vite": "latest",
-    "typescript": "latest",
-    "react": "latest",
-    "react-dom": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
+    "@tanstack/react-router": "1.170.15",
+    "@vitejs/plugin-react": "6.0.2",
+    "vite": "8.0.16",
+    "typescript": "6.0.3",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
     "@burro/shared": "workspace:*",
     "@burro/ui": "workspace:*"
   }

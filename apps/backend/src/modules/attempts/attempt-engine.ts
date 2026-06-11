@@ -10,7 +10,8 @@ import {
   AttemptsStorePort,
   ExerciseCatalogPort,
   ExerciseRecord,
-  ModuleContentRecord
+  ModuleContentRecord,
+  XpGrantRequest
 } from "./attempts.ports";
 
 export class AttemptError extends Error {
@@ -91,12 +92,13 @@ export class AttemptEngine {
     }
 
     const isCorrect = option.isCorrect;
-    const xpDelta = isCorrect
-      ? await this.store.grantXpOnce(studentId, "correct_answer", exercise.id, module.correctAnswerXp)
-      : 0;
     attempt.answeredExerciseIds.push(exercise.id);
     attempt.correctCount += isCorrect ? 1 : 0;
-    attempt.xpEarned += xpDelta;
+
+    const answerXpGrant: XpGrantRequest | null = isCorrect
+      ? { sourceType: "correct_answer", sourceId: exercise.id, xpDelta: module.correctAnswerXp }
+      : null;
+    const completionXpGrants: XpGrantRequest[] = [];
 
     if (attempt.mode === "final_quiz" && !isCorrect) {
       attempt.heartsRemaining -= 1;
@@ -108,27 +110,18 @@ export class AttemptEngine {
     if (attempt.status === "in_progress" && attempt.answeredExerciseIds.length === attempt.exerciseIds.length) {
       if (attempt.mode === "practice") {
         attempt.status = "completed";
-        attempt.xpEarned += await this.store.grantXpOnce(
-          studentId,
-          "practice_completion",
-          attempt.moduleId,
-          module.practiceCompletionXp
-        );
+        completionXpGrants.push({
+          sourceType: "practice_completion",
+          sourceId: attempt.moduleId,
+          xpDelta: module.practiceCompletionXp
+        });
       } else {
         const score = (attempt.correctCount / attempt.exerciseIds.length) * 100;
         if (score >= module.passScore) {
           attempt.status = "passed";
-          attempt.xpEarned += await this.store.grantXpOnce(
-            studentId,
-            "final_quiz_pass",
-            attempt.moduleId,
-            module.finalQuizPassXp
-          );
-          attempt.xpEarned += await this.store.grantXpOnce(
-            studentId,
-            "module_completion",
-            attempt.moduleId,
-            module.moduleCompletionXp
+          completionXpGrants.push(
+            { sourceType: "final_quiz_pass", sourceId: attempt.moduleId, xpDelta: module.finalQuizPassXp },
+            { sourceType: "module_completion", sourceId: attempt.moduleId, xpDelta: module.moduleCompletionXp }
           );
         } else {
           attempt.status = "failed";
@@ -136,15 +129,19 @@ export class AttemptEngine {
       }
     }
 
-    await this.store.recordAnswer({
-      attemptId: attempt.id,
-      exerciseId: exercise.id,
-      selectedOptionId: option.id,
-      correctOptionId: correctOption.id,
-      isCorrect,
-      xpDelta
+    const { grantedTotal, answerXpGranted } = await this.store.applyAnswer({
+      attempt,
+      answer: {
+        attemptId: attempt.id,
+        exerciseId: exercise.id,
+        selectedOptionId: option.id,
+        correctOptionId: correctOption.id,
+        isCorrect
+      },
+      answerXpGrant,
+      completionXpGrants
     });
-    await this.store.saveAttempt(attempt);
+    attempt.xpEarned += grantedTotal;
 
     return {
       attempt: this.toView(attempt, module),
@@ -152,7 +149,7 @@ export class AttemptEngine {
       selectedOptionId: option.id,
       correctOptionId: correctOption.id,
       isCorrect,
-      xpDelta,
+      xpDelta: answerXpGranted,
       feedback: isCorrect
         ? { title: module.feedback.correctTitle, message: module.feedback.correctMessage }
         : { title: module.feedback.incorrectTitle, message: module.feedback.incorrectMessage }

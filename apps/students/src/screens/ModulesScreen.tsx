@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ModuleCard } from "../components";
+import { ModuleCard } from "@burro/ui";
 
 export function ModulesScreen() {
   return <>

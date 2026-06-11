@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
-import { GradientButton, ModuleNode, ProgressHeader } from "../components";
+import { GradientButton, ProgressHeader } from "@burro/ui";
+import { ModuleNode } from "../components";
 
 export function ModulePathScreen({ moduleId }: { moduleId: string }) {
   const navigate = useNavigate();

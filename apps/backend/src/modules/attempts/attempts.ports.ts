@@ -53,11 +53,39 @@ export interface AttemptAnswerRecord {
   answeredAt?: Date;
 }
 
+export interface XpGrantRequest {
+  sourceType: string;
+  sourceId: string;
+  xpDelta: number;
+}
+
+export interface ApplyAnswerInput {
+  /** Post-decision attempt state. `xpEarned` excludes the requested grants; the store reconciles it. */
+  attempt: AttemptRecord;
+  /** Answer row to record. `xpDelta` is filled by the store from the actually granted answer XP. */
+  answer: Omit<AttemptAnswerRecord, "xpDelta">;
+  /** XP grant tied to this answer (correct answers only). */
+  answerXpGrant: XpGrantRequest | null;
+  /** Completion bonus grants triggered by this answer. */
+  completionXpGrants: XpGrantRequest[];
+}
+
+export interface ApplyAnswerResult {
+  /** Sum of XP actually granted across all requested grants (idempotency may zero some). */
+  grantedTotal: number;
+  /** XP actually granted for `answerXpGrant` (0 when absent or already granted). */
+  answerXpGranted: number;
+}
+
 export interface AttemptsStorePort {
   getAttempt(id: string): Promise<AttemptRecord | undefined>;
   saveAttempt(attempt: AttemptRecord): Promise<void>;
-  recordAnswer(answer: AttemptAnswerRecord): Promise<void>;
-  grantXpOnce(studentId: string, sourceType: string, sourceId: string, xpDelta: number): Promise<number>;
+  /**
+   * Atomically applies one answer: XP grants, the answer row, and the attempt
+   * update succeed or fail together. Persisted `xpEarned` becomes
+   * `attempt.xpEarned + grantedTotal`.
+   */
+  applyAnswer(input: ApplyAnswerInput): Promise<ApplyAnswerResult>;
 }
 
 export interface ExerciseCatalogPort {

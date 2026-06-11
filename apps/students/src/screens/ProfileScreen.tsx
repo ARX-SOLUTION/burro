@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { GlassCard, GradientButton, LanguageModal } from "../components";
+import { GlassCard, GradientButton } from "@burro/ui";
+import { LanguageModal } from "../components";
 
 export function ProfileScreen() {
   const [languageOpen, setLanguageOpen] = useState(false);

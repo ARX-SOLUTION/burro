@@ -1,5 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { AttemptAnswerRecord, AttemptRecord, AttemptsStorePort } from "../attempts.ports";
+import {
+  ApplyAnswerInput,
+  ApplyAnswerResult,
+  AttemptAnswerRecord,
+  AttemptRecord,
+  AttemptsStorePort,
+  XpGrantRequest
+} from "../attempts.ports";
 
 @Injectable()
 export class InMemoryAttemptsStore implements AttemptsStorePort {
@@ -16,17 +23,32 @@ export class InMemoryAttemptsStore implements AttemptsStorePort {
     this.attempts.set(attempt.id, cloneAttempt(attempt));
   }
 
-  async recordAnswer(answer: AttemptAnswerRecord): Promise<void> {
-    this.answers.set(`${answer.attemptId}:${answer.exerciseId}`, { ...answer });
+  async applyAnswer(input: ApplyAnswerInput): Promise<ApplyAnswerResult> {
+    const { attempt, answer, answerXpGrant, completionXpGrants } = input;
+    const answerXpGranted = answerXpGrant ? this.grantXpOnce(attempt.studentId, answerXpGrant) : 0;
+    let grantedTotal = answerXpGranted;
+    for (const grant of completionXpGrants) {
+      grantedTotal += this.grantXpOnce(attempt.studentId, grant);
+    }
+
+    this.answers.set(`${answer.attemptId}:${answer.exerciseId}`, { ...answer, xpDelta: answerXpGranted });
+    const persisted = cloneAttempt(attempt);
+    persisted.xpEarned = attempt.xpEarned + grantedTotal;
+    this.attempts.set(attempt.id, persisted);
+
+    return { grantedTotal, answerXpGranted };
   }
 
-  async grantXpOnce(studentId: string, sourceType: string, sourceId: string, xpDelta: number): Promise<number> {
-    const key = `${studentId}:${sourceType}:${sourceId}`;
+  private grantXpOnce(studentId: string, grant: XpGrantRequest): number {
+    if (grant.xpDelta <= 0) {
+      return 0;
+    }
+    const key = `${studentId}:${grant.sourceType}:${grant.sourceId}`;
     if (this.grantedXpKeys.has(key)) {
       return 0;
     }
     this.grantedXpKeys.add(key);
-    return xpDelta;
+    return grant.xpDelta;
   }
 }
 

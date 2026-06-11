@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { GlassCard, GradientButton, ModuleCard } from "../components";
+import { GlassCard, GradientButton, ModuleCard } from "@burro/ui";
 
 export function DashboardScreen() {
   const navigate = useNavigate();

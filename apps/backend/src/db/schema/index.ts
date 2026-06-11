@@ -77,6 +77,22 @@ export const modules = pgTable("modules", {
   archivedAt: timestamp("archived_at", { withTimezone: true })
 });
 
+export const moduleFeedback = pgTable(
+  "module_feedback",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    moduleId: uuid("module_id")
+      .notNull()
+      .references(() => modules.id),
+    language: languageEnum("language").notNull().default("uz"),
+    correctTitle: text("correct_title").notNull(),
+    correctMessage: text("correct_message").notNull(),
+    incorrectTitle: text("incorrect_title").notNull(),
+    incorrectMessage: text("incorrect_message").notNull()
+  },
+  (table) => [uniqueIndex("module_feedback_module_language_unique").on(table.moduleId, table.language)]
+);
+
 export const exercises = pgTable("exercises", {
   id: uuid("id").primaryKey().defaultRandom(),
   type: exerciseTypeEnum("type").notNull(),
@@ -201,7 +217,7 @@ export const xpTransactions = pgTable(
       .notNull()
       .references(() => users.id),
     sourceType: text("source_type").notNull(),
-    sourceId: uuid("source_id"),
+    sourceId: uuid("source_id").notNull(),
     xpDelta: integer("xp_delta").notNull(),
     reason: text("reason").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()

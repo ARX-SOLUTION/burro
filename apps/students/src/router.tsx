@@ -1,11 +1,17 @@
+import { Suspense, lazy } from "react";
 import { Outlet, createRootRoute, createRoute, createRouter, redirect, useNavigate, useRouterState } from "@tanstack/react-router";
 import { BottomNav, GlassCard, StudentShell, XpCounter } from "./components";
-import { ExercisePlayer } from "./features/attempts/ExercisePlayer";
-import { DashboardScreen } from "./screens/DashboardScreen";
-import { LeaderboardScreen } from "./screens/LeaderboardScreen";
-import { ModulePathScreen } from "./screens/ModulePathScreen";
-import { ModulesScreen } from "./screens/ModulesScreen";
-import { ProfileScreen } from "./screens/ProfileScreen";
+
+const ExercisePlayer = lazy(() => import("./features/attempts/ExercisePlayer").then((m) => ({ default: m.ExercisePlayer })));
+const DashboardScreen = lazy(() => import("./screens/DashboardScreen").then((m) => ({ default: m.DashboardScreen })));
+const LeaderboardScreen = lazy(() => import("./screens/LeaderboardScreen").then((m) => ({ default: m.LeaderboardScreen })));
+const ModulePathScreen = lazy(() => import("./screens/ModulePathScreen").then((m) => ({ default: m.ModulePathScreen })));
+const ModulesScreen = lazy(() => import("./screens/ModulesScreen").then((m) => ({ default: m.ModulesScreen })));
+const ProfileScreen = lazy(() => import("./screens/ProfileScreen").then((m) => ({ default: m.ProfileScreen })));
+
+function ScreenFallback() {
+  return <div style={{ display: "flex", justifyContent: "center", padding: "32px" }}>Yuklanmoqda...</div>;
+}
 
 const tabs = ["dashboard", "modules", "leaderboard", "profile"];
 
@@ -34,18 +40,18 @@ const indexRoute = createRoute({
 const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/dashboard",
-  component: DashboardScreen
+  component: () => <Suspense fallback={<ScreenFallback />}><DashboardScreen /></Suspense>
 });
 
 const modulesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/modules",
-  component: ModulesScreen
+  component: () => <Suspense fallback={<ScreenFallback />}><ModulesScreen /></Suspense>
 });
 
 function ModulePathRouteComponent() {
   const { moduleId } = modulePathRoute.useParams();
-  return <ModulePathScreen moduleId={moduleId} />;
+  return <Suspense fallback={<ScreenFallback />}><ModulePathScreen moduleId={moduleId} /></Suspense>;
 }
 
 const modulePathRoute = createRoute({
@@ -56,7 +62,7 @@ const modulePathRoute = createRoute({
 
 function PracticeRouteComponent() {
   const { moduleId } = practiceRoute.useParams();
-  return <ExercisePlayer moduleId={moduleId} mode="practice" />;
+  return <Suspense fallback={<ScreenFallback />}><ExercisePlayer moduleId={moduleId} mode="practice" /></Suspense>;
 }
 
 const practiceRoute = createRoute({
@@ -67,7 +73,7 @@ const practiceRoute = createRoute({
 
 function QuizRouteComponent() {
   const { moduleId } = quizRoute.useParams();
-  return <ExercisePlayer moduleId={moduleId} mode="final_quiz" />;
+  return <Suspense fallback={<ScreenFallback />}><ExercisePlayer moduleId={moduleId} mode="final_quiz" /></Suspense>;
 }
 
 const quizRoute = createRoute({
@@ -79,13 +85,13 @@ const quizRoute = createRoute({
 const leaderboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/leaderboard",
-  component: LeaderboardScreen
+  component: () => <Suspense fallback={<ScreenFallback />}><LeaderboardScreen /></Suspense>
 });
 
 const profileRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/profile",
-  component: ProfileScreen
+  component: () => <Suspense fallback={<ScreenFallback />}><ProfileScreen /></Suspense>
 });
 
 const premiumRoute = createRoute({

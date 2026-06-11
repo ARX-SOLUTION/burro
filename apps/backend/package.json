@@ -12,29 +12,28 @@
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:check": "vitest run src/db/attempts-persistence.spec.ts"
   },
   "dependencies": {
     "@burro/shared": "workspace:*",
-    "@nestjs/common": "latest",
-    "@nestjs/core": "latest",
-    "@nestjs/platform-fastify": "latest",
-    "@nestjs/platform-socket.io": "latest",
-    "@nestjs/websockets": "latest",
-    "bullmq": "latest",
-    "drizzle-orm": "latest",
-    "ioredis": "latest",
-    "pg": "latest",
-    "reflect-metadata": "latest",
-    "rxjs": "latest",
-    "zod": "latest"
+    "@nestjs/common": "11.1.26",
+    "@nestjs/core": "11.1.26",
+    "@nestjs/platform-fastify": "11.1.26",
+    "@nestjs/platform-socket.io": "11.1.26",
+    "@nestjs/websockets": "11.1.26",
+    "drizzle-orm": "0.45.2",
+    "pg": "8.21.0",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2",
+    "zod": "4.4.3"
   },
   "devDependencies": {
-    "@nestjs/cli": "latest",
-    "@types/node": "latest",
+    "@nestjs/cli": "11.0.23",
+    "@types/node": "25.9.2",
     "@types/pg": "^8.20.0",
-    "drizzle-kit": "latest",
-    "typescript": "latest",
-    "vitest": "latest"
+    "drizzle-kit": "0.31.10",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8"
   }
 }

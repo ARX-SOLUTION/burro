@@ -125,6 +125,20 @@ Rule: max 2 active parents per student. Only admin can remove.
 
 Unique: module_id + language.
 
+### module_feedback
+
+Per-module answer feedback copy.
+
+- id uuid pk
+- module_id fk modules
+- language enum default uz
+- correct_title text
+- correct_message text
+- incorrect_title text
+- incorrect_message text
+
+Unique: module_id + language.
+
 ### media_assets
 
 - id uuid pk
@@ -266,12 +280,12 @@ Immutable ledger.
 - id uuid pk
 - student_user_id fk users
 - source_type text
-- source_id uuid nullable
+- source_id uuid not null
 - xp_delta int
 - reason text
 - created_at
 
-Unique anti-duplication: student_user_id + source_type + source_id.
+Unique anti-duplication: student_user_id + source_type + source_id. source_id must be NOT NULL: Postgres treats NULLs as distinct in unique indexes, so nullable source_id would allow duplicate grants.
 
 ### student_xp_totals
 

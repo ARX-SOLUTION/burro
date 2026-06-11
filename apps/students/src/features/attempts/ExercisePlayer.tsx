@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import type { AnswerResultView, AttemptView, ExerciseView, LearningMode } from "@burro/shared";
-import { AnswerOption, AudioButton, FeedbackPanel, GlassCard, GradientButton, HeartCounter, ProgressHeader } from "../../components";
+import { AnswerOption, AudioButton, FeedbackPanel, GlassCard, GradientButton, HeartCounter, ProgressHeader } from "@burro/ui";
 import { answerAttempt, startAttempt } from "./api";
 
 type PlayerState =
