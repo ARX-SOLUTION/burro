@@ -1,21 +1,26 @@
 import { Injectable } from "@nestjs/common";
-import { AttemptRecord, AttemptsStorePort } from "../attempts.ports";
+import { AttemptAnswerRecord, AttemptRecord, AttemptsStorePort } from "../attempts.ports";
 
-// TODO: replace with Drizzle adapter over attempts/attempt_answers/xp_transactions (docs/03-DATABASE_SCHEMA.md).
 @Injectable()
 export class InMemoryAttemptsStore implements AttemptsStorePort {
   private readonly attempts = new Map<string, AttemptRecord>();
+  private readonly answers = new Map<string, AttemptAnswerRecord>();
   private readonly grantedXpKeys = new Set<string>();
 
-  getAttempt(id: string): AttemptRecord | undefined {
-    return this.attempts.get(id);
+  async getAttempt(id: string): Promise<AttemptRecord | undefined> {
+    const attempt = this.attempts.get(id);
+    return attempt ? cloneAttempt(attempt) : undefined;
   }
 
-  saveAttempt(attempt: AttemptRecord): void {
-    this.attempts.set(attempt.id, attempt);
+  async saveAttempt(attempt: AttemptRecord): Promise<void> {
+    this.attempts.set(attempt.id, cloneAttempt(attempt));
   }
 
-  grantXpOnce(studentId: string, sourceType: string, sourceId: string, xpDelta: number): number {
+  async recordAnswer(answer: AttemptAnswerRecord): Promise<void> {
+    this.answers.set(`${answer.attemptId}:${answer.exerciseId}`, { ...answer });
+  }
+
+  async grantXpOnce(studentId: string, sourceType: string, sourceId: string, xpDelta: number): Promise<number> {
     const key = `${studentId}:${sourceType}:${sourceId}`;
     if (this.grantedXpKeys.has(key)) {
       return 0;
@@ -23,4 +28,12 @@ export class InMemoryAttemptsStore implements AttemptsStorePort {
     this.grantedXpKeys.add(key);
     return xpDelta;
   }
+}
+
+function cloneAttempt(attempt: AttemptRecord): AttemptRecord {
+  return {
+    ...attempt,
+    exerciseIds: [...attempt.exerciseIds],
+    answeredExerciseIds: [...attempt.answeredExerciseIds]
+  };
 }

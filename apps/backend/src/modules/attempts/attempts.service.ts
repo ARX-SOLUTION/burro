@@ -18,17 +18,17 @@ export class AttemptsService {
     this.engine = new AttemptEngine(store, catalog);
   }
 
-  start(req: StartAttemptRequest): AttemptView {
+  async start(req: StartAttemptRequest): Promise<AttemptView> {
     try {
-      return this.engine.start(DEMO_STUDENT_ID, req);
+      return await this.engine.start(DEMO_STUDENT_ID, req);
     } catch (error) {
       throw this.toHttpError(error);
     }
   }
 
-  answer(attemptId: string, req: AnswerAttemptRequest): AnswerResultView {
+  async answer(attemptId: string, req: AnswerAttemptRequest): Promise<AnswerResultView> {
     try {
-      return this.engine.answer(DEMO_STUDENT_ID, attemptId, req);
+      return await this.engine.answer(DEMO_STUDENT_ID, attemptId, req);
     } catch (error) {
       throw this.toHttpError(error);
     }

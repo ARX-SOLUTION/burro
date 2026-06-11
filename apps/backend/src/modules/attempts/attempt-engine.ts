@@ -40,7 +40,7 @@ export class AttemptEngine {
     private readonly catalog: ExerciseCatalogPort
   ) {}
 
-  start(studentId: string, req: StartAttemptRequest): AttemptView {
+  async start(studentId: string, req: StartAttemptRequest): Promise<AttemptView> {
     const module = this.catalog.getModule(req.moduleId);
     if (!module) {
       throw new AttemptNotFoundError(`module ${req.moduleId} not found`);
@@ -57,12 +57,12 @@ export class AttemptEngine {
       correctCount: 0,
       xpEarned: 0
     };
-    this.store.saveAttempt(attempt);
+    await this.store.saveAttempt(attempt);
     return this.toView(attempt, module);
   }
 
-  answer(studentId: string, attemptId: string, req: AnswerAttemptRequest): AnswerResultView {
-    const attempt = this.store.getAttempt(attemptId);
+  async answer(studentId: string, attemptId: string, req: AnswerAttemptRequest): Promise<AnswerResultView> {
+    const attempt = await this.store.getAttempt(attemptId);
     if (!attempt || attempt.studentId !== studentId) {
       throw new AttemptNotFoundError(`attempt ${attemptId} not found`);
     }
@@ -92,7 +92,7 @@ export class AttemptEngine {
 
     const isCorrect = option.isCorrect;
     const xpDelta = isCorrect
-      ? this.store.grantXpOnce(studentId, "correct_answer", `${attempt.moduleId}:${exercise.id}`, module.correctAnswerXp)
+      ? await this.store.grantXpOnce(studentId, "correct_answer", exercise.id, module.correctAnswerXp)
       : 0;
     attempt.answeredExerciseIds.push(exercise.id);
     attempt.correctCount += isCorrect ? 1 : 0;
@@ -108,7 +108,7 @@ export class AttemptEngine {
     if (attempt.status === "in_progress" && attempt.answeredExerciseIds.length === attempt.exerciseIds.length) {
       if (attempt.mode === "practice") {
         attempt.status = "completed";
-        attempt.xpEarned += this.store.grantXpOnce(
+        attempt.xpEarned += await this.store.grantXpOnce(
           studentId,
           "practice_completion",
           attempt.moduleId,
@@ -118,13 +118,13 @@ export class AttemptEngine {
         const score = (attempt.correctCount / attempt.exerciseIds.length) * 100;
         if (score >= module.passScore) {
           attempt.status = "passed";
-          attempt.xpEarned += this.store.grantXpOnce(
+          attempt.xpEarned += await this.store.grantXpOnce(
             studentId,
             "final_quiz_pass",
             attempt.moduleId,
             module.finalQuizPassXp
           );
-          attempt.xpEarned += this.store.grantXpOnce(
+          attempt.xpEarned += await this.store.grantXpOnce(
             studentId,
             "module_completion",
             attempt.moduleId,
@@ -136,7 +136,15 @@ export class AttemptEngine {
       }
     }
 
-    this.store.saveAttempt(attempt);
+    await this.store.recordAnswer({
+      attemptId: attempt.id,
+      exerciseId: exercise.id,
+      selectedOptionId: option.id,
+      correctOptionId: correctOption.id,
+      isCorrect,
+      xpDelta
+    });
+    await this.store.saveAttempt(attempt);
 
     return {
       attempt: this.toView(attempt, module),

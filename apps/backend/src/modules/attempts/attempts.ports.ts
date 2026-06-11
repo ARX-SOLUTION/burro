@@ -43,10 +43,21 @@ export interface AttemptRecord {
   xpEarned: number;
 }
 
+export interface AttemptAnswerRecord {
+  attemptId: string;
+  exerciseId: string;
+  selectedOptionId: string;
+  correctOptionId: string;
+  isCorrect: boolean;
+  xpDelta: number;
+  answeredAt?: Date;
+}
+
 export interface AttemptsStorePort {
-  getAttempt(id: string): AttemptRecord | undefined;
-  saveAttempt(attempt: AttemptRecord): void;
-  grantXpOnce(studentId: string, sourceType: string, sourceId: string, xpDelta: number): number;
+  getAttempt(id: string): Promise<AttemptRecord | undefined>;
+  saveAttempt(attempt: AttemptRecord): Promise<void>;
+  recordAnswer(answer: AttemptAnswerRecord): Promise<void>;
+  grantXpOnce(studentId: string, sourceType: string, sourceId: string, xpDelta: number): Promise<number>;
 }
 
 export interface ExerciseCatalogPort {
