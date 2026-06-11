@@ -59,16 +59,14 @@ describe("verifyTelegramInitData", () => {
 
 describe("TelegramInitDataAdapter", () => {
   it("resolves studentId via the injected upsert after validation", async () => {
-    process.env.TELEGRAM_BOT_TOKEN = BOT_TOKEN;
-    const adapter = new TelegramInitDataAdapter(async (user) => `user-${user.id}`);
+    const adapter = new TelegramInitDataAdapter(async (user) => `user-${user.id}`, BOT_TOKEN);
     const initData = signInitData(freshFields(), BOT_TOKEN);
     const identity = await adapter.resolveStudent({ headers: { "x-telegram-init-data": initData } });
     expect(identity).toEqual({ studentId: "user-42" });
   });
 
   it("throws UnauthorizedError when the header is missing", async () => {
-    process.env.TELEGRAM_BOT_TOKEN = BOT_TOKEN;
-    const adapter = new TelegramInitDataAdapter(async () => "never");
+    const adapter = new TelegramInitDataAdapter(async () => "never", BOT_TOKEN);
     await expect(adapter.resolveStudent({ headers: {} })).rejects.toThrow(UnauthorizedError);
   });
 });

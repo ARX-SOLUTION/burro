@@ -11,15 +11,16 @@
     "test": "echo 'TODO: add tests'"
   },
   "dependencies": {
+    "@burro/shared": "workspace:*",
+    "@burro/ui": "workspace:*",
+    "@tanstack/react-query": "5.101.0",
     "@tanstack/react-router": "1.170.15",
-    "@vitejs/plugin-react": "6.0.2",
-    "vite": "8.0.16",
-    "typescript": "6.0.3",
-    "react": "19.2.7",
-    "react-dom": "19.2.7",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
-    "@burro/shared": "workspace:*",
-    "@burro/ui": "workspace:*"
+    "@vitejs/plugin-react": "6.0.2",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "typescript": "6.0.3",
+    "vite": "8.0.16"
   }
 }

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import type { AnswerResultView, AttemptView, ExerciseView, LearningMode } from "@burro/shared";
 import { AnswerOption, AudioButton, FeedbackPanel, GlassCard, GradientButton, HeartCounter, ProgressHeader } from "@burro/ui";
-import { answerAttempt, startAttempt } from "./api";
+import { useAnswerAttempt, useStartAttempt } from "./hooks";
 
 type PlayerState =
   | { phase: "starting" }
@@ -21,13 +21,16 @@ const finishedText: Record<string, string> = {
 export function ExercisePlayer({ moduleId, mode }: { moduleId: string; mode: LearningMode }) {
   const navigate = useNavigate();
   const [state, setState] = useState<PlayerState>({ phase: "starting" });
+  const { mutate: mutateStart } = useStartAttempt();
+  const { mutate: mutateAnswer } = useAnswerAttempt();
 
   const start = useCallback(() => {
     setState({ phase: "starting" });
-    startAttempt({ moduleId, mode })
-      .then((attempt) => setState({ phase: "playing", attempt, selectedOptionId: null }))
-      .catch((error) => setState({ phase: "failed-to-load", message: error instanceof Error ? error.message : "Mashqni boshlab bo‘lmadi." }));
-  }, [moduleId, mode]);
+    mutateStart({ moduleId, mode }, {
+      onSuccess: (attempt) => setState({ phase: "playing", attempt, selectedOptionId: null }),
+      onError: (error) => setState({ phase: "failed-to-load", message: error instanceof Error ? error.message : "Mashqni boshlab bo‘lmadi." })
+    });
+  }, [moduleId, mode, mutateStart]);
 
   useEffect(() => {
     start();
@@ -37,7 +40,7 @@ export function ExercisePlayer({ moduleId, mode }: { moduleId: string; mode: Lea
     setState((current) => current.phase === "playing" ? { ...current, selectedOptionId: optionId, error: undefined } : current);
   };
 
-  const handleCheck = async () => {
+  const handleCheck = () => {
     if (state.phase !== "playing" || !state.selectedOptionId) {
       return;
     }
@@ -47,12 +50,10 @@ export function ExercisePlayer({ moduleId, mode }: { moduleId: string; mode: Lea
       return;
     }
     setState({ phase: "checking", attempt, selectedOptionId });
-    try {
-      const result = await answerAttempt(attempt.attemptId, { exerciseId: exercise.id, selectedOptionId });
-      setState({ phase: "answered", attempt: result.attempt, exercise, result });
-    } catch (error) {
-      setState({ phase: "playing", attempt, selectedOptionId, error: error instanceof Error ? error.message : "Javobni tekshirib bo‘lmadi." });
-    }
+    mutateAnswer({ attemptId: attempt.attemptId, exerciseId: exercise.id, selectedOptionId }, {
+      onSuccess: (result) => setState({ phase: "answered", attempt: result.attempt, exercise, result }),
+      onError: (error) => setState({ phase: "playing", attempt, selectedOptionId, error: error instanceof Error ? error.message : "Javobni tekshirib bo‘lmadi." })
+    });
   };
 
   const handleContinue = () => {

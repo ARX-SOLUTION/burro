@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { asc, eq, sql } from "drizzle-orm";
-import { db, type BurroDb } from "../../../db/client";
+import type { BurroDb } from "../../../db/client";
 import { attemptAnswers, attemptExercises, attempts, studentXpTotals, xpTransactions } from "../../../db/schema";
 import {
   ApplyAnswerInput,
@@ -14,7 +14,7 @@ type BurroTx = Parameters<Parameters<BurroDb["transaction"]>[0]>[0];
 
 @Injectable()
 export class DrizzleAttemptsStore implements AttemptsStorePort {
-  constructor(private readonly database: BurroDb = db) {}
+  constructor(private readonly database: BurroDb) {}
 
   async getAttempt(id: string): Promise<AttemptRecord | undefined> {
     const [attempt] = await this.database.select().from(attempts).where(eq(attempts.id, id)).limit(1);

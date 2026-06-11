@@ -1,6 +1,7 @@
 import { Suspense, lazy } from "react";
 import { Outlet, createRootRoute, createRoute, createRouter, redirect, useNavigate, useRouterState } from "@tanstack/react-router";
 import { BottomNav, GlassCard, StudentShell, XpCounter } from "./components";
+import { useXpTotal } from "./features/xp/hooks";
 
 const ExercisePlayer = lazy(() => import("./features/attempts/ExercisePlayer").then((m) => ({ default: m.ExercisePlayer })));
 const DashboardScreen = lazy(() => import("./screens/DashboardScreen").then((m) => ({ default: m.DashboardScreen })));
@@ -19,9 +20,10 @@ function RootLayout() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const active = tabs.find((tab) => pathname.startsWith(`/${tab}`)) ?? "dashboard";
+  const { data: xpTotal } = useXpTotal();
 
   return <StudentShell>
-    <div className="top-row"><h1>Burro</h1><XpCounter xp={1280} /></div>
+    <div className="top-row"><h1>Burro</h1><XpCounter xp={xpTotal?.totalXp ?? 0} /></div>
     <Outlet />
     <BottomNav active={active} onChange={(tab) => navigate({ to: `/${tab}` })} />
   </StudentShell>;

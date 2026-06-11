@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { Injectable } from "@nestjs/common";
-import { db } from "../../db/client";
+import type { BurroDb } from "../../db/client";
 import { users } from "../../db/schema";
 import { headerValue, IdentityPort, IdentityRequest, StudentIdentity, UnauthorizedError } from "./identity.ports";
 
@@ -74,7 +74,7 @@ export function verifyTelegramInitData(initData: string, botToken: string, now: 
 
 export type UpsertStudentFn = (user: TelegramInitDataUser) => Promise<string>;
 
-async function drizzleUpsertStudent(user: TelegramInitDataUser): Promise<string> {
+export const createDrizzleUpsertStudent = (db: BurroDb): UpsertStudentFn => async (user) => {
   const [row] = await db
     .insert(users)
     .values({
@@ -101,22 +101,21 @@ async function drizzleUpsertStudent(user: TelegramInitDataUser): Promise<string>
     throw new Error("Failed to upsert Telegram user.");
   }
   return row.id;
-}
+};
 
 @Injectable()
 export class TelegramInitDataAdapter implements IdentityPort {
-  constructor(private readonly upsertStudent: UpsertStudentFn = drizzleUpsertStudent) {}
+  constructor(
+    private readonly upsertStudent: UpsertStudentFn,
+    private readonly botToken: string
+  ) {}
 
   async resolveStudent(req: IdentityRequest): Promise<StudentIdentity> {
-    const botToken = process.env.TELEGRAM_BOT_TOKEN;
-    if (!botToken) {
-      throw new Error("TELEGRAM_BOT_TOKEN is not configured.");
-    }
     const initData = headerValue(req, INIT_DATA_HEADER);
     if (!initData) {
       throw new UnauthorizedError(`Missing ${INIT_DATA_HEADER} header.`);
     }
-    const user = verifyTelegramInitData(initData, botToken);
+    const user = verifyTelegramInitData(initData, this.botToken);
     const studentId = await this.upsertStudent(user);
     return { studentId };
   }
