@@ -1,10 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
-import { queryKeys } from "@burro/shared";
-import { fetchXpTotalMock } from "./mock";
+import { useDashboardSummary } from "../dashboard/summary";
 
 export function useXpTotal() {
-  return useQuery({
-    queryKey: queryKeys.xp.total,
-    queryFn: fetchXpTotalMock
-  });
+  const query = useDashboardSummary();
+  return {
+    ...query,
+    data: query.data
+  };
 }

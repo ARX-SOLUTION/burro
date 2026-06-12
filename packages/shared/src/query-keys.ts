@@ -4,18 +4,13 @@ export const queryKeys = {
     detail: (attemptId: string) => ["attempts", attemptId] as const
   },
   dashboard: {
-    all: ["dashboard"] as const
+    all: ["dashboard"] as const,
+    summary: ["dashboard", "summary"] as const
   },
   leaderboard: {
     all: ["leaderboard"] as const
   },
-  level: {
-    info: ["level", "info"] as const
-  },
   profile: {
     all: ["profile"] as const
-  },
-  xp: {
-    total: ["xp", "total"] as const
   }
 } as const;

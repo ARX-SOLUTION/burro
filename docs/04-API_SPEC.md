@@ -48,15 +48,28 @@ Returns current user, role, permissions, profile summary.
 
 ### GET /student/dashboard
 
-Returns dashboard summary:
+Returns dashboard summary. Auth: student session required.
 
-- current module
-- XP
-- active days
-- achievements preview
-- premium status
-- notifications count
-- level info (derived from XP)
+Implemented fields:
+
+```json
+{
+  "data": {
+    "totalXp": 350,
+    "level": {
+      "level": 3,
+      "totalXp": 350,
+      "currentLevelXp": 300,
+      "nextLevelXp": 600,
+      "progressPercent": 17
+    }
+  }
+}
+```
+
+`totalXp` is read from `student_xp_totals`; missing row returns 0. `level` is derived via `getLevelInfo(totalXp)` from `@burro/shared`.
+
+Planned (not yet implemented): current module, active days, achievements preview, premium status, notifications count.
 
 ### GET /student/profile
 
