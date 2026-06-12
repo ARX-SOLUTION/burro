@@ -9,6 +9,9 @@ export const queryKeys = {
   leaderboard: {
     all: ["leaderboard"] as const
   },
+  level: {
+    info: ["level", "info"] as const
+  },
   profile: {
     all: ["profile"] as const
   },

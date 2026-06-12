@@ -6,6 +6,7 @@ export * from "./GradientButton";
 export * from "./HeartCounter";
 export * from "./LeaderboardPodium";
 export * from "./LeaderboardRow";
+export * from "./LevelBadge";
 export * from "./MicrophoneButton";
 export * from "./ModuleCard";
 export * from "./PinnedRankCard";

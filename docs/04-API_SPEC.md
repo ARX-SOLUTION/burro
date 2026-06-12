@@ -56,6 +56,7 @@ Returns dashboard summary:
 - achievements preview
 - premium status
 - notifications count
+- level info (derived from XP)
 
 ### GET /student/profile
 

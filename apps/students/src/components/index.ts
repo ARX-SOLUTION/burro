@@ -9,6 +9,7 @@ export {
   HeartCounter,
   LeaderboardPodium,
   LeaderboardRow,
+  LevelBadge,
   MicrophoneButton,
   ModuleCard,
   PinnedRankCard,

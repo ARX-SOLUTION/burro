@@ -293,6 +293,8 @@ Unique anti-duplication: student_user_id + source_type + source_id. source_id mu
 - total_xp int
 - updated_at
 
+**Note:** Student level is derived from `total_xp` using `xpForLevel(n) = 50 × n × (n − 1)`. No `student_levels` table exists. Computation is in `@burro/shared/contracts/levels`.
+
 ### student_active_days
 
 - id uuid pk
