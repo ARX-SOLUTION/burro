@@ -1,4 +1,53 @@
 {
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "python3 ${CLAUDE_PROJECT_DIR}/.claude/hooks/token_usage.py",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "Agent"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "python3 ${CLAUDE_PROJECT_DIR}/.claude/hooks/pre_tool_guard.py",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash"
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "python3 ${CLAUDE_PROJECT_DIR}/.claude/hooks/session_context.py",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "startup|resume|clear|compact"
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "command": "python3 ${CLAUDE_PROJECT_DIR}/.claude/hooks/user_prompt_router.py",
+            "timeout": 5,
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
     "deny": [
       "Read(./.env)",
@@ -13,55 +62,6 @@
       "Read(./**/build/**)",
       "Read(./coverage/**)",
       "Read(./**/coverage/**)"
-    ]
-  },
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "startup|resume|clear|compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ${CLAUDE_PROJECT_DIR}/.claude/hooks/session_context.py",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ${CLAUDE_PROJECT_DIR}/.claude/hooks/user_prompt_router.py",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ${CLAUDE_PROJECT_DIR}/.claude/hooks/pre_tool_guard.py",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Agent",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ${CLAUDE_PROJECT_DIR}/.claude/hooks/token_usage.py",
-            "timeout": 5
-          }
-        ]
-      }
     ]
   }
 }
