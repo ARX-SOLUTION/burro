@@ -30,6 +30,8 @@ export const moduleProgressStatusEnum = pgEnum("module_progress_status", [
   "completed",
   "locked"
 ]);
+export const premiumGrantStatusEnum = pgEnum("premium_grant_status", ["active", "expired", "revoked"]);
+export const premiumRequestStatusEnum = pgEnum("premium_request_status", ["pending", "approved", "rejected"]);
 
 const timestamps = {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -94,15 +96,68 @@ export const moduleFeedback = pgTable(
   (table) => [uniqueIndex("module_feedback_module_language_unique").on(table.moduleId, table.language)]
 );
 
+export const moduleTranslations = pgTable(
+  "module_translations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    moduleId: uuid("module_id")
+      .notNull()
+      .references(() => modules.id),
+    language: languageEnum("language").notNull(),
+    title: text("title").notNull(),
+    description: text("description").notNull()
+  },
+  (table) => [uniqueIndex("module_translations_module_language_unique").on(table.moduleId, table.language)]
+);
+
+export const media = pgTable("media", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  url: text("url").notNull(),
+  mimeType: text("mime_type"),
+  kind: text("kind").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+});
+
 export const exercises = pgTable("exercises", {
   id: uuid("id").primaryKey().defaultRandom(),
   type: exerciseTypeEnum("type").notNull(),
   status: contentStatusEnum("status").notNull().default("draft"),
-  mediaId: uuid("media_id"),
+  mediaId: uuid("media_id").references(() => media.id),
   tags: text("tags").array().notNull().default([]),
   ...timestamps,
   archivedAt: timestamp("archived_at", { withTimezone: true })
 });
+
+export const exerciseTranslations = pgTable(
+  "exercise_translations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    exerciseId: uuid("exercise_id")
+      .notNull()
+      .references(() => exercises.id),
+    language: languageEnum("language").notNull(),
+    prompt: text("prompt").notNull()
+  },
+  (table) => [uniqueIndex("exercise_translations_exercise_language_unique").on(table.exerciseId, table.language)]
+);
+
+export const moduleExercises = pgTable(
+  "module_exercises",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    moduleId: uuid("module_id")
+      .notNull()
+      .references(() => modules.id),
+    exerciseId: uuid("exercise_id")
+      .notNull()
+      .references(() => exercises.id),
+    sortOrder: integer("sort_order").notNull()
+  },
+  (table) => [
+    uniqueIndex("module_exercises_module_exercise_unique").on(table.moduleId, table.exerciseId),
+    uniqueIndex("module_exercises_module_sort_unique").on(table.moduleId, table.sortOrder)
+  ]
+);
 
 export const exerciseOptions = pgTable(
   "exercise_options",
@@ -255,4 +310,60 @@ export const studentActiveDays = pgTable(
     uniqueIndex("student_active_days_student_date_unique").on(table.studentUserId, table.activityDate),
     index("student_active_days_student_idx").on(table.studentUserId)
   ]
+);
+
+export const sounds = pgTable(
+  "sounds",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: text("slug").notNull(),
+    mediaId: uuid("media_id").references(() => media.id),
+    glyph: text("glyph").notNull(),
+    sequenceNo: integer("sequence_no").notNull().default(0),
+    ...timestamps
+  },
+  (table) => [uniqueIndex("sounds_slug_unique").on(table.slug)]
+);
+
+export const soundTranslations = pgTable(
+  "sound_translations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    soundId: uuid("sound_id")
+      .notNull()
+      .references(() => sounds.id),
+    language: languageEnum("language").notNull(),
+    name: text("name").notNull(),
+    description: text("description").notNull()
+  },
+  (table) => [uniqueIndex("sound_translations_sound_language_unique").on(table.soundId, table.language)]
+);
+
+export const premiumGrants = pgTable(
+  "premium_grants",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    studentUserId: uuid("student_user_id")
+      .notNull()
+      .references(() => users.id),
+    status: premiumGrantStatusEnum("status").notNull().default("active"),
+    source: text("source").notNull(),
+    grantedAt: timestamp("granted_at", { withTimezone: true }).notNull().defaultNow(),
+    expiresAt: timestamp("expires_at", { withTimezone: true })
+  },
+  (table) => [index("premium_grants_student_idx").on(table.studentUserId)]
+);
+
+export const premiumRequests = pgTable(
+  "premium_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    studentUserId: uuid("student_user_id")
+      .notNull()
+      .references(() => users.id),
+    status: premiumRequestStatusEnum("status").notNull().default("pending"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    decidedAt: timestamp("decided_at", { withTimezone: true })
+  },
+  (table) => [index("premium_requests_student_idx").on(table.studentUserId)]
 );

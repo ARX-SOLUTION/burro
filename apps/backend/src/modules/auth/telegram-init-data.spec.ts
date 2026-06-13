@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { DevHeaderAdapter } from "./dev-header.adapter";
+import { DEMO_STUDENT_ID, DevHeaderAdapter } from "./dev-header.adapter";
 import { UnauthorizedError } from "./identity.ports";
 import { TelegramInitDataAdapter, verifyTelegramInitData } from "./telegram-init-data.adapter";
 
@@ -78,9 +78,9 @@ describe("DevHeaderAdapter", () => {
     expect(identity).toMatchObject({ userId: "student-123", studentId: "student-123", role: "student" });
   });
 
-  it("falls back to student-demo when header is absent", async () => {
+  it("falls back to the fixed demo student uuid when header is absent", async () => {
     const adapter = new DevHeaderAdapter();
     const identity = await adapter.resolveIdentity({ headers: {} });
-    expect(identity).toMatchObject({ userId: "student-demo", studentId: "student-demo", role: "student" });
+    expect(identity).toMatchObject({ userId: DEMO_STUDENT_ID, studentId: DEMO_STUDENT_ID, role: "student" });
   });
 });

@@ -91,7 +91,7 @@ export interface AttemptsStorePort {
 }
 
 export interface ExerciseCatalogPort {
-  getModule(moduleId: string): ModuleContentRecord | undefined;
+  getModule(moduleId: string): Promise<ModuleContentRecord | undefined>;
 }
 
 export const ATTEMPTS_STORE = Symbol("ATTEMPTS_STORE");

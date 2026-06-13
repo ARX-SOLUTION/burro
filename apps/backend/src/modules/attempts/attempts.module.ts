@@ -3,6 +3,7 @@ import { appConfig } from "../../config";
 import type { BurroDb } from "../../db/client";
 import { BURRO_DB, DatabaseModule } from "../../db/database.module";
 import { DrizzleAttemptsStore } from "./adapters/drizzle-attempts.store";
+import { DrizzleExerciseCatalog } from "./adapters/drizzle-exercise.catalog";
 import { InMemoryAttemptsStore } from "./adapters/in-memory-attempts.store";
 import { InMemoryExerciseCatalog } from "./adapters/in-memory-exercise.catalog";
 import { ATTEMPTS_STORE, EXERCISE_CATALOG } from "./attempts.ports";
@@ -25,14 +26,24 @@ const attemptsStoreProvider = {
   }
 };
 
+const exerciseCatalogProvider = {
+  provide: EXERCISE_CATALOG,
+  inject: [BURRO_DB],
+  useFactory: (db: BurroDb | null) => {
+    if (appConfig().attemptsStore === "memory") {
+      return new InMemoryExerciseCatalog();
+    }
+    if (!db) {
+      throw new Error("Drizzle exercise catalog requires a database, but BURRO_DB resolved to null.");
+    }
+    return new DrizzleExerciseCatalog(db);
+  }
+};
+
 @Module({
   imports: [DatabaseModule],
   controllers: [AttemptsController],
-  providers: [
-    AttemptsService,
-    attemptsStoreProvider,
-    { provide: EXERCISE_CATALOG, useClass: InMemoryExerciseCatalog }
-  ],
+  providers: [AttemptsService, attemptsStoreProvider, exerciseCatalogProvider],
   exports: [AttemptsService]
 })
 export class AttemptsModule {}

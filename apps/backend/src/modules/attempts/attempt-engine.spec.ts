@@ -14,22 +14,22 @@ function setup() {
   return { store, catalog, engine };
 }
 
-function getModule(catalog: InMemoryExerciseCatalog) {
-  const module = catalog.getModule(MODULE_ID);
+async function getModule(catalog: InMemoryExerciseCatalog) {
+  const module = await catalog.getModule(MODULE_ID);
   if (!module) throw new Error("seed module missing");
   return module;
 }
 
-function correctOptionId(catalog: InMemoryExerciseCatalog, exerciseId: string): string {
-  const exercise = getModule(catalog).exercises.find((candidate) => candidate.id === exerciseId);
+async function correctOptionId(catalog: InMemoryExerciseCatalog, exerciseId: string): Promise<string> {
+  const exercise = (await getModule(catalog)).exercises.find((candidate) => candidate.id === exerciseId);
   if (!exercise) throw new Error(`exercise ${exerciseId} missing`);
   const option = exercise.options.find((candidate) => candidate.isCorrect);
   if (!option) throw new Error(`exercise ${exerciseId} has no correct option`);
   return option.id;
 }
 
-function incorrectOptionId(catalog: InMemoryExerciseCatalog, exerciseId: string): string {
-  const exercise = getModule(catalog).exercises.find((candidate) => candidate.id === exerciseId);
+async function incorrectOptionId(catalog: InMemoryExerciseCatalog, exerciseId: string): Promise<string> {
+  const exercise = (await getModule(catalog)).exercises.find((candidate) => candidate.id === exerciseId);
   if (!exercise) throw new Error(`exercise ${exerciseId} missing`);
   const option = exercise.options.find((candidate) => !candidate.isCorrect);
   if (!option) throw new Error(`exercise ${exerciseId} has no incorrect option`);
@@ -71,7 +71,7 @@ describe("AttemptEngine", () => {
     const result = await engine.answer(
       STUDENT_ID,
       view.attemptId,
-      answerRequest(exerciseId, incorrectOptionId(catalog, exerciseId))
+      answerRequest(exerciseId, await incorrectOptionId(catalog, exerciseId))
     );
     expect(result.isCorrect).toBe(false);
     expect(result.attempt.heartsRemaining).toBe(5);
@@ -84,7 +84,7 @@ describe("AttemptEngine", () => {
     const result = await engine.answer(
       STUDENT_ID,
       view.attemptId,
-      answerRequest(exerciseId, incorrectOptionId(catalog, exerciseId))
+      answerRequest(exerciseId, await incorrectOptionId(catalog, exerciseId))
     );
     expect(result.attempt.heartsRemaining).toBe(4);
   });
@@ -97,7 +97,7 @@ describe("AttemptEngine", () => {
       const result = await engine.answer(
         STUDENT_ID,
         view.attemptId,
-        answerRequest(exerciseId, incorrectOptionId(catalog, exerciseId))
+        answerRequest(exerciseId, await incorrectOptionId(catalog, exerciseId))
       );
       view = result.attempt;
     }
@@ -112,21 +112,21 @@ describe("AttemptEngine", () => {
     await engine.answer(
       STUDENT_ID,
       view.attemptId,
-      answerRequest(firstExerciseId, correctOptionId(catalog, firstExerciseId))
+      answerRequest(firstExerciseId, await correctOptionId(catalog, firstExerciseId))
     );
     await expect(
       engine.answer(
         STUDENT_ID,
         view.attemptId,
-        answerRequest(firstExerciseId, correctOptionId(catalog, firstExerciseId))
+        answerRequest(firstExerciseId, await correctOptionId(catalog, firstExerciseId))
       )
     ).rejects.toThrow(AttemptError);
-    const exerciseIds = getModule(catalog).exercises.map((exercise) => exercise.id);
+    const exerciseIds = (await getModule(catalog)).exercises.map((exercise) => exercise.id);
     await expect(
       engine.answer(
         STUDENT_ID,
         view.attemptId,
-        answerRequest(exerciseIds[4], correctOptionId(catalog, exerciseIds[4]))
+        answerRequest(exerciseIds[4], await correctOptionId(catalog, exerciseIds[4]))
       )
     ).rejects.toThrow(AttemptError);
   });
@@ -138,7 +138,7 @@ describe("AttemptEngine", () => {
     const firstResult = await engine.answer(
       STUDENT_ID,
       first.attemptId,
-      answerRequest(exerciseId, correctOptionId(catalog, exerciseId))
+      answerRequest(exerciseId, await correctOptionId(catalog, exerciseId))
     );
     expect(firstResult.xpDelta).toBe(10);
 
@@ -146,7 +146,7 @@ describe("AttemptEngine", () => {
     const secondResult = await engine.answer(
       STUDENT_ID,
       second.attemptId,
-      answerRequest(exerciseId, correctOptionId(catalog, exerciseId))
+      answerRequest(exerciseId, await correctOptionId(catalog, exerciseId))
     );
     expect(secondResult.isCorrect).toBe(true);
     expect(secondResult.xpDelta).toBe(0);
@@ -156,7 +156,7 @@ describe("AttemptEngine", () => {
     const { catalog, store, engine } = setup();
     const view = await engine.start(STUDENT_ID, { moduleId: MODULE_ID, mode: "practice" });
     const exerciseId = currentExerciseId(view);
-    const request = answerRequest(exerciseId, correctOptionId(catalog, exerciseId), "double-submit-answer");
+    const request = answerRequest(exerciseId, await correctOptionId(catalog, exerciseId), "double-submit-answer");
 
     const firstResult = await engine.answer(STUDENT_ID, view.attemptId, request);
     const replay = await engine.answer(STUDENT_ID, view.attemptId, request);
@@ -174,7 +174,7 @@ describe("AttemptEngine", () => {
     const reloadedEngine = new AttemptEngine(store, catalog);
     const view = await engine.start(STUDENT_ID, { moduleId: MODULE_ID, mode: "practice" });
     const exerciseId = currentExerciseId(view);
-    const request = answerRequest(exerciseId, correctOptionId(catalog, exerciseId), "replayed-answer");
+    const request = answerRequest(exerciseId, await correctOptionId(catalog, exerciseId), "replayed-answer");
 
     const firstResult = await engine.answer(STUDENT_ID, view.attemptId, request);
     const replay = await reloadedEngine.answer(STUDENT_ID, view.attemptId, request);
@@ -187,7 +187,7 @@ describe("AttemptEngine", () => {
     const { catalog, store, engine } = setup();
     const view = await engine.start(STUDENT_ID, { moduleId: MODULE_ID, mode: "practice" });
     const exerciseId = currentExerciseId(view);
-    const selectedOptionId = correctOptionId(catalog, exerciseId);
+    const selectedOptionId = await correctOptionId(catalog, exerciseId);
 
     const [firstResult, secondResult] = await Promise.all([
       engine.answer(STUDENT_ID, view.attemptId, answerRequest(exerciseId, selectedOptionId, "concurrent-answer-a")),
@@ -210,7 +210,7 @@ describe("AttemptEngine", () => {
       const result = await engine.answer(
         STUDENT_ID,
         view.attemptId,
-        answerRequest(exerciseId, correctOptionId(catalog, exerciseId))
+        answerRequest(exerciseId, await correctOptionId(catalog, exerciseId))
       );
       view = result.attempt;
     }
@@ -229,7 +229,7 @@ describe("AttemptEngine", () => {
         const result = await engine.answer(
           STUDENT_ID,
           view.attemptId,
-          answerRequest(exerciseId, correctOptionId(catalog, exerciseId))
+          answerRequest(exerciseId, await correctOptionId(catalog, exerciseId))
         );
         view = result.attempt;
       }
@@ -255,7 +255,7 @@ describe("AttemptEngine", () => {
     const result = await engine.answer(
       STUDENT_ID,
       view.attemptId,
-      answerRequest(exerciseId, correctOptionId(catalog, exerciseId))
+      answerRequest(exerciseId, await correctOptionId(catalog, exerciseId))
     );
     for (const option of result.attempt.currentExercise?.options ?? []) {
       expect(option).not.toHaveProperty("isCorrect");
@@ -271,7 +271,7 @@ describe("AttemptEngine", () => {
         const result = await engine.answer(
           STUDENT_ID,
           view.attemptId,
-          answerRequest(exerciseId, correctOptionId(catalog, exerciseId))
+          answerRequest(exerciseId, await correctOptionId(catalog, exerciseId))
         );
         view = result.attempt;
       }
@@ -296,14 +296,14 @@ describe("AttemptEngine", () => {
     const firstResult = await firstEngine.answer(
       STUDENT_ID,
       view.attemptId,
-      answerRequest(firstExerciseId, correctOptionId(catalog, firstExerciseId))
+      answerRequest(firstExerciseId, await correctOptionId(catalog, firstExerciseId))
     );
 
     const secondExerciseId = currentExerciseId(firstResult.attempt);
     const secondResult = await secondEngine.answer(
       STUDENT_ID,
       view.attemptId,
-      answerRequest(secondExerciseId, correctOptionId(catalog, secondExerciseId))
+      answerRequest(secondExerciseId, await correctOptionId(catalog, secondExerciseId))
     );
 
     expect(secondResult.attempt.answeredCount).toBe(2);

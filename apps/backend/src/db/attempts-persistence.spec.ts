@@ -84,7 +84,7 @@ describe.skipIf(!TEST_DATABASE_URL)("attempts persistence (live PostgreSQL)", ()
               ]
             }))
           };
-          const catalog: ExerciseCatalogPort = { getModule: () => module };
+          const catalog: ExerciseCatalogPort = { getModule: async () => module };
           const engine = new AttemptEngine(store, catalog);
 
           // 1. Save: starting an attempt persists it.
