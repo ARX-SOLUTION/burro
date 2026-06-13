@@ -11,7 +11,8 @@ export type StartAttemptRequest = z.infer<typeof startAttemptRequestSchema>;
 
 export const answerAttemptRequestSchema = z.object({
   exerciseId: z.string().min(1),
-  selectedOptionId: z.string().min(1)
+  selectedOptionId: z.string().min(1),
+  clientAnswerId: z.string().min(1)
 });
 export type AnswerAttemptRequest = z.infer<typeof answerAttemptRequestSchema>;
 

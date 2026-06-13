@@ -13,7 +13,7 @@ type PlayerState =
   | { phase: "failed-to-load"; message: string };
 
 const finishedText: Record<string, string> = {
-  passed: "Modul yakunlandi! 🎉",
+  passed: "Modul yakunlandi!",
   completed: "Mashq yakunlandi!",
   failed: "Urinish muvaffaqiyatsiz. Mashqni qayta ishlang."
 };
@@ -49,8 +49,9 @@ export function ExercisePlayer({ moduleId, mode }: { moduleId: string; mode: Lea
     if (!exercise) {
       return;
     }
+    const clientAnswerId = createClientAnswerId();
     setState({ phase: "checking", attempt, selectedOptionId });
-    mutateAnswer({ attemptId: attempt.attemptId, exerciseId: exercise.id, selectedOptionId }, {
+    mutateAnswer({ attemptId: attempt.attemptId, exerciseId: exercise.id, selectedOptionId, clientAnswerId }, {
       onSuccess: (result) => setState({ phase: "answered", attempt: result.attempt, exercise, result }),
       onError: (error) => setState({ phase: "playing", attempt, selectedOptionId, error: error instanceof Error ? error.message : "Javobni tekshirib bo‘lmadi." })
     });
@@ -103,17 +104,67 @@ export function ExercisePlayer({ moduleId, mode }: { moduleId: string; mode: Lea
   const { attempt } = state;
   const exercise = state.phase === "answered" ? state.exercise : attempt.currentExercise;
 
-  return <>
-    <ProgressHeader title={`Savol ${Math.min(attempt.answeredCount + 1, attempt.totalExercises)}`} progress={`${attempt.answeredCount}/${attempt.totalExercises}`} />
-    <div className="top-row">{mode === "final_quiz" && <HeartCounter hearts={attempt.heartsRemaining} />}<span className="pill">{mode === "final_quiz" ? "Final Quiz" : "Practice"}</span></div>
-    {exercise && <GlassCard>
-      <h2>{exercise.prompt}</h2>
-      {exercise.audioUrl != null && <AudioButton />}
-      {exercise.options.map((option) => <AnswerOption key={option.id} label={option.label} state={optionState(option.id)} onClick={() => selectOption(option.id)} />)}
-      {(state.phase === "playing" || state.phase === "checking") && <GradientButton disabled={state.phase !== "playing" || !state.selectedOptionId} onClick={handleCheck}>{state.phase === "checking" ? "Tekshirilmoqda..." : "Tekshirish"}</GradientButton>}
-      {state.phase === "playing" && state.error && <FeedbackPanel type="wrong" text={state.error} />}
-      {state.phase === "answered" && <FeedbackPanel type={state.result.isCorrect ? "correct" : "wrong"} text={state.result.isCorrect && state.result.xpDelta > 0 ? `${state.result.feedback.message}. +${state.result.xpDelta} XP` : state.result.feedback.message} />}
-      {state.phase === "answered" && <GradientButton onClick={handleContinue}>Davom etish</GradientButton>}
-    </GlassCard>}
-  </>;
+  return (
+    <section className="exercise-player">
+      <ProgressHeader title={`Savol ${Math.min(attempt.answeredCount + 1, attempt.totalExercises)}`} progress={`${attempt.answeredCount}/${attempt.totalExercises}`} />
+      <div className="exercise-meta-row">
+        {mode === "final_quiz" ? <HeartCounter hearts={attempt.heartsRemaining} /> : <span className="exercise-mode">Practice</span>}
+        <button className="round-icon round-icon--info" type="button" aria-label="Savol haqida ma'lumot" />
+      </div>
+      {exercise && (
+        <>
+          <GlassCard>
+            <div className="exercise-card">
+              <p className="exercise-card__eyebrow">Harfni tanlang</p>
+              <strong className="exercise-glyph">{getExerciseGlyph(exercise.prompt)}</strong>
+              <h2>{exercise.prompt}</h2>
+              {exercise.audioUrl != null && <AudioButton />}
+              <div className="answer-grid">
+                {exercise.options.map((option) => (
+                  <AnswerOption key={option.id} label={option.label} state={optionState(option.id)} onClick={() => selectOption(option.id)} />
+                ))}
+              </div>
+            </div>
+          </GlassCard>
+          {state.phase === "playing" && state.error && <FeedbackPanel type="wrong" text={state.error} />}
+          {state.phase === "answered" && (
+            <FeedbackPanel
+              type={state.result.isCorrect ? "correct" : "wrong"}
+              text={state.result.isCorrect && state.result.xpDelta > 0 ? `${state.result.feedback.message}. +${state.result.xpDelta} XP` : state.result.feedback.message}
+            />
+          )}
+          {(state.phase === "playing" || state.phase === "checking") && (
+            <GradientButton disabled={state.phase !== "playing" || !state.selectedOptionId} onClick={handleCheck}>
+              {state.phase === "checking" ? "Tekshirilmoqda..." : "Tekshirish"}
+            </GradientButton>
+          )}
+          {state.phase === "answered" && <GradientButton onClick={handleContinue}>Davom etish</GradientButton>}
+        </>
+      )}
+    </section>
+  );
+}
+
+function createClientAnswerId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function getExerciseGlyph(prompt: string): string {
+  const normalized = prompt.toLowerCase();
+  if (normalized.includes("ba")) {
+    return "ب";
+  }
+  if (normalized.includes("ta")) {
+    return "ت";
+  }
+  if (normalized.includes("sa") || normalized.includes("tha")) {
+    return "ث";
+  }
+  if (normalized.includes("jim")) {
+    return "ج";
+  }
+  return "ا";
 }

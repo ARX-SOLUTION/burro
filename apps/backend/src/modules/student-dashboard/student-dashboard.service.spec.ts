@@ -13,6 +13,7 @@ describe("StudentDashboardService", () => {
     const { service } = setup();
     const result = await service.getSummary("student-unknown");
     expect(result.totalXp).toBe(0);
+    expect(result.activeDays).toBe(0);
     expect(result.level.level).toBe(1);
     expect(result.level.progressPercent).toBe(0);
   });
@@ -21,8 +22,10 @@ describe("StudentDashboardService", () => {
     const { store, service } = setup();
     // 100 XP => level 2 threshold is xpForLevel(2) = 50*2*1 = 100 => just reached level 2
     store.setXp("student-1", 100);
+    store.setActiveDays("student-1", 3);
     const result = await service.getSummary("student-1");
     expect(result.totalXp).toBe(100);
+    expect(result.activeDays).toBe(3);
     expect(result.level.level).toBe(2);
   });
 

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import type { BurroDb } from "../../../db/client";
-import { studentXpTotals } from "../../../db/schema";
+import { studentActiveDays, studentXpTotals } from "../../../db/schema";
 import type { StudentDashboardStorePort, XpTotalRecord } from "../student-dashboard.ports";
 
 @Injectable()
@@ -18,5 +18,13 @@ export class DrizzleStudentDashboardStore implements StudentDashboardStorePort {
       return undefined;
     }
     return { totalXp: row.totalXp };
+  }
+
+  async countActiveDays(studentId: string): Promise<number> {
+    const [row] = await this.database
+      .select({ activeDays: count() })
+      .from(studentActiveDays)
+      .where(and(eq(studentActiveDays.studentUserId, studentId), eq(studentActiveDays.isActiveDay, true)));
+    return row?.activeDays ?? 0;
   }
 }

@@ -11,14 +11,14 @@ const clickableStatuses: ModuleStatus[] = ["completed", "current", "available"];
 
 function readStoredModulesView(): ModulesView {
   if (typeof window === "undefined") {
-    return "path";
+    return "grid";
   }
 
   try {
     const storedView = window.localStorage.getItem(modulesViewStorageKey);
-    return storedView === "grid" || storedView === "path" ? storedView : "path";
+    return storedView === "grid" || storedView === "path" ? storedView : "grid";
   } catch {
-    return "path";
+    return "grid";
   }
 }
 
@@ -59,17 +59,19 @@ function ModuleListItem({ module, view }: { module: ModuleCardDto; view: Modules
         <p className="student-module-card__subtitle">{getModuleSubtitle(module)}</p>
       </div>
     </div>
-    <p className="student-module-card__description">{module.description}</p>
+    {view === "path" ? <p className="student-module-card__description">{module.description}</p> : null}
     <div className="student-module-card__meta">
       <span className="student-module-card__status">{getStatusLabel(module.status)}</span>
       {module.premiumRequired ? <span className="student-module-card__premium">Premium</span> : null}
     </div>
-    <progress
-      className="student-module-card__progress"
-      max={100}
-      value={module.progressPercent}
-      aria-label={`${module.title} progressi ${module.progressPercent}%`}
-    />
+    {view === "path" ? (
+      <progress
+        className="student-module-card__progress"
+        max={100}
+        value={module.progressPercent}
+        aria-label={`${module.title} progressi ${module.progressPercent}%`}
+      />
+    ) : null}
   </article>;
 
   if (isModuleRouteEnabled(module.status)) {
@@ -131,7 +133,8 @@ export function ModulesScreen() {
           aria-pressed={view === "path"}
           onClick={() => updateView("path")}
         >
-          Yo‘l
+          <span className="modules-view-toggle__icon modules-view-toggle__icon--path" aria-hidden="true" />
+          <span className="sr-only">Yo'l</span>
         </button>
         <button
           className="modules-view-toggle__button"
@@ -139,7 +142,8 @@ export function ModulesScreen() {
           aria-pressed={view === "grid"}
           onClick={() => updateView("grid")}
         >
-          Katak
+          <span className="modules-view-toggle__icon modules-view-toggle__icon--grid" aria-hidden="true" />
+          <span className="sr-only">Katak</span>
         </button>
       </div>
     </header>

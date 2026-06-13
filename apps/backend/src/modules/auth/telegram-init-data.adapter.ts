@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { Injectable } from "@nestjs/common";
+import { UserRole } from "@burro/shared";
 import type { BurroDb } from "../../db/client";
 import { users } from "../../db/schema";
 import { headerValue, IdentityPort, IdentityRequest, StudentIdentity, UnauthorizedError } from "./identity.ports";
@@ -110,13 +111,13 @@ export class TelegramInitDataAdapter implements IdentityPort {
     private readonly botToken: string
   ) {}
 
-  async resolveStudent(req: IdentityRequest): Promise<StudentIdentity> {
+  async resolveIdentity(req: IdentityRequest): Promise<StudentIdentity> {
     const initData = headerValue(req, INIT_DATA_HEADER);
     if (!initData) {
       throw new UnauthorizedError(`Missing ${INIT_DATA_HEADER} header.`);
     }
     const user = verifyTelegramInitData(initData, this.botToken);
     const studentId = await this.upsertStudent(user);
-    return { studentId };
+    return { userId: studentId, studentId, role: UserRole.Student };
   }
 }

@@ -1,5 +1,6 @@
 export * from "./constants";
 export * from "./enums";
+export * from "./contracts/auth";
 export * from "./contracts/attempts";
 export * from "./contracts/dashboard";
 export * from "./contracts/levels";

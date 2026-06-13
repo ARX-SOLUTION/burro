@@ -10,7 +10,8 @@ describe("loadConfig", () => {
       attemptsStore: "memory",
       databaseUrl: undefined,
       auth: "dev",
-      telegramBotToken: undefined
+      telegramBotToken: undefined,
+      jwtSecret: "dev-only-burro-session-secret-change-before-production"
     });
   });
 
@@ -19,7 +20,8 @@ describe("loadConfig", () => {
       NODE_ENV: "production",
       DATABASE_URL: "postgres://localhost/burro",
       BURRO_AUTH: "telegram",
-      TELEGRAM_BOT_TOKEN: "123:token"
+      TELEGRAM_BOT_TOKEN: "123:token",
+      BURRO_JWT_SECRET: "production-session-secret-with-at-least-32-characters"
     });
     expect(config.attemptsStore).toBe("drizzle");
     expect(config.databaseUrl).toBe("postgres://localhost/burro");
@@ -40,9 +42,24 @@ describe("loadConfig", () => {
   });
 
   it("fails when production uses dev header auth", () => {
-    expect(() => loadConfig({ NODE_ENV: "production", DATABASE_URL: "postgres://localhost/burro" })).toThrow(
-      /BURRO_AUTH/
-    );
+    expect(() =>
+      loadConfig({
+        NODE_ENV: "production",
+        DATABASE_URL: "postgres://localhost/burro",
+        BURRO_JWT_SECRET: "production-session-secret-with-at-least-32-characters"
+      })
+    ).toThrow(/BURRO_AUTH/);
+  });
+
+  it("fails when production has no JWT secret", () => {
+    expect(() =>
+      loadConfig({
+        NODE_ENV: "production",
+        DATABASE_URL: "postgres://localhost/burro",
+        BURRO_AUTH: "telegram",
+        TELEGRAM_BOT_TOKEN: "123:token"
+      })
+    ).toThrow(/BURRO_JWT_SECRET/);
   });
 
   it("parses comma-separated cors origins, trimming blanks", () => {

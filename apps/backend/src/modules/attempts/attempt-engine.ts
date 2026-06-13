@@ -6,6 +6,7 @@ import {
   StartAttemptRequest
 } from "@burro/shared";
 import {
+  AttemptAnswerRecord,
   AttemptRecord,
   AttemptsStorePort,
   ExerciseCatalogPort,
@@ -67,13 +68,23 @@ export class AttemptEngine {
     if (!attempt || attempt.studentId !== studentId) {
       throw new AttemptNotFoundError(`attempt ${attemptId} not found`);
     }
-    if (attempt.status !== "in_progress") {
-      throw new AttemptInvalidError("attempt is finished");
-    }
     const module = this.catalog.getModule(attempt.moduleId);
     if (!module) {
       throw new AttemptNotFoundError(`module ${attempt.moduleId} not found`);
     }
+
+    const replayedAnswer = await this.store.getAnswerByClientAnswerId(attempt.id, req.clientAnswerId);
+    if (replayedAnswer) {
+      if (replayedAnswer.exerciseId !== req.exerciseId || replayedAnswer.selectedOptionId !== req.selectedOptionId) {
+        throw new AttemptInvalidError("clientAnswerId has already been used for a different answer");
+      }
+      return this.toAnswerResult(attempt, module, replayedAnswer);
+    }
+
+    if (attempt.status !== "in_progress") {
+      throw new AttemptInvalidError("attempt is finished");
+    }
+
     const currentExerciseId = attempt.exerciseIds[attempt.answeredExerciseIds.length];
     if (req.exerciseId !== currentExerciseId) {
       throw new AttemptInvalidError(`exercise ${req.exerciseId} is not the current exercise`);
@@ -129,11 +140,12 @@ export class AttemptEngine {
       }
     }
 
-    const { grantedTotal, answerXpGranted } = await this.store.applyAnswer({
+    const { grantedTotal, answer } = await this.store.applyAnswer({
       attempt,
       answer: {
         attemptId: attempt.id,
         exerciseId: exercise.id,
+        clientAnswerId: req.clientAnswerId,
         selectedOptionId: option.id,
         correctOptionId: correctOption.id,
         isCorrect
@@ -141,16 +153,23 @@ export class AttemptEngine {
       answerXpGrant,
       completionXpGrants
     });
-    attempt.xpEarned += grantedTotal;
+    const persistedAttempt = await this.store.getAttempt(attempt.id);
+    return this.toAnswerResult(persistedAttempt ?? { ...attempt, xpEarned: attempt.xpEarned + grantedTotal }, module, answer);
+  }
 
+  private toAnswerResult(
+    attempt: AttemptRecord,
+    module: ModuleContentRecord,
+    answer: AttemptAnswerRecord
+  ): AnswerResultView {
     return {
       attempt: this.toView(attempt, module),
-      exerciseId: exercise.id,
-      selectedOptionId: option.id,
-      correctOptionId: correctOption.id,
-      isCorrect,
-      xpDelta: answerXpGranted,
-      feedback: isCorrect
+      exerciseId: answer.exerciseId,
+      selectedOptionId: answer.selectedOptionId,
+      correctOptionId: answer.correctOptionId,
+      isCorrect: answer.isCorrect,
+      xpDelta: answer.xpDelta,
+      feedback: answer.isCorrect
         ? { title: module.feedback.correctTitle, message: module.feedback.correctMessage }
         : { title: module.feedback.incorrectTitle, message: module.feedback.incorrectMessage }
     };

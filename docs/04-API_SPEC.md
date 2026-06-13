@@ -34,15 +34,68 @@ Verifies 2-minute OTP.
 
 ### POST /auth/refresh
 
-Refreshes session.
+Refreshes session using a refresh token. Returns a rotated refresh token; the previous refresh token is revoked.
+
+Request:
+
+```json
+{
+  "refreshToken": "..."
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "session": {
+      "tokenType": "Bearer",
+      "accessToken": "...",
+      "refreshToken": "...",
+      "accessTokenExpiresAt": "2026-06-12T00:15:00.000Z",
+      "refreshTokenExpiresAt": "2026-07-12T00:00:00.000Z"
+    },
+    "user": {
+      "id": "uuid",
+      "role": "student",
+      "status": "active",
+      "profile": {
+        "displayName": "Amina",
+        "telegramFirstName": "Amina",
+        "telegramLastName": null,
+        "telegramUsername": "amina",
+        "telegramAvatarUrl": null,
+        "preferredLanguage": "uz"
+      }
+    }
+  }
+}
+```
 
 ### POST /auth/logout
 
-Revokes session.
+Revokes the submitted refresh token.
+
+Request:
+
+```json
+{
+  "refreshToken": "..."
+}
+```
+
+Response data:
+
+```json
+{
+  "revoked": true
+}
+```
 
 ### GET /auth/me
 
-Returns current user, role, permissions, profile summary.
+Returns current user, role, and profile summary for a bearer session token or the configured development auth seam.
 
 ## Student
 
@@ -62,14 +115,15 @@ Implemented fields:
       "currentLevelXp": 300,
       "nextLevelXp": 600,
       "progressPercent": 17
-    }
+    },
+    "activeDays": 7
   }
 }
 ```
 
-`totalXp` is read from `student_xp_totals`; missing row returns 0. `level` is derived via `getLevelInfo(totalXp)` from `@burro/shared`.
+`totalXp` is read from `student_xp_totals`; missing row returns 0. `level` is derived via `getLevelInfo(totalXp)` from `@burro/shared`. `activeDays` counts rows in `student_active_days` where `is_active_day = true`.
 
-Planned (not yet implemented): current module, active days, achievements preview, premium status, notifications count.
+Planned (not yet implemented): current module, achievements preview, premium status, notifications count.
 
 ### GET /student/profile
 
@@ -101,7 +155,7 @@ Starts practice or final quiz attempt.
 
 ### POST /student/attempts/:attemptId/answer
 
-Submits selected option. Selection is final.
+Submits selected option with `exerciseId`, `selectedOptionId`, and idempotency key `clientAnswerId`. Selection is final. Reusing the same `clientAnswerId` returns the original answer result and never grants XP twice.
 
 ### POST /student/modules/:moduleId/final-quiz/start
 

@@ -11,10 +11,17 @@ export function LeaderboardScreen() {
     return <><h2>Leaderboard</h2><p>Ma’lumotni yuklab bo‘lmadi.</p></>;
   }
 
-  return <>
-    <h2>Leaderboard</h2>
-    <LeaderboardPodium/>
-    <PinnedRankCard/>
-    {data.rows.map((entry) => <LeaderboardRow key={entry.rank} rank={entry.rank} name={entry.name} xp={entry.xp}/>)}
-  </>;
+  return (
+    <section className="leaderboard-screen">
+      <header className="leaderboard-header">
+        <p>Haftalik</p>
+        <h1>Reyting</h1>
+      </header>
+      <LeaderboardPodium />
+      <div className="rank-list">
+        {data.rows.map((entry) => <LeaderboardRow key={entry.rank} rank={entry.rank} name={entry.name} xp={entry.xp} />)}
+      </div>
+      <PinnedRankCard />
+    </section>
+  );
 }

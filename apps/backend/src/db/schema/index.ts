@@ -1,6 +1,7 @@
 import {
   bigint,
   boolean,
+  date,
   index,
   integer,
   pgEnum,
@@ -171,6 +172,7 @@ export const attemptAnswers = pgTable(
     exerciseId: uuid("exercise_id")
       .notNull()
       .references(() => exercises.id),
+    clientAnswerId: text("client_answer_id").notNull(),
     selectedOptionId: uuid("selected_option_id")
       .notNull()
       .references(() => exerciseOptions.id),
@@ -183,6 +185,7 @@ export const attemptAnswers = pgTable(
   },
   (table) => [
     uniqueIndex("attempt_answers_attempt_exercise_unique").on(table.attemptId, table.exerciseId),
+    uniqueIndex("attempt_answers_attempt_client_answer_unique").on(table.attemptId, table.clientAnswerId),
     index("attempt_answers_attempt_idx").on(table.attemptId)
   ]
 );
@@ -234,3 +237,22 @@ export const studentXpTotals = pgTable("student_xp_totals", {
     .references(() => users.id),
   totalXp: integer("total_xp").notNull().default(0)
 });
+
+export const studentActiveDays = pgTable(
+  "student_active_days",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    studentUserId: uuid("student_user_id")
+      .notNull()
+      .references(() => users.id),
+    activityDate: date("activity_date", { mode: "string" }).notNull(),
+    answersCount: integer("answers_count").notNull().default(0),
+    isActiveDay: boolean("is_active_day").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [
+    uniqueIndex("student_active_days_student_date_unique").on(table.studentUserId, table.activityDate),
+    index("student_active_days_student_idx").on(table.studentUserId)
+  ]
+);

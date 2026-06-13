@@ -25,6 +25,20 @@ You are working on Burro Fonetika, an Arabic phonetics learning platform for chi
 - Do not invent APIs, schemas, Socket.IO events, or production behavior without updating docs.
 - Student progress is durable. Premium gates access only; never delete educational progress because of premium, block, or soft delete state.
 
+## Agent skills
+
+### Issue tracker
+
+Issues live in the local beads database via the `bd` CLI (not GitHub Issues). See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Canonical names used as-is: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: root `CONTEXT.md` (pointer to `docs/`) + `docs/adr/`. See `docs/agents/domain.md`.
+
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:6cd5cc61 -->
 ## Beads Issue Tracker

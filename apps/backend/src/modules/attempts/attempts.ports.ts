@@ -46,6 +46,7 @@ export interface AttemptRecord {
 export interface AttemptAnswerRecord {
   attemptId: string;
   exerciseId: string;
+  clientAnswerId: string;
   selectedOptionId: string;
   correctOptionId: string;
   isCorrect: boolean;
@@ -73,12 +74,13 @@ export interface ApplyAnswerInput {
 export interface ApplyAnswerResult {
   /** Sum of XP actually granted across all requested grants (idempotency may zero some). */
   grantedTotal: number;
-  /** XP actually granted for `answerXpGrant` (0 when absent or already granted). */
-  answerXpGranted: number;
+  /** The persisted answer row. Replays return the original row, including its original XP delta. */
+  answer: AttemptAnswerRecord;
 }
 
 export interface AttemptsStorePort {
   getAttempt(id: string): Promise<AttemptRecord | undefined>;
+  getAnswerByClientAnswerId(attemptId: string, clientAnswerId: string): Promise<AttemptAnswerRecord | undefined>;
   saveAttempt(attempt: AttemptRecord): Promise<void>;
   /**
    * Atomically applies one answer: XP grants, the answer row, and the attempt

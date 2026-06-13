@@ -9,7 +9,7 @@ import { AttemptEngine } from "../modules/attempts/attempt-engine";
 import type { ExerciseCatalogPort, ModuleContentRecord } from "../modules/attempts/attempts.ports";
 import type { BurroDb } from "./client";
 import * as schema from "./schema";
-import { exerciseOptions, exercises, modules, studentXpTotals, users } from "./schema";
+import { exerciseOptions, exercises, modules, studentActiveDays, studentXpTotals, users } from "./schema";
 
 // Live check against a real PostgreSQL. Skipped unless a connection string is
 // provided, so the default `pnpm test` run stays DB-free.
@@ -100,7 +100,8 @@ describe.skipIf(!TEST_DATABASE_URL)("attempts persistence (live PostgreSQL)", ()
           const firstExerciseId = started.currentExercise!.id;
           const result = await engine.answer(studentId, started.attemptId, {
             exerciseId: firstExerciseId,
-            selectedOptionId: correctOptionByExercise.get(firstExerciseId)!
+            selectedOptionId: correctOptionByExercise.get(firstExerciseId)!,
+            clientAnswerId: "persistence-check-first-answer"
           });
           expect(result.isCorrect).toBe(true);
           expect(result.xpDelta).toBe(CORRECT_ANSWER_XP);
@@ -109,11 +110,19 @@ describe.skipIf(!TEST_DATABASE_URL)("attempts persistence (live PostgreSQL)", ()
           expect(afterAnswer?.answeredExerciseIds).toEqual([firstExerciseId]);
           expect(afterAnswer?.xpEarned).toBe(CORRECT_ANSWER_XP);
 
+          const [activeDayAfterFirstAnswer] = await tx
+            .select()
+            .from(studentActiveDays)
+            .where(eq(studentActiveDays.studentUserId, studentId));
+          expect(activeDayAfterFirstAnswer?.answersCount).toBe(1);
+          expect(activeDayAfterFirstAnswer?.isActiveDay).toBe(true);
+
           // 4. Awarded once: re-answering the same source in a new attempt grants 0.
           const second = await engine.start(studentId, { moduleId, mode: "practice" });
           const replay = await engine.answer(studentId, second.attemptId, {
             exerciseId: firstExerciseId,
-            selectedOptionId: correctOptionByExercise.get(firstExerciseId)!
+            selectedOptionId: correctOptionByExercise.get(firstExerciseId)!,
+            clientAnswerId: "persistence-check-replay-answer"
           });
           expect(replay.isCorrect).toBe(true);
           expect(replay.xpDelta).toBe(0);
@@ -123,6 +132,12 @@ describe.skipIf(!TEST_DATABASE_URL)("attempts persistence (live PostgreSQL)", ()
             .from(studentXpTotals)
             .where(eq(studentXpTotals.studentUserId, studentId));
           expect(total?.totalXp).toBe(CORRECT_ANSWER_XP);
+
+          const [activeDayAfterSecondAnswer] = await tx
+            .select()
+            .from(studentActiveDays)
+            .where(eq(studentActiveDays.studentUserId, studentId));
+          expect(activeDayAfterSecondAnswer?.answersCount).toBe(2);
 
           throw new Rollback();
         })

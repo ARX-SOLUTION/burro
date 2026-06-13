@@ -14,7 +14,8 @@ const envSchema = z
     BURRO_ATTEMPTS_STORE: z.enum(["drizzle", "memory"]).optional(),
     DATABASE_URL: z.string().min(1).optional(),
     BURRO_AUTH: z.enum(["telegram", "dev"]).default("dev"),
-    TELEGRAM_BOT_TOKEN: z.string().min(1).optional()
+    TELEGRAM_BOT_TOKEN: z.string().min(1).optional(),
+    BURRO_JWT_SECRET: z.string().min(32).optional()
   })
   .superRefine((env, ctx) => {
     const attemptsStore = env.BURRO_ATTEMPTS_STORE ?? (env.NODE_ENV === "production" ? "drizzle" : "memory");
@@ -39,7 +40,16 @@ const envSchema = z
         message: 'dev header auth is an auth bypass in production; set BURRO_AUTH="telegram".'
       });
     }
+    if (env.NODE_ENV === "production" && !env.BURRO_JWT_SECRET) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["BURRO_JWT_SECRET"],
+        message: "required in production."
+      });
+    }
   });
+
+const DEV_JWT_SECRET = "dev-only-burro-session-secret-change-before-production";
 
 export interface AppConfig {
   nodeEnv: "development" | "production" | "test";
@@ -49,6 +59,7 @@ export interface AppConfig {
   databaseUrl: string | undefined;
   auth: "telegram" | "dev";
   telegramBotToken: string | undefined;
+  jwtSecret: string;
 }
 
 /** Parses and validates env. Throws with every offending variable listed. */
@@ -68,7 +79,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     attemptsStore: parsed.BURRO_ATTEMPTS_STORE ?? (parsed.NODE_ENV === "production" ? "drizzle" : "memory"),
     databaseUrl: parsed.DATABASE_URL,
     auth: parsed.BURRO_AUTH,
-    telegramBotToken: parsed.TELEGRAM_BOT_TOKEN
+    telegramBotToken: parsed.TELEGRAM_BOT_TOKEN,
+    jwtSecret: parsed.BURRO_JWT_SECRET ?? DEV_JWT_SECRET
   };
 }
 

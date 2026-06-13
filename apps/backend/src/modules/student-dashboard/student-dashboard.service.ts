@@ -11,11 +11,15 @@ export class StudentDashboardService {
   ) {}
 
   async getSummary(studentId: string): Promise<StudentDashboardSummary> {
-    const record = await this.store.getXpTotal(studentId);
+    const [record, activeDays] = await Promise.all([
+      this.store.getXpTotal(studentId),
+      this.store.countActiveDays(studentId)
+    ]);
     const totalXp = record?.totalXp ?? 0;
     return {
       totalXp,
-      level: getLevelInfo(totalXp)
+      level: getLevelInfo(totalXp),
+      activeDays
     };
   }
 }

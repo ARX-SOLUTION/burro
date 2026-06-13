@@ -1,8 +1,6 @@
 import { Suspense, lazy } from "react";
 import { Outlet, createRootRoute, createRoute, createRouter, redirect, useNavigate, useRouterState } from "@tanstack/react-router";
-import { BottomNav, GlassCard, LevelBadge, StudentShell, XpCounter } from "./components";
-import { useXpTotal } from "./features/xp/hooks";
-import { useLevel } from "./features/level/hooks";
+import { BottomNav, GlassCard, StudentShell } from "./components";
 
 const ExercisePlayer = lazy(() => import("./features/attempts/ExercisePlayer").then((m) => ({ default: m.ExercisePlayer })));
 const DashboardScreen = lazy(() => import("./screens/DashboardScreen").then((m) => ({ default: m.DashboardScreen })));
@@ -20,14 +18,23 @@ const tabs = ["dashboard", "modules", "leaderboard", "profile"];
 function RootLayout() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const active = tabs.find((tab) => pathname.startsWith(`/${tab}`)) ?? "dashboard";
-  const { data: xpTotal } = useXpTotal();
-  const { data: levelInfo } = useLevel();
+  const active = pathname.includes("/practice") || pathname.includes("/quiz")
+    ? "learn"
+    : tabs.find((tab) => pathname.startsWith(`/${tab}`)) ?? "dashboard";
+  const showNav = !pathname.includes("/practice") && !pathname.includes("/quiz");
 
   return <StudentShell>
-    <div className="top-row"><h1>Burro</h1><div className="top-row__stats"><LevelBadge level={levelInfo?.level ?? 1} progressPercent={levelInfo?.progressPercent ?? 0} /><XpCounter xp={xpTotal?.totalXp ?? 0} /></div></div>
     <Outlet />
-    <BottomNav active={active} onChange={(tab) => navigate({ to: `/${tab}` })} />
+    {showNav && <BottomNav
+      active={active}
+      onChange={(tab) => {
+        if (tab === "learn") {
+          navigate({ to: "/modules/$moduleId/practice", params: { moduleId: "module-letters-1" } });
+          return;
+        }
+        navigate({ to: `/${tab}` });
+      }}
+    />}
   </StudentShell>;
 }
 

@@ -61,26 +61,26 @@ describe("TelegramInitDataAdapter", () => {
   it("resolves studentId via the injected upsert after validation", async () => {
     const adapter = new TelegramInitDataAdapter(async (user) => `user-${user.id}`, BOT_TOKEN);
     const initData = signInitData(freshFields(), BOT_TOKEN);
-    const identity = await adapter.resolveStudent({ headers: { "x-telegram-init-data": initData } });
-    expect(identity).toEqual({ studentId: "user-42" });
+    const identity = await adapter.resolveIdentity({ headers: { "x-telegram-init-data": initData } });
+    expect(identity).toMatchObject({ userId: "user-42", studentId: "user-42", role: "student" });
   });
 
   it("throws UnauthorizedError when the header is missing", async () => {
     const adapter = new TelegramInitDataAdapter(async () => "never", BOT_TOKEN);
-    await expect(adapter.resolveStudent({ headers: {} })).rejects.toThrow(UnauthorizedError);
+    await expect(adapter.resolveIdentity({ headers: {} })).rejects.toThrow(UnauthorizedError);
   });
 });
 
 describe("DevHeaderAdapter", () => {
   it("uses x-student-id header when present", async () => {
     const adapter = new DevHeaderAdapter();
-    const identity = await adapter.resolveStudent({ headers: { "x-student-id": "student-123" } });
-    expect(identity).toEqual({ studentId: "student-123" });
+    const identity = await adapter.resolveIdentity({ headers: { "x-student-id": "student-123" } });
+    expect(identity).toMatchObject({ userId: "student-123", studentId: "student-123", role: "student" });
   });
 
   it("falls back to student-demo when header is absent", async () => {
     const adapter = new DevHeaderAdapter();
-    const identity = await adapter.resolveStudent({ headers: {} });
-    expect(identity).toEqual({ studentId: "student-demo" });
+    const identity = await adapter.resolveIdentity({ headers: {} });
+    expect(identity).toMatchObject({ userId: "student-demo", studentId: "student-demo", role: "student" });
   });
 });

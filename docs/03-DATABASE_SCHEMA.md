@@ -249,13 +249,17 @@ Unique:
 - id uuid pk
 - attempt_id fk attempts
 - exercise_id fk exercises
+- client_answer_id text
 - selected_option_id fk exercise_options
 - correct_option_id fk exercise_options
 - is_correct boolean
 - xp_delta int default 0
 - answered_at
 
-Unique: attempt_id + exercise_id.
+Unique:
+
+- attempt_id + exercise_id
+- attempt_id + client_answer_id
 
 ### student_module_progress
 
