@@ -44,6 +44,6 @@ const exerciseCatalogProvider = {
   imports: [DatabaseModule],
   controllers: [AttemptsController],
   providers: [AttemptsService, attemptsStoreProvider, exerciseCatalogProvider],
-  exports: [AttemptsService]
+  exports: [AttemptsService, EXERCISE_CATALOG]
 })
 export class AttemptsModule {}
