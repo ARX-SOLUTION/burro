@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { GlassCard, GradientButton } from "@burro/ui";
+import { GlassCard, PrimaryGlowButton } from "@burro/ui";
 import { useDashboard } from "../features/dashboard/hooks";
 import { useLevel } from "../features/level/hooks";
 
@@ -37,9 +37,9 @@ export function DashboardScreen() {
             <h2>Arab harflari</h2>
             <p>Harflarni ko'rib, to'g'ri javobni tanlang.</p>
           </div>
-          <GradientButton onClick={() => navigate({ to: "/modules/$moduleId/practice", params: { moduleId: data.primaryModuleId } })}>
+          <PrimaryGlowButton onClick={() => navigate({ to: "/modules/$moduleId/practice", params: { moduleId: data.primaryModuleId } })}>
             Davom etish
-          </GradientButton>
+          </PrimaryGlowButton>
         </div>
       </GlassCard>
 

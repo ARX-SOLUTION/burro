@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { GlassCard, GradientButton, ProgressHeader } from "@burro/ui";
+import { GlassCard, PrimaryGlowButton, ProgressHeader } from "@burro/ui";
 import { ModuleNode, type ModuleNodeStatus } from "../components";
 import { useStudentModules } from "../features/modules/hooks";
 import type { ModuleCardDto, ModuleStatus } from "../features/modules/mock";
@@ -146,9 +146,9 @@ export function ModulePathScreen({ moduleId }: { moduleId: string }) {
             <p className="module-path-error__description">
               "{moduleId}" identifikatori bo'yicha modul topilmadi. Modullar ro'yxatiga qaytib, mavjud modulni tanlang.
             </p>
-            <GradientButton type="button" onClick={() => navigate({ to: "/modules" })}>
+            <PrimaryGlowButton type="button" onClick={() => navigate({ to: "/modules" })}>
               Modullarga qaytish
-            </GradientButton>
+            </PrimaryGlowButton>
           </div>
         </GlassCard>
       </section>
@@ -221,7 +221,7 @@ export function ModulePathScreen({ moduleId }: { moduleId: string }) {
 
       <GlassCard>
         <div className="module-path-actions" aria-label="Modul amallari">
-          <GradientButton
+          <PrimaryGlowButton
             type="button"
             className="module-path-actions__button module-path-actions__button--practice"
             disabled={!canStart}
@@ -229,8 +229,8 @@ export function ModulePathScreen({ moduleId }: { moduleId: string }) {
             onClick={canStart ? startPractice : undefined}
           >
             {module.status === "completed" ? "Mashqni qayta ishlash" : "Mashqni boshlash"}
-          </GradientButton>
-          <GradientButton
+          </PrimaryGlowButton>
+          <PrimaryGlowButton
             type="button"
             className="module-path-actions__button module-path-actions__button--quiz"
             disabled={!canStart}
@@ -238,7 +238,7 @@ export function ModulePathScreen({ moduleId }: { moduleId: string }) {
             onClick={canStart ? startQuiz : undefined}
           >
             Final quiz
-          </GradientButton>
+          </PrimaryGlowButton>
           {!canStart && (
             <p className="module-path-actions__locked-copy">
               {module.status === "premium_locked"

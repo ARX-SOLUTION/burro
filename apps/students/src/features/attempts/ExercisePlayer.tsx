@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import type { AnswerResultView, AttemptView, ExerciseView, LearningMode } from "@burro/shared";
-import { AnswerOption, AudioButton, FeedbackPanel, GlassCard, GradientButton, HeartCounter, ProgressHeader } from "@burro/ui";
+import { AudioCircleButton, ChoiceButton, FeedbackCard, GlassCard, HeartCounter, PrimaryGlowButton, ProgressHeader } from "@burro/ui";
+import type { ChoiceButtonState } from "@burro/ui";
 import { useAnswerAttempt, useStartAttempt } from "./hooks";
 
 type PlayerState =
@@ -69,7 +70,7 @@ export function ExercisePlayer({ moduleId, mode }: { moduleId: string; mode: Lea
     }
   };
 
-  const optionState = (optionId: string): "selected" | "correct" | "wrong" | undefined => {
+  const optionState = (optionId: string): ChoiceButtonState => {
     if (state.phase === "answered") {
       if (optionId === state.result.correctOptionId) {
         return "correct";
@@ -77,12 +78,12 @@ export function ExercisePlayer({ moduleId, mode }: { moduleId: string; mode: Lea
       if (optionId === state.result.selectedOptionId && !state.result.isCorrect) {
         return "wrong";
       }
-      return undefined;
+      return "idle";
     }
     if (state.phase === "playing" || state.phase === "checking") {
-      return state.selectedOptionId === optionId ? "selected" : undefined;
+      return state.selectedOptionId === optionId ? "selected" : "idle";
     }
-    return undefined;
+    return "idle";
   };
 
   if (state.phase === "starting") {
@@ -90,14 +91,14 @@ export function ExercisePlayer({ moduleId, mode }: { moduleId: string; mode: Lea
   }
 
   if (state.phase === "failed-to-load") {
-    return <GlassCard><h2>Xatolik</h2><p>{state.message}</p><GradientButton onClick={start}>Qayta urinish</GradientButton></GlassCard>;
+    return <GlassCard><h2>Xatolik</h2><p>{state.message}</p><PrimaryGlowButton onClick={start}>Qayta urinish</PrimaryGlowButton></GlassCard>;
   }
 
   if (state.phase === "finished") {
     return <GlassCard>
       <h2>{finishedText[state.attempt.status] ?? finishedText.completed}</h2>
       <p>Jami: {state.attempt.xpEarned} XP</p>
-      <GradientButton onClick={() => navigate({ to: "/modules/$moduleId", params: { moduleId } })}>Modulga qaytish</GradientButton>
+      <PrimaryGlowButton onClick={() => navigate({ to: "/modules/$moduleId", params: { moduleId } })}>Modulga qaytish</PrimaryGlowButton>
     </GlassCard>;
   }
 
@@ -118,27 +119,27 @@ export function ExercisePlayer({ moduleId, mode }: { moduleId: string; mode: Lea
               <p className="exercise-card__eyebrow">Harfni tanlang</p>
               <strong className="exercise-glyph">{getExerciseGlyph(exercise.prompt)}</strong>
               <h2>{exercise.prompt}</h2>
-              {exercise.audioUrl != null && <AudioButton />}
+              {exercise.audioUrl != null && <AudioCircleButton ariaLabel="Tovushni eshitish" />}
               <div className="answer-grid">
                 {exercise.options.map((option) => (
-                  <AnswerOption key={option.id} label={option.label} state={optionState(option.id)} onClick={() => selectOption(option.id)} />
+                  <ChoiceButton key={option.id} label={option.label} state={optionState(option.id)} disabled={state.phase === "answered"} onClick={() => selectOption(option.id)} />
                 ))}
               </div>
             </div>
           </GlassCard>
-          {state.phase === "playing" && state.error && <FeedbackPanel type="wrong" text={state.error} />}
+          {state.phase === "playing" && state.error && <FeedbackCard type="wrong" text={state.error} />}
           {state.phase === "answered" && (
-            <FeedbackPanel
+            <FeedbackCard
               type={state.result.isCorrect ? "correct" : "wrong"}
               text={state.result.isCorrect && state.result.xpDelta > 0 ? `${state.result.feedback.message}. +${state.result.xpDelta} XP` : state.result.feedback.message}
             />
           )}
           {(state.phase === "playing" || state.phase === "checking") && (
-            <GradientButton disabled={state.phase !== "playing" || !state.selectedOptionId} onClick={handleCheck}>
+            <PrimaryGlowButton disabled={state.phase !== "playing" || !state.selectedOptionId} loading={state.phase === "checking"} onClick={handleCheck}>
               {state.phase === "checking" ? "Tekshirilmoqda..." : "Tekshirish"}
-            </GradientButton>
+            </PrimaryGlowButton>
           )}
-          {state.phase === "answered" && <GradientButton onClick={handleContinue}>Davom etish</GradientButton>}
+          {state.phase === "answered" && <PrimaryGlowButton variant="success" onClick={handleContinue}>Davom etish</PrimaryGlowButton>}
         </>
       )}
     </section>

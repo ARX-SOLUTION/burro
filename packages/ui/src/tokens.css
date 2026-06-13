@@ -1,17 +1,79 @@
+/* Burro Student App Design Tokens
+   Source of truth: docs/12-FIGMA_FLOW_DESIGN.md §5-§7 and docs/design/design-tokens.css.
+   Legacy aliases (--burro-bg-deep, --burro-primary, ...) are retained for older code. */
 :root {
-  --burro-bg-deep: #081B4A;
-  --burro-bg-navy: #0D255F;
-  --burro-primary: #1597EA;
-  --burro-primary-light: #58D8FF;
-  --burro-primary-dark: #006DE5;
-  --burro-success: #1FB24A;
-  --burro-danger: #F04444;
-  --burro-warning: #FFB800;
-  --burro-card: #FFFFFF;
-  --burro-text-main: #10204A;
-  --burro-text-muted: #7A8499;
+  /* Backgrounds */
+  --burro-bg-950: #061640;
+  --burro-bg-900: #081d4c;
+  --burro-bg-850: #0c285f;
+  --burro-navy: #102052;
+
+  /* Text */
+  --burro-text-primary: #101f4a;
+  --burro-text-on-dark: #ffffff;
+  --burro-text-muted: #8b95a7;
+
+  /* Brand cyan / blue */
+  --burro-cyan-500: #15b9f0;
+  --burro-cyan-400: #55d8f6;
+  --burro-blue-500: #168de6;
+  --burro-blue-600: #0876d8;
+
+  /* Semantic */
+  --burro-green-500: #20b24b;
+  --burro-green-600: #15913d;
+  --burro-red-500: #f34343;
+  --burro-yellow-500: #ffb400;
+
+  /* Surfaces */
+  --burro-card: #ffffff;
+  --burro-card-soft: #f7f9fc;
+  --burro-card-border: rgba(255, 255, 255, 0.55);
+  --burro-overlay: rgba(4, 14, 45, 0.58);
+  --burro-overlay-heavy: rgba(4, 14, 45, 0.78);
+  --burro-overlay-light: rgba(4, 14, 45, 0.34);
+
+  /* Radius */
+  --radius-xs: 10px;
+  --radius-sm: 14px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-xl: 30px;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-card: 0 6px 0 rgba(0, 0, 0, 0.14), 0 14px 30px rgba(0, 0, 0, 0.18);
+  --shadow-soft: 0 12px 28px rgba(5, 21, 60, 0.22);
+  --shadow-cyan-glow: 0 0 0 2px rgba(85, 216, 246, 0.55), 0 8px 24px rgba(21, 185, 240, 0.45);
+  --shadow-green-glow: 0 0 0 2px rgba(71, 236, 107, 0.35), 0 8px 24px rgba(32, 178, 75, 0.35);
+  --shadow-red-glow: 0 0 0 2px rgba(255, 96, 96, 0.35), 0 8px 24px rgba(243, 67, 67, 0.35);
+
+  /* Layout */
+  --bottom-nav-height: 96px;
+  --bottom-nav-reserved: calc(112px + env(safe-area-inset-bottom));
+  --screen-x-padding: 20px;
+
+  /* Font stacks */
+  --burro-font-sans: Inter, Manrope, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --burro-font-arabic: "Noto Naskh Arabic", "Amiri", "Geeza Pro", serif;
+
+  /* Legacy core aliases (do not remove without migrating consumers) */
+  --burro-bg-deep: #081b4a;
+  --burro-bg-navy: #0d255f;
+  --burro-primary: #1597ea;
+  --burro-primary-light: #58d8ff;
+  --burro-primary-dark: #006de5;
+  --burro-success: #1fb24a;
+  --burro-danger: #f04444;
+  --burro-warning: #ffb800;
+  --burro-text-main: #10204a;
   --burro-radius-xl: 28px;
   --burro-radius-lg: 22px;
-  --burro-shadow-card: 0 6px 0 rgba(0,0,0,0.18);
-  --burro-shadow-glow: 0 0 18px rgba(88,216,255,0.65);
+  --burro-shadow-card: 0 6px 0 rgba(0, 0, 0, 0.18);
+  --burro-shadow-glow: 0 0 18px rgba(88, 216, 255, 0.65);
+}
+
+/* Arabic glyph rendering: apply to letter cards and Arabic UI rows. */
+.burro-arabic {
+  font-family: var(--burro-font-arabic);
 }

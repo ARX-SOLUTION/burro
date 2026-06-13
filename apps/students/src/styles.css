@@ -1410,6 +1410,290 @@ a:focus-visible {
   font-weight: 900;
 }
 
+/* ============================================================
+   Stage 1 shared component styles (doc 12 §8).
+   Structure + token-based styling + states. Pixel tuning is per-screen.
+   ============================================================ */
+
+/* PrimaryGlowButton variants + loading (doc 12 §8.3) */
+.primary-glow-button--success {
+  background: linear-gradient(135deg, #5fe384 0%, var(--burro-green-500) 60%, var(--burro-green-600) 100%);
+  box-shadow: var(--shadow-green-glow);
+}
+
+.primary-glow-button--danger {
+  background: linear-gradient(135deg, #ff8a8a 0%, var(--burro-red-500) 60%, #d62b2b 100%);
+  box-shadow: var(--shadow-red-glow);
+}
+
+.primary-glow-button--loading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.primary-glow-button__spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, .45);
+  border-top-color: #fff;
+  animation: burro-spin .7s linear infinite;
+}
+
+@keyframes burro-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ChoiceButton disabled (doc 12 §8.9) */
+.choice-button:disabled {
+  cursor: not-allowed;
+}
+
+.choice-button.idle:disabled,
+.choice-button:disabled:not(.selected):not(.correct):not(.wrong) {
+  opacity: .65;
+}
+
+/* AudioCircleButton states (doc 12 §8.10) */
+.audio-circle--idle {
+  background: var(--burro-card);
+  color: var(--burro-cyan-500);
+  box-shadow: 0 8px 0 rgba(0, 0, 0, .1), inset 0 0 0 2px #e7eef8;
+}
+
+.audio-circle--idle .audio-circle__icon {
+  border-left-color: var(--burro-cyan-500);
+}
+
+.audio-circle--playing {
+  background: linear-gradient(135deg, var(--burro-cyan-400), var(--burro-blue-500));
+  color: #fff;
+  box-shadow: 0 0 0 12px rgba(85, 216, 246, .22), 0 8px 0 rgba(0, 83, 174, .3);
+}
+
+.audio-circle--playing .audio-circle__icon {
+  border-left-color: #fff;
+}
+
+.audio-circle--disabled {
+  cursor: not-allowed;
+  background: #dce2ee;
+  color: #9aa5ba;
+  box-shadow: none;
+}
+
+.audio-circle--disabled .audio-circle__icon {
+  border-left-color: #9aa5ba;
+}
+
+/* FeedbackCard module_completed (doc 12 §8.12) */
+.feedback-card--module_completed {
+  display: grid;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--burro-green-500), #5fe384);
+}
+
+.feedback-card__text {
+  margin: 0;
+}
+
+/* AppBackground (doc 12 §4, §8.1) */
+.app-background {
+  position: relative;
+  min-height: 100dvh;
+  background-color: var(--burro-bg-950);
+  background-image:
+    linear-gradient(180deg, rgba(8, 29, 76, .96), rgba(6, 22, 64, .96)),
+    url('/assets/backgrounds/burro-mosque-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.app-background__overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: var(--burro-overlay);
+}
+
+.app-background--overlay-heavy .app-background__overlay {
+  background: var(--burro-overlay-heavy);
+}
+
+.app-background--overlay-light .app-background__overlay {
+  background: var(--burro-overlay-light);
+}
+
+.app-background__content {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: var(--bottom-nav-reserved);
+}
+
+.app-background--scroll {
+  overflow-y: auto;
+}
+
+.app-background--fixed .app-background__content {
+  overflow: hidden;
+}
+
+/* QuizShell (doc 12 §8.8) */
+.quiz-shell {
+  display: grid;
+  gap: 14px;
+}
+
+.quiz-shell__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 26px;
+  background: var(--burro-card);
+  color: var(--burro-text-primary);
+  box-shadow: 0 8px 0 rgba(0, 0, 0, .14);
+}
+
+.quiz-shell__close {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #4a5775;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.quiz-shell__progress {
+  flex: 1 1 auto;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e8eef6;
+}
+
+.quiz-shell__progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--burro-cyan-400), var(--burro-blue-500));
+}
+
+.quiz-shell__hearts {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #ff4f67;
+  font-weight: 1000;
+}
+
+.quiz-shell__xp {
+  color: var(--burro-yellow-500);
+  font-weight: 1000;
+  white-space: nowrap;
+}
+
+.quiz-shell__question {
+  display: grid;
+  gap: 12px;
+}
+
+.quiz-shell__footer {
+  display: grid;
+  gap: 10px;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* BottomSheet (doc 12 §9.13) */
+.bottom-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.bottom-sheet__overlay {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: var(--burro-overlay-heavy);
+  cursor: pointer;
+}
+
+.bottom-sheet__panel {
+  position: relative;
+  z-index: 1;
+  border-radius: 30px 30px 0 0;
+  padding: 18px 20px calc(18px + env(safe-area-inset-bottom));
+  color: var(--burro-text-primary);
+  background: var(--burro-card);
+  box-shadow: 0 -20px 60px rgba(0, 0, 0, .4);
+  animation: burro-sheet-up .25s ease;
+}
+
+@keyframes burro-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+.bottom-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.bottom-sheet__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 1000;
+}
+
+.bottom-sheet__close {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 14px;
+  background: #ffe2e2;
+  color: var(--burro-red-500);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.bottom-sheet__body {
+  display: grid;
+  gap: 4px;
+}
+
+/* LearningPathNode locked/premium glyphs (doc 12 §8.7).
+   Reuses .module-node--<status> color/background rules above. */
+.learning-path-node--locked,
+.learning-path-node--premium_locked {
+  cursor: not-allowed;
+}
+
+.learning-path-node__icon {
+  font-size: 30px;
+  line-height: 1;
+}
+
 @media (max-width: 380px) {
   .phone {
     padding-right: 14px;

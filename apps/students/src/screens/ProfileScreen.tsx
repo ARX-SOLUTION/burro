@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { GlassCard, GradientButton } from "@burro/ui";
+import { GlassCard, PrimaryGlowButton } from "@burro/ui";
 import { LanguageModal } from "../components";
 import { useProfile } from "../features/profile/hooks";
 import { useLevel } from "../features/level/hooks";
@@ -17,7 +17,7 @@ export function ProfileScreen() {
   }
 
   return <>
-    <GlassCard><h2>Profile</h2><p>Daraja: {levelInfo?.level ?? 1} · Active days: {data.activeDays} · Achievements: {data.achievements}</p><GradientButton onClick={() => setLanguageOpen(true)}>Til</GradientButton></GlassCard>
+    <GlassCard><h2>Profile</h2><p>Daraja: {levelInfo?.level ?? 1} · Active days: {data.activeDays} · Achievements: {data.achievements}</p><PrimaryGlowButton onClick={() => setLanguageOpen(true)}>Til</PrimaryGlowButton></GlassCard>
     {languageOpen && <LanguageModal onClose={() => setLanguageOpen(false)}/>}
   </>;
 }

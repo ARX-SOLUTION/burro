@@ -1,19 +1,23 @@
 // Shared presentational components now live in @burro/ui; re-exported here so
 // existing "./components" imports (e.g. router.tsx) keep working.
 export {
-  AnswerOption,
-  AudioButton,
-  FeedbackPanel,
+  AppBackground,
+  AudioCircleButton,
+  BottomSheet,
+  ChoiceButton,
+  FeedbackCard,
   GlassCard,
-  GradientButton,
   HeartCounter,
   LeaderboardPodium,
   LeaderboardRow,
+  LearningPathNode,
   LevelBadge,
   MicrophoneButton,
   ModuleCard,
   PinnedRankCard,
+  PrimaryGlowButton,
   ProgressHeader,
+  QuizShell,
   XpCounter
 } from "@burro/ui";
 export * from "./StudentShell";
