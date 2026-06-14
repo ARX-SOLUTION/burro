@@ -8,7 +8,8 @@ const baseUrl = "http://127.0.0.1:5173";
 const chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const runtimeNodeModules = "/Users/admin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules";
 const runtimeRequire = createRequire(`${runtimeNodeModules}/`);
-const { chromium } = await import(runtimeRequire.resolve("playwright"));
+const playwrightMod = await import(runtimeRequire.resolve("playwright"));
+const chromium = playwrightMod.chromium ?? playwrightMod.default?.chromium;
 const { default: pixelmatch } = await import(runtimeRequire.resolve("pixelmatch"));
 const { PNG } = await import(runtimeRequire.resolve("pngjs"));
 const { default: sharp } = await import(runtimeRequire.resolve("sharp"));
@@ -38,9 +39,9 @@ const scenarios = [
   },
   {
     id: "exercise-default",
-    route: "/modules/module-letters-1/practice",
+    route: "/modules/75a2d16b-6bac-520c-8fac-931debf47b02/practice",
     ref: "docs/design/reference-screens/05-exercise-letter-default.png",
-    ready: ".exercise-card"
+    ready: ".exercise-screen-shell, .exercise-card, .exercise-screen"
   },
   {
     id: "leaderboard",
@@ -84,13 +85,18 @@ for (const scenario of scenarios) {
     await scenario.beforeGoto(page);
   }
 
-  await page.goto(`${baseUrl}${scenario.route}`, { waitUntil: "domcontentloaded", timeout: 15000 });
-  await page.locator(scenario.ready).waitFor({ state: "visible", timeout: 12000 });
-  await page.evaluate(() => document.fonts?.ready);
-  await page.waitForTimeout(500);
+  let captureError = null;
+  try {
+    await page.goto(`${baseUrl}${scenario.route}`, { waitUntil: "domcontentloaded", timeout: 15000 });
+    await page.locator(scenario.ready).first().waitFor({ state: "visible", timeout: 12000 });
+    await page.evaluate(() => document.fonts?.ready);
+    await page.waitForTimeout(500);
+  } catch (err) {
+    captureError = String(err.message || err);
+  }
 
   const livePath = path.join(outDir, `${scenario.id}.live.png`);
-  await page.screenshot({ path: livePath, fullPage: false });
+  try { await page.screenshot({ path: livePath, fullPage: false }); } catch (e) { captureError = (captureError ? captureError + " | " : "") + "screenshot: " + String(e.message || e); }
 
   const boxes = await page.evaluate(() => {
     const selectors = [
@@ -130,7 +136,8 @@ for (const scenario of scenarios) {
     livePath,
     refPath: path.join(repo, scenario.ref),
     consoleMessages,
-    boxes
+    boxes,
+    captureError
   });
   await context.close();
 }
