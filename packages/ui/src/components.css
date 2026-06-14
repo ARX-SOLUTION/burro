@@ -1,0 +1,174 @@
+/* Shared Burro UI component skin.
+   Keep shared component primitives styled in @burro/ui so apps do not need to
+   recreate package-private class names to consume GlassCard/PrimaryGlowButton/
+   ChoiceButton. Screen-specific tuning can still layer on top in app CSS. */
+
+.glass-card {
+  position: relative;
+  overflow: hidden;
+  margin: 14px 0;
+  padding: 18px;
+  border: 1px solid color-mix(in srgb, var(--burro-card) 78%, transparent);
+  border-radius: var(--radius-xl);
+  background:
+    repeating-linear-gradient(135deg, rgba(13, 83, 171, .045) 0 6px, rgba(13, 83, 171, 0) 6px 16px),
+    var(--burro-card);
+  color: var(--burro-text-primary);
+  box-shadow: var(--shadow-card);
+}
+
+.glass-card h1,
+.glass-card h2,
+.glass-card h3,
+.glass-card p {
+  position: relative;
+  z-index: 1;
+}
+
+.gradient-button,
+.primary-glow-button {
+  min-height: 54px;
+  width: 100%;
+  border: 0;
+  border-radius: var(--radius-lg);
+  padding: 14px 20px;
+  color: var(--burro-text-on-dark);
+  font-weight: 900;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--burro-cyan-400) 0%, var(--burro-cyan-500) 46%, var(--burro-blue-600) 100%);
+  box-shadow: 0 8px 0 rgba(0, 79, 172, .34), var(--shadow-cyan-glow);
+  transition:
+    transform .16s ease,
+    box-shadow .16s ease,
+    filter .16s ease,
+    opacity .16s ease;
+}
+
+.gradient-button:hover:not(:disabled),
+.primary-glow-button:hover:not(:disabled) {
+  filter: brightness(1.04) saturate(1.05);
+  transform: translateY(-1px);
+}
+
+.gradient-button:active:not(:disabled),
+.primary-glow-button:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 4px 0 rgba(0, 79, 172, .28), 0 8px 18px rgba(21, 185, 240, .34);
+}
+
+.gradient-button:disabled,
+.primary-glow-button:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+  box-shadow: none;
+}
+
+.primary-glow-button--success {
+  background: linear-gradient(135deg, #5fe384 0%, var(--burro-green-500) 60%, var(--burro-green-600) 100%);
+  box-shadow: var(--shadow-green-glow);
+}
+
+.primary-glow-button--danger {
+  background: linear-gradient(135deg, #ff8a8a 0%, var(--burro-red-500) 60%, #d62b2b 100%);
+  box-shadow: var(--shadow-red-glow);
+}
+
+.primary-glow-button--loading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.primary-glow-button__spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, .45);
+  border-top-color: var(--burro-text-on-dark);
+  animation: burro-spin .7s linear infinite;
+}
+
+@keyframes burro-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.answer-option,
+.choice-button {
+  display: grid;
+  place-items: center;
+  min-height: 76px;
+  width: 100%;
+  border: 0;
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  color: var(--burro-text-primary);
+  background: var(--burro-card);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, .12), inset 0 0 0 2px #e7eef8;
+  font-size: 20px;
+  font-weight: 1000;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    transform .14s ease,
+    box-shadow .14s ease,
+    background-color .14s ease,
+    color .14s ease;
+}
+
+.answer-option:hover:not(:disabled),
+.choice-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.answer-option.selected,
+.choice-button.selected {
+  color: var(--burro-blue-600);
+  background: #e7f8ff;
+  box-shadow: 0 6px 0 rgba(0, 82, 176, .24), inset 0 0 0 4px var(--burro-cyan-400);
+}
+
+.answer-option.correct,
+.choice-button.correct {
+  color: #116b2a;
+  background:
+    repeating-linear-gradient(135deg, rgba(31, 178, 74, .1) 0 6px, transparent 6px 14px),
+    #dbffe5;
+  box-shadow: 0 6px 0 rgba(15, 104, 42, .24), inset 0 0 0 4px var(--burro-green-500);
+}
+
+.answer-option.wrong,
+.choice-button.wrong {
+  color: #8a1d1d;
+  background:
+    repeating-linear-gradient(135deg, rgba(247, 77, 77, .1) 0 6px, transparent 6px 14px),
+    #ffe3e3;
+  box-shadow: 0 6px 0 rgba(124, 30, 30, .2), inset 0 0 0 4px var(--burro-red-500);
+}
+
+.choice-button:disabled {
+  cursor: not-allowed;
+}
+
+.choice-button.idle:disabled,
+.choice-button:disabled:not(.selected):not(.correct):not(.wrong) {
+  opacity: .65;
+}
+
+.choice-button__label,
+.choice-button__icon {
+  pointer-events: none;
+}
+
+.choice-button__icon {
+  display: none;
+}
+
+.answer-option.correct .choice-button__icon,
+.answer-option.wrong .choice-button__icon,
+.choice-button.correct .choice-button__icon,
+.choice-button.wrong .choice-button__icon {
+  display: block;
+}

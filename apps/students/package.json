@@ -8,7 +8,8 @@
     "preview": "vite preview",
     "lint": "echo 'TODO: add eslint'",
     "typecheck": "tsc --noEmit",
-    "test": "echo 'TODO: add tests'"
+    "test": "echo 'TODO: add tests'",
+    "test:e2e": "pnpm dlx @playwright/test@1.56.0 playwright test"
   },
   "dependencies": {
     "@burro/shared": "workspace:*",
