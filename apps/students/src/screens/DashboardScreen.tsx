@@ -80,22 +80,24 @@ function DashboardHeader({
 }) {
   const streakLabel = `${activeDays} day streak`;
   return (
-    <header className="home-header" aria-label="Salom paneli">
-      <div className="home-header__avatar" aria-hidden="true">
-        {avatarInitial}
+    <header className="home-header-card" aria-label="Salom paneli">
+      <div className="home-header">
+        <div className="home-header__avatar" aria-hidden="true">
+          {avatarInitial}
+        </div>
+        <div className="home-header__identity">
+          <p className="home-header__greeting">
+            Salom, <strong>{displayName}!</strong>
+          </p>
+          <span className="home-header__streak" aria-label={`${activeDays} kunlik streak`}>
+            <span className="home-header__streak-bolt" aria-hidden="true" />
+            {streakLabel}
+          </span>
+        </div>
+        <button type="button" className="home-header__sound" aria-label="Ovoz sozlamalari">
+          <span className="home-header__sound-icon" aria-hidden="true" />
+        </button>
       </div>
-      <div className="home-header__identity">
-        <p className="home-header__greeting">
-          Salom, <strong>{displayName}!</strong>
-        </p>
-        <span className="home-header__streak" aria-label={`${activeDays} kunlik streak`}>
-          <span className="home-header__streak-bolt" aria-hidden="true" />
-          {streakLabel}
-        </span>
-      </div>
-      <button type="button" className="home-header__sound" aria-label="Ovoz sozlamalari">
-        <span className="home-header__sound-icon" aria-hidden="true" />
-      </button>
     </header>
   );
 }

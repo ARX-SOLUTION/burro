@@ -12,17 +12,17 @@ export function WelcomeScreen() {
 
   return (
     <div className="welcome-screen">
-      <AppBackground variant="welcome" overlay="light" scroll={false}>
+      <AppBackground variant="welcome" overlay="heavy" scroll={false}>
         <div className="welcome-screen__content">
           <div className="welcome-hero">
-            <svg className="welcome-logo" viewBox="0 0 128 128" width="128" height="128" aria-hidden="true">
+            <svg className="welcome-logo" viewBox="0 0 128 128" width="96" height="96" aria-hidden="true">
               <defs>
                 <linearGradient id="welcome-logo-fill" x1="64" y1="0" x2="64" y2="128" gradientUnits="userSpaceOnUse">
                   <stop offset="0" stopColor="#5BC8FF" />
                   <stop offset="1" stopColor="#1E78E0" />
                 </linearGradient>
               </defs>
-              <rect x="0" y="0" width="128" height="128" rx="32" ry="32" fill="url(#welcome-logo-fill)" />
+              <rect x="0" y="0" width="128" height="128" rx="22" ry="22" fill="url(#welcome-logo-fill)" />
               <path
                 fill="#FFFFFF"
                 d="M40 28h28a20 20 0 0 1 13 35.2A22 22 0 0 1 70 100H40Zm12 12v22h16a10 10 0 1 0 0-22Zm0 34v18h18a11 11 0 1 0 0-22H52Z"

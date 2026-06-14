@@ -27,7 +27,7 @@ export function LoginScreen() {
 
   return (
     <div className="login-screen">
-      <AppBackground variant="app" overlay="default" scroll={false}>
+      <AppBackground variant="welcome" overlay="heavy" scroll={false}>
         <form aria-label="Kirish" className="login-screen__content" onSubmit={handleSubmit}>
           <header className="login-hero">
             <img

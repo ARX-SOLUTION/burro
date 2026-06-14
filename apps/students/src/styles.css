@@ -1818,9 +1818,12 @@ a:focus-visible {
 
 .app-background--welcome {
   --app-bg-image: url('/assets/backgrounds/welcome-bg.jpg');
-  /* Lighter gradient than the in-app default so the hero photo reads through. */
+  /* Subtler tint than the in-app default so the hero photo reads through.
+     When combined with overlay="heavy" the readability layer (see the
+     .app-background__overlay rules below) supplies the rest of the
+     darkening. */
   background-image:
-    linear-gradient(180deg, rgba(6, 20, 58, .42), rgba(5, 16, 48, .78)),
+    linear-gradient(180deg, rgba(6, 20, 58, .18), rgba(5, 16, 48, .42)),
     var(--app-bg-image);
 }
 
@@ -1837,6 +1840,13 @@ a:focus-visible {
 
 .app-background--overlay-light .app-background__overlay {
   background: var(--burro-overlay-light);
+}
+
+/* When the welcome variant is paired with overlay="heavy" we ease the
+   fixed overlay so the underlying hero photo still reads as a faint
+   atmospheric texture instead of pure black. */
+.app-background--welcome.app-background--overlay-heavy .app-background__overlay {
+  background: rgba(8, 16, 40, .55);
 }
 
 .app-background__content {
@@ -1896,14 +1906,14 @@ a:focus-visible {
   flex-direction: column;
   align-items: center;
   flex: 0 0 auto;
-  padding-top: 247px;
+  padding-top: 200px;
   text-align: center;
 }
 
 .welcome-logo {
-  width: 92px;
-  height: 92px;
-  border-radius: 46px;
+  width: 96px;
+  height: 96px;
+  border-radius: 22px;
   object-fit: contain;
   box-shadow: 0 14px 30px rgba(0, 60, 140, .45), 0 0 0 1px rgba(255, 255, 255, .12);
 }
@@ -1936,9 +1946,7 @@ a:focus-visible {
   border-radius: 15px;
   padding: 14px 20px;
   box-shadow: 0 6px 0 rgba(3, 125, 207, .72), 0 16px 30px rgba(64, 213, 255, .42);
-  background:
-    repeating-linear-gradient(135deg, rgba(255, 255, 255, .12) 0 6px, rgba(255, 255, 255, 0) 6px 14px),
-    linear-gradient(135deg, #67ddff 0%, #31bdf3 48%, #0c88ea 100%);
+  background: linear-gradient(135deg, #67ddff 0%, #31bdf3 48%, #0c88ea 100%);
 }
 
 .welcome-cta-icon {
@@ -2117,6 +2125,13 @@ a:focus-visible {
 .login-screen .app-background__content {
   display: flex;
   padding-bottom: 0;
+}
+
+/* Login reuses the welcome hero photo but pushes the readability overlay
+   further so the form is the clear focus. Overrides the softened welcome+heavy
+   overlay above with a deeper tint scoped to the login surface only. */
+.login-screen .app-background--welcome.app-background--overlay-heavy .app-background__overlay {
+  background: rgba(8, 16, 40, .78);
 }
 
 .login-screen__content {
@@ -2343,12 +2358,29 @@ a:focus-visible {
   padding: 0 0 4px;
 }
 
+/* White rounded card wraps the header content (ref 04). Subtle diagonal
+   sheen via the repeating gradient keeps it from looking flat. */
+.home-header-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  padding: 10px 12px;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgba(34, 83, 194, .035) 0 6px,
+      rgba(255, 255, 255, 0) 6px 14px
+    ),
+    linear-gradient(180deg, #ffffff 0%, #f4f7ff 100%);
+  box-shadow: 0 6px 0 rgba(8, 22, 70, .14), 0 14px 28px rgba(2, 20, 60, .22), inset 0 0 0 1px rgba(255, 255, 255, .9);
+}
+
 .home-header {
   display: grid;
   grid-template-columns: 44px 1fr 44px;
   align-items: center;
   gap: 12px;
-  padding: 4px 0 2px;
+  padding: 0;
 }
 
 .home-header__avatar {
@@ -2357,11 +2389,12 @@ a:focus-visible {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ffd9a8 0%, #d97b4d 100%);
-  color: #4a2210;
+  background: linear-gradient(135deg, #4cc6ff 0%, #2253c2 100%);
+  color: #ffffff;
   font-size: 18px;
-  font-weight: 1000;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, .22), inset 0 0 0 2px rgba(255, 255, 255, .35);
+  font-weight: 900;
+  letter-spacing: -.02em;
+  box-shadow: 0 3px 0 rgba(8, 22, 70, .22), inset 0 0 0 2px rgba(255, 255, 255, .35);
 }
 
 .home-header__identity {
@@ -2373,9 +2406,9 @@ a:focus-visible {
 
 .home-header__greeting {
   margin: 0;
-  color: #ffffff;
+  color: #11224c;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.15;
   letter-spacing: -.01em;
 }
@@ -2414,8 +2447,8 @@ a:focus-visible {
   height: 44px;
   border: 0;
   border-radius: 50%;
-  background: linear-gradient(180deg, #ffffff 0%, #e2eaff 100%);
-  box-shadow: 0 4px 0 rgba(0, 0, 0, .22);
+  background: linear-gradient(180deg, #eaf1ff 0%, #c9d8ff 100%);
+  box-shadow: 0 3px 0 rgba(8, 22, 70, .18), inset 0 0 0 1px rgba(255, 255, 255, .8);
   cursor: pointer;
 }
 
@@ -2452,9 +2485,9 @@ a:focus-visible {
   position: relative;
   overflow: hidden;
   display: grid;
-  gap: 14px;
-  padding: 20px;
-  border-radius: 24px;
+  gap: 10px;
+  padding: 18px;
+  border-radius: 22px;
   color: #ffffff;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, .04) 0 60%, rgba(255, 255, 255, 0) 60% 100%),
@@ -2473,9 +2506,9 @@ a:focus-visible {
 .last-activity__title {
   margin: 0;
   color: #ffffff;
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 800;
-  line-height: 1.04;
+  line-height: 1.08;
   letter-spacing: -.01em;
 }
 
@@ -2489,7 +2522,7 @@ a:focus-visible {
 
 .last-activity__progress {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .last-activity__progress-meta {
@@ -2497,8 +2530,8 @@ a:focus-visible {
   align-items: center;
   justify-content: space-between;
   color: rgba(220, 244, 230, .94);
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .last-activity__progress-track {
@@ -2517,19 +2550,23 @@ a:focus-visible {
   transition: width .4s ease;
 }
 
+/* Compact pill CTA: ~140px wide, ~40px tall (ref 04). */
 .last-activity__cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   align-self: start;
-  min-height: 44px;
+  justify-self: start;
+  width: max-content;
+  min-width: 140px;
+  height: 40px;
   border: 0;
   border-radius: 999px;
-  padding: 10px 22px;
+  padding: 0 18px;
   color: #ffffff;
   background: linear-gradient(180deg, #2bbf57 0%, #16893b 100%);
-  box-shadow: 0 5px 0 rgba(11, 60, 24, .35), inset 0 0 0 1px rgba(255, 255, 255, .18);
+  box-shadow: 0 3px 0 rgba(11, 60, 24, .35), inset 0 0 0 1px rgba(255, 255, 255, .18);
   font-size: 14px;
   font-weight: 800;
   cursor: pointer;
@@ -2543,13 +2580,13 @@ a:focus-visible {
 .last-activity__cta-icon {
   width: 0;
   height: 0;
-  border-top: 6px solid transparent;
-  border-bottom: 6px solid transparent;
-  border-left: 9px solid #ffffff;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 8px solid #ffffff;
 }
 
 .last-activity--empty .last-activity__title {
-  font-size: 22px;
+  font-size: 20px;
 }
 
 /* Daily task (green w/ XP pill) ================================ */
@@ -2568,7 +2605,9 @@ a:focus-visible {
   margin: 0 0 4px;
   color: rgba(186, 240, 207, .96);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
 }
 
 .daily-task-card__title {
@@ -2642,9 +2681,9 @@ a:focus-visible {
 
 .modules-strip__scroller {
   display: grid;
-  grid-auto-columns: 158px;
+  grid-auto-columns: 150px;
   grid-auto-flow: column;
-  gap: 12px;
+  gap: 10px;
   margin: 0 -20px;
   padding: 4px 20px 12px;
   overflow-x: auto;
@@ -2658,16 +2697,16 @@ a:focus-visible {
 
 .modules-strip__card {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   align-content: space-between;
-  min-height: 130px;
+  min-height: 118px;
   border: 0;
-  border-radius: 22px;
-  padding: 16px;
+  border-radius: 20px;
+  padding: 14px;
   text-align: left;
   color: #11224c;
   background: #ffffff;
-  box-shadow: 0 6px 0 rgba(0, 0, 0, .14), 0 14px 24px rgba(2, 20, 60, .18);
+  box-shadow: 0 5px 0 rgba(0, 0, 0, .14), 0 12px 22px rgba(2, 20, 60, .18);
   cursor: pointer;
   scroll-snap-align: start;
 }
@@ -2680,7 +2719,7 @@ a:focus-visible {
 .modules-strip__card-title {
   display: block;
   color: #0e1a3d;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 800;
   letter-spacing: -.01em;
   line-height: 1.1;
@@ -2689,7 +2728,7 @@ a:focus-visible {
 .modules-strip__card-meta {
   display: block;
   color: #6c7894;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
 }
 
