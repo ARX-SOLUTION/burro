@@ -251,9 +251,11 @@
   align-self: flex-start;
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
-  margin: -4px 0 0;
+  /* WCAG min tap target 44x44 (was 36 — too small on phones). Visual mark
+     stays compact via the inner __mark span. */
+  width: 44px;
+  height: 44px;
+  margin: -8px 0 0;
   border: 0;
   border-radius: 50%;
   background: #ffffff;
@@ -284,7 +286,9 @@
      wrong:    solid red fill, white text, X icon
 */
 .exercise-options-grid .answer-option {
-  min-height: 64px;
+  /* Min 56px on widest viewports; never drop below 56 on narrow ones so the
+     tap target stays well above the 44 WCAG minimum. */
+  min-height: 56px;
   border-radius: 18px;
   padding: 12px 14px;
   background: #ffffff;
