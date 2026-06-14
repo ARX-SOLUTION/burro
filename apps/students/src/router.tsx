@@ -11,6 +11,8 @@ const ProfileScreen = lazy(() => import("./screens/ProfileScreen").then((m) => (
 const WelcomeScreen = lazy(() => import("./screens/WelcomeScreen").then((m) => ({ default: m.WelcomeScreen })));
 const LoginScreen = lazy(() => import("./screens/LoginScreen").then((m) => ({ default: m.LoginScreen })));
 const StatsScreen = lazy(() => import("./screens/StatsScreen").then((m) => ({ default: m.StatsScreen })));
+const ModuleCompletedScreen = lazy(() => import("./screens/ModuleCompletedScreen").then((m) => ({ default: m.ModuleCompletedScreen })));
+const SoundInfoScreen = lazy(() => import("./screens/SoundInfoScreen").then((m) => ({ default: m.SoundInfoScreen })));
 
 function ScreenFallback() {
   return <div style={{ display: "flex", justifyContent: "center", padding: "32px" }}>Yuklanmoqda...</div>;
@@ -118,6 +120,28 @@ const quizRoute = createRoute({
   component: QuizRouteComponent
 });
 
+function ModuleCompletedRouteComponent() {
+  const { moduleId } = moduleCompletedRoute.useParams();
+  return <Suspense fallback={<ScreenFallback />}><ModuleCompletedScreen moduleId={moduleId} /></Suspense>;
+}
+
+const moduleCompletedRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/modules/$moduleId/completed",
+  component: ModuleCompletedRouteComponent
+});
+
+function SoundInfoRouteComponent() {
+  const { moduleId, soundId } = soundInfoRoute.useParams();
+  return <Suspense fallback={<ScreenFallback />}><SoundInfoScreen moduleId={moduleId} soundId={soundId} /></Suspense>;
+}
+
+const soundInfoRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/learn/$moduleId/sounds/$soundId/info",
+  component: SoundInfoRouteComponent
+});
+
 const leaderboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/leaderboard",
@@ -151,6 +175,8 @@ const routeTree = rootRoute.addChildren([
   modulePathRoute,
   practiceRoute,
   quizRoute,
+  moduleCompletedRoute,
+  soundInfoRoute,
   leaderboardRoute,
   profileRoute,
   statsRoute,
