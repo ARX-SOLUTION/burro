@@ -134,10 +134,13 @@ function RankRow({ entry, variant, isCurrentUser }: { entry: LeaderboardEntryDto
   );
 }
 
+const AVATAR_PX: Record<"sm" | "md" | "lg", number> = { sm: 38, md: 56, lg: 70 };
+
 function Avatar({ entry, size, ringed }: { entry: LeaderboardEntryDto; size: "sm" | "md" | "lg"; ringed?: boolean }) {
   const classes = ["leaderboard-avatar", `leaderboard-avatar--${size}`, ringed ? "leaderboard-avatar--ringed" : ""].filter(Boolean).join(" ");
   if (entry.avatarUrl) {
-    return <img className={classes} src={entry.avatarUrl} alt="" loading="lazy" />;
+    const px = AVATAR_PX[size];
+    return <img className={classes} src={entry.avatarUrl} alt="" loading="lazy" width={px} height={px} />;
   }
   return <span className={classes} aria-hidden="true">{entry.telegramFirstName.slice(0, 1).toUpperCase()}</span>;
 }
