@@ -8,6 +8,9 @@ const LeaderboardScreen = lazy(() => import("./screens/LeaderboardScreen").then(
 const ModulePathScreen = lazy(() => import("./screens/ModulePathScreen").then((m) => ({ default: m.ModulePathScreen })));
 const ModulesScreen = lazy(() => import("./screens/ModulesScreen").then((m) => ({ default: m.ModulesScreen })));
 const ProfileScreen = lazy(() => import("./screens/ProfileScreen").then((m) => ({ default: m.ProfileScreen })));
+const WelcomeScreen = lazy(() => import("./screens/WelcomeScreen").then((m) => ({ default: m.WelcomeScreen })));
+const LoginScreen = lazy(() => import("./screens/LoginScreen").then((m) => ({ default: m.LoginScreen })));
+const StatsScreen = lazy(() => import("./screens/StatsScreen").then((m) => ({ default: m.StatsScreen })));
 
 function ScreenFallback() {
   return <div style={{ display: "flex", justifyContent: "center", padding: "32px" }}>Yuklanmoqda...</div>;
@@ -21,7 +24,11 @@ function RootLayout() {
   const active = pathname.includes("/practice") || pathname.includes("/quiz")
     ? "learn"
     : tabs.find((tab) => pathname.startsWith(`/${tab}`)) ?? "dashboard";
-  const showNav = !pathname.includes("/practice") && !pathname.includes("/quiz");
+  const showNav =
+    !pathname.includes("/practice") &&
+    !pathname.includes("/quiz") &&
+    !pathname.startsWith("/welcome") &&
+    !pathname.startsWith("/login");
 
   return <StudentShell>
     <Outlet />
@@ -46,6 +53,24 @@ const indexRoute = createRoute({
   beforeLoad: () => {
     throw redirect({ to: "/dashboard" });
   }
+});
+
+const welcomeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/welcome",
+  component: () => <Suspense fallback={<ScreenFallback />}><WelcomeScreen /></Suspense>
+});
+
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/login",
+  component: () => <Suspense fallback={<ScreenFallback />}><LoginScreen /></Suspense>
+});
+
+const statsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/stats",
+  component: () => <Suspense fallback={<ScreenFallback />}><StatsScreen /></Suspense>
 });
 
 const dashboardRoute = createRoute({
@@ -119,6 +144,8 @@ const notificationsRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
+  welcomeRoute,
+  loginRoute,
   dashboardRoute,
   modulesRoute,
   modulePathRoute,
@@ -126,6 +153,7 @@ const routeTree = rootRoute.addChildren([
   quizRoute,
   leaderboardRoute,
   profileRoute,
+  statsRoute,
   premiumRoute,
   notificationsRoute
 ]);

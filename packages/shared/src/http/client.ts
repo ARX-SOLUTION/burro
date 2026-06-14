@@ -34,6 +34,7 @@ export interface ApiClientOptions {
 export interface ApiClient {
   get<T>(path: string): Promise<T>;
   post<T>(path: string, body?: unknown): Promise<T>;
+  patch<T>(path: string, body?: unknown): Promise<T>;
 }
 
 interface RawNestError {
@@ -69,7 +70,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
   const baseUrl = options.baseUrl.replace(/\/$/, "");
   const timeoutMs = options.timeoutMs ?? 10_000;
 
-  async function request<T>(path: string, init: { method: "GET" | "POST"; body?: unknown }): Promise<T> {
+  async function request<T>(path: string, init: { method: "GET" | "POST" | "PATCH"; body?: unknown }): Promise<T> {
     const extraHeaders = typeof options.headers === "function" ? options.headers() : options.headers ?? {};
     let response: Response;
     try {
@@ -108,6 +109,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 
   return {
     get: <T>(path: string) => request<T>(path, { method: "GET" }),
-    post: <T>(path: string, body?: unknown) => request<T>(path, { method: "POST", body })
+    post: <T>(path: string, body?: unknown) => request<T>(path, { method: "POST", body }),
+    patch: <T>(path: string, body?: unknown) => request<T>(path, { method: "PATCH", body })
   };
 }

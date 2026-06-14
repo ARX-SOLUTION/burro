@@ -12,5 +12,9 @@ export const queryKeys = {
   },
   profile: {
     all: ["profile"] as const
+  },
+  stats: {
+    all: ["stats"] as const,
+    summary: ["stats", "summary"] as const
   }
 } as const;

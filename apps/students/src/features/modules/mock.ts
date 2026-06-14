@@ -1,76 +1,96 @@
-export type ModuleStatus = "completed" | "current" | "available" | "locked" | "premium_locked";
+import type { ModuleCardDto } from "@burro/shared";
 
-export interface ModuleCardDto {
-  id: string;
-  sequenceNo: number;
-  title: string;
-  description: string;
-  estimatedMinutes: number | null;
-  status: ModuleStatus;
-  progressPercent: number;
-  premiumRequired: boolean;
-}
+// Local re-export keeps existing imports working; the canonical type lives in
+// @burro/shared (docs/13 §7).
+export type { ModuleCardDto };
+export type ModuleStatus = ModuleCardDto["status"];
 
+/**
+ * Dev fallback path. Mirrors the 8-node reference (`docs/design/reference-screens/20-modules-path.png`):
+ *   m1 completed · m2 current · m3-5 available · m6 premium_locked · m7-8 locked.
+ * Arabic glyphs come from the reference screenshot so the path view renders
+ * the same labels even before the backend seeds module text.
+ */
 export const mockStudentModules: ModuleCardDto[] = [
   {
-    id: "module-vowels-1",
+    id: "module-alif-ba-ta",
     sequenceNo: 1,
-    title: "Unli tovushlar",
-    description: "Qisqa va cho‘ziq unlilarni eshitib ajratish.",
-    estimatedMinutes: 8,
+    title: "Alif, ba, ta",
+    description: "3 ta harf bo'yicha mashq.",
+    estimatedMinutes: 6,
     status: "completed",
     progressPercent: 100,
     premiumRequired: false
   },
   {
-    id: "module-letters-1",
+    id: "module-sa-jim-ha",
     sequenceNo: 2,
-    title: "Harflar: Alif",
-    description: "Alif harfi va uning tovushini topish mashqlari.",
-    estimatedMinutes: 12,
+    title: "Sa, jim, ha",
+    description: "3 ta harf bo'yicha mashq.",
+    estimatedMinutes: 6,
     status: "current",
-    progressPercent: 62,
+    progressPercent: 35,
     premiumRequired: false
   },
   {
-    id: "module-letters-ba",
+    id: "module-tas",
     sequenceNo: 3,
-    title: "Harflar: Ba",
-    description: "Ba harfini ko‘rish, tinglash va to‘g‘ri tanlash.",
-    estimatedMinutes: 10,
+    title: "Tas",
+    description: "Tas harfini ko'rish va tinglash.",
+    estimatedMinutes: 6,
     status: "available",
     progressPercent: 0,
     premiumRequired: false
   },
   {
-    id: "module-letters-ta",
+    id: "module-thaa",
     sequenceNo: 4,
-    title: "Harflar: Ta",
-    description: "Ta harfi bilan boshlanadigan tovushlarni mustahkamlash.",
-    estimatedMinutes: 11,
+    title: "Thaa",
+    description: "Thaa harfini ko'rish va tinglash.",
+    estimatedMinutes: 6,
+    status: "available",
+    progressPercent: 0,
+    premiumRequired: false
+  },
+  {
+    id: "module-jeem",
+    sequenceNo: 5,
+    title: "Jeem",
+    description: "Jeem harfini ko'rish va tinglash.",
+    estimatedMinutes: 6,
+    status: "available",
+    progressPercent: 0,
+    premiumRequired: false
+  },
+  {
+    id: "module-haa",
+    sequenceNo: 6,
+    title: "Haa",
+    description: "Haa harfini ko'rish va tinglash.",
+    estimatedMinutes: 8,
     status: "premium_locked",
     progressPercent: 0,
     premiumRequired: true
   },
   {
-    id: "module-listening-1",
-    sequenceNo: 5,
-    title: "Eshitib topish",
-    description: "Tovushni tinglab mos harfni tanlash.",
-    estimatedMinutes: 14,
+    id: "module-khaa",
+    sequenceNo: 7,
+    title: "Khaa",
+    description: "Khaa harfini ko'rish va tinglash.",
+    estimatedMinutes: 8,
     status: "locked",
     progressPercent: 0,
-    premiumRequired: true
+    premiumRequired: false
   },
   {
-    id: "module-sounds-throat",
-    sequenceNo: 6,
-    title: "Halq tovushlari",
-    description: "Arab tilidagi chuqur talaffuz tovushlariga kirish.",
-    estimatedMinutes: 15,
-    status: "premium_locked",
+    id: "module-daal",
+    sequenceNo: 8,
+    title: "Daal",
+    description: "Daal harfini ko'rish va tinglash.",
+    estimatedMinutes: 8,
+    status: "locked",
     progressPercent: 0,
-    premiumRequired: true
+    premiumRequired: false
   }
 ];
 

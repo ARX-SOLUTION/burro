@@ -60,5 +60,6 @@ const client = createApiClient({
 
 export const api: ApiClient = {
   get: <T>(path: string) => requestWithSessionRefresh(() => client.get<T>(path)),
-  post: <T>(path: string, body?: unknown) => requestWithSessionRefresh(() => client.post<T>(path, body))
+  post: <T>(path: string, body?: unknown) => requestWithSessionRefresh(() => client.post<T>(path, body)),
+  patch: <T>(path: string, body?: unknown) => requestWithSessionRefresh(() => client.patch<T>(path, body))
 };
