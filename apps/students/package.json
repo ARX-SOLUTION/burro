@@ -8,7 +8,8 @@
     "preview": "vite preview",
     "lint": "echo 'TODO: add eslint'",
     "typecheck": "tsc --noEmit",
-    "test": "echo 'TODO: add tests'"
+    "test": "echo 'TODO: add tests'",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@burro/shared": "workspace:*",
@@ -22,5 +23,8 @@
     "react-dom": "19.2.7",
     "typescript": "6.0.3",
     "vite": "8.0.16"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0"
   }
 }
