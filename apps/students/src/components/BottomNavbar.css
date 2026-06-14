@@ -1,392 +1,330 @@
 /* ============================================================
-   BottomNavbar — Figma 1:1 animated mobile bottom navigation
-   Source: Burro bot.fig, node-id=59-2271
+   BottomNavbar — port of /Users/admin/Pictures/burro-navbar-artifact
+   Dynamic-bump SVG shell; clip-path follows the active item.
    ============================================================ */
 
-.bottom-navbar {
-  --nav-height: 98px;
-  --nav-width: min(386px, calc(100% - 40px));
-  --bump-width: 84px;
-  --bump-rise: 23px;
-  --center-btn: 52px;
-  --icon-size: 28px;
-  --center-icon: 20px;
-  --label-size: 9px;
-  --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+.burro-navbar {
+  --source-w: 386px;
+  --source-h: 121px;
+  --nav-w: min(386px, calc(100vw - 40px));
+  --nav-h: 121px;
+  --component-h: 98px;
+  --active-x-visual: 193px;
+  --blue-top: #203480;
+  --blue-bottom: #1B359A;
+  --cyan: #12B7E5;
+  --cyan-deep: #0E6DE5;
+  --text-grad: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.5) 100%);
+  --shell-drop: drop-shadow(0px 4px 11px rgba(18, 183, 229, 0.26)) drop-shadow(0px 3px 0px #080E16);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --spring: cubic-bezier(0.18, 1.5, 0.32, 1);
 
   position: fixed;
+  left: 50%;
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  width: var(--nav-w);
+  height: var(--nav-h);
+  transform: translateX(-50%);
   z-index: 50;
-  left: 50%;
-  bottom: calc(20px + env(safe-area-inset-bottom));
-  transform: translateX(-50%);
-  width: var(--nav-width);
-  height: var(--nav-height);
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  padding: 14px 0 16px;
   isolation: isolate;
-  font-family: var(--font);
+  animation: navMount 0.56s var(--ease-out) both;
+  -webkit-tap-highlight-color: transparent;
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #fff;
 }
 
-/* ---- Shell background (rounded pill) ---- */
-.bottom-navbar::before {
-  content: "";
+.burro-navbar__scale {
   position: absolute;
-  z-index: -4;
   inset: 0;
-  border-radius: 32px;
-  background:
-    linear-gradient(131.14deg, rgba(18, 183, 229, 0) 69.78%, rgba(18, 183, 229, 0.2) 98.27%),
-    linear-gradient(204.77deg, rgba(18, 183, 229, 0) 60.79%, rgba(18, 183, 229, 0.2) 106.69%),
-    linear-gradient(180deg, #203480 0%, #1B359A 100%);
-  box-shadow: inset 0 0 13.4px rgba(255, 255, 255, 0.09);
-  filter:
-    drop-shadow(0px 4px 11px rgba(18, 183, 229, 0.26))
-    drop-shadow(0px 3px 0px #080E16);
+  transform-origin: bottom center;
 }
 
-/* ---- Center bump shape (smooth raised circle) ---- */
-.bottom-navbar__bump {
+.burro-navbar__glow {
   position: absolute;
+  inset: 9px -15px -8px;
   z-index: -3;
-  top: calc(var(--bump-rise) * -1);
-  left: 50%;
-  transform: translateX(-50%);
-  width: var(--bump-width);
-  height: var(--bump-width);
-  border-radius: 50%;
+  pointer-events: none;
+  border-radius: 46px;
   background:
-    linear-gradient(131.14deg, rgba(18, 183, 229, 0) 69.78%, rgba(18, 183, 229, 0.2) 98.27%),
-    linear-gradient(204.77deg, rgba(18, 183, 229, 0) 60.79%, rgba(18, 183, 229, 0.2) 106.69%),
-    linear-gradient(180deg, #203480 0%, #1B359A 100%);
-  box-shadow:
-    inset 0 0 13.4px rgba(255, 255, 255, 0.09),
-    0px 4px 11px rgba(18, 183, 229, 0.26),
-    0px 3px 0px #080E16;
+    radial-gradient(circle at var(--active-x-visual) 16px, rgba(18, 183, 229, 0.94), transparent 17%),
+    radial-gradient(ellipse at center bottom, rgba(18, 183, 229, 0.42), transparent 68%),
+    linear-gradient(180deg, rgba(18, 183, 229, 0.22), rgba(18, 183, 229, 0.12));
+  filter: blur(14px) saturate(1.15);
+  opacity: 0.82;
+  animation: shellPulse 3.6s ease-in-out infinite;
 }
 
-/* Bridge fill between bump and shell (fills the gap so it looks continuous) */
-.bottom-navbar__bump::after {
-  content: "";
+.burro-navbar__svg {
   position: absolute;
-  z-index: -1;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(var(--bump-width) + 16px);
-  height: 20px;
-  border-radius: 50%;
-  background: #1B359A;
-}
-
-/* ---- Center button aura (pulsing glow) ---- */
-.bottom-navbar__aura {
-  position: absolute;
-  z-index: -2;
-  top: calc(var(--bump-rise) * -1 + var(--bump-width) / 2);
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(18, 183, 229, 0.35) 0%, transparent 70%);
-  animation: bottom-nav-aura-pulse 2.2s ease-in-out infinite;
-}
-
-/* ---- Diagonal stripe texture ---- */
-.bottom-navbar__texture {
-  position: absolute;
-  z-index: -1;
   inset: 0;
-  border-radius: 32px;
-  background-image:
-    repeating-linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.03) 0px,
-      rgba(255, 255, 255, 0.03) 1px,
-      transparent 1px,
-      transparent 4px
-    );
-  animation: bottom-nav-shimmer 10s linear infinite;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: var(--shell-drop);
+}
+
+.shell-stripes {
+  opacity: 0.052;
+  mix-blend-mode: screen;
+  animation: stripeMove 13s linear infinite;
+}
+
+.shell-top-light { opacity: 0.62; }
+.shell-active-light { opacity: 0.52; transition: opacity 0.2s ease; }
+
+.burro-navbar__content {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 16px;
+  height: 82px;
+  z-index: 4;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 24px;
   pointer-events: none;
 }
 
-/* ---- Menu items ---- */
-.bottom-navbar__item {
+.nav-group {
+  height: 49px;
+  width: 131px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  pointer-events: auto;
+}
+.nav-group--right { justify-content: flex-end; }
+
+.nav-center-slot {
+  width: 52px;
+  height: 72px;
   position: relative;
-  z-index: 1;
-  flex: 1 1 0;
+  pointer-events: auto;
+}
+
+.nav-item {
+  appearance: none;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: white;
+  width: 61.5px;
+  height: 49px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-width: 0;
-  height: 68px;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  color: inherit;
-  font-family: inherit;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: transform 0.15s ease;
-}
-
-.bottom-navbar__item:active {
-  transform: scale(0.92);
-}
-
-.bottom-navbar__item:focus-visible {
-  outline: 2px solid rgba(18, 183, 229, 0.8);
-  outline-offset: -2px;
-  border-radius: 16px;
-}
-
-/* ---- Icon wrappers ---- */
-.bottom-navbar__icon-wrap {
-  display: grid;
-  place-items: center;
-  width: var(--icon-size);
-  height: var(--icon-size);
+  justify-content: flex-start;
+  gap: 10px;
   opacity: 0.7;
-  transition: opacity 0.2s ease, transform 0.15s ease;
-  filter: drop-shadow(0px 0px 0px transparent);
+  cursor: pointer;
+  position: relative;
+  filter: none;
+  font-family: inherit;
+  transition:
+    opacity 0.35s var(--ease-out),
+    transform 0.48s var(--spring),
+    filter 0.35s var(--ease-out);
 }
 
-.bottom-navbar__icon-wrap--active {
+.nav-item--center {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 52px;
+  height: 72px;
+  justify-content: flex-start;
+  gap: 8px;
   opacity: 1;
+}
+
+.nav-item:focus-visible {
+  border-radius: 22px;
+  box-shadow: 0 0 0 3px rgba(18, 183, 229, 0.38);
+}
+.nav-item:active { transform: scale(0.95); }
+.nav-item.is-active {
+  opacity: 1;
+  z-index: 3;
   filter: drop-shadow(0px 0px 12px rgba(255, 255, 255, 0.25));
 }
 
-.bottom-navbar__icon-wrap--center {
-  width: var(--center-icon);
-  height: var(--center-icon);
-  opacity: 1;
+.nav-icon-wrap {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
   position: relative;
+  transition:
+    width 0.5s var(--spring),
+    height 0.5s var(--spring),
+    flex-basis 0.5s var(--spring),
+    transform 0.5s var(--spring),
+    border-radius 0.5s var(--spring),
+    background 0.25s ease,
+    box-shadow 0.35s ease;
 }
 
-.bottom-navbar__item:active .bottom-navbar__icon-wrap {
-  transform: scale(1.15);
-}
-
-/* ---- Center button background ---- */
-.bottom-navbar__center-bg {
-  position: absolute;
-  z-index: -1;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: var(--center-btn);
-  height: var(--center-btn);
-  border-radius: 999px;
-  background: linear-gradient(360deg, #0E6DE5 0%, #12B7E5 100%);
-  box-shadow:
-    0 0 24px rgba(18, 183, 229, 0.45),
-    0 4px 16px rgba(0, 0, 0, 0.18);
-  animation: bottom-nav-center-float 3s ease-in-out infinite;
-}
-
-.bottom-navbar__center-ring {
-  position: absolute;
-  z-index: -2;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: calc(var(--center-btn) + 8px);
-  height: calc(var(--center-btn) + 8px);
-  border-radius: 999px;
-  border: 4px solid rgba(16, 138, 229, 0.15);
-  animation: bottom-nav-center-float 3s ease-in-out infinite;
-}
-
-.bottom-navbar__center-bg::after {
+.nav-icon-wrap::before {
   content: "";
   position: absolute;
-  inset: 6px;
-  border-radius: 999px;
-  background: radial-gradient(
-    ellipse at 50% 20%,
-    rgba(255, 255, 255, 0.35) 0%,
-    transparent 60%
-  );
-  pointer-events: none;
+  inset: -12px;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(circle, rgba(18, 183, 229, 0.62), rgba(18, 183, 229, 0.11) 51%, transparent 72%);
+  opacity: 0;
+  transform: scale(0.7);
+  filter: blur(1.5px);
+  transition: opacity 0.36s ease, transform 0.5s var(--spring);
 }
 
-/* ---- Labels ---- */
-.bottom-navbar__label {
+.nav-icon {
   display: block;
-  max-width: 55px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: var(--label-size);
-  font-weight: 600;
-  line-height: 1.2;
-  text-align: center;
-  background: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.5) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
+  width: 28px;
+  height: 28px;
+  background: var(--text-grad);
+  -webkit-mask: var(--icon) center / contain no-repeat;
+          mask: var(--icon) center / contain no-repeat;
+  transition: width 0.5s var(--spring), height 0.5s var(--spring), transform 0.45s var(--spring), opacity 0.28s ease;
 }
 
-.bottom-navbar__label--active {
+.nav-label {
+  width: 61.5px;
+  height: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 9px;
+  line-height: 120%;
+  font-weight: 600;
+  letter-spacing: 0;
+  white-space: nowrap;
+  user-select: none;
+  background: var(--text-grad);
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: transform 0.5s var(--spring), filter 0.32s ease, opacity 0.25s ease;
+}
+
+.nav-item.is-active .nav-icon-wrap {
+  width: 52px;
+  height: 52px;
+  flex-basis: 52px;
+  border-radius: 25px;
+  background:
+    linear-gradient(112deg, rgba(255, 255, 255, 0.12) 0%, transparent 22%, transparent 56%, rgba(255, 255, 255, 0.09) 58%, transparent 72%),
+    linear-gradient(360deg, var(--cyan-deep) 0%, var(--cyan) 100%);
+  border: 4px solid rgba(16, 138, 229, 0.15);
+  box-shadow:
+    0 0 0 8px rgba(12, 112, 225, 0.08),
+    0 0 27px rgba(18, 183, 229, 0.52),
+    0 8px 17px rgba(3, 9, 40, 0.27),
+    inset 0px 0px 13.4px rgba(255, 255, 255, 0.09),
+    inset 0 -12px 22px rgba(0, 81, 193, 0.23);
+}
+
+.nav-item.is-active:not(.nav-item--center) {
+  transform: translateY(-30px);
+}
+
+.nav-item--center {
+  height: 49px;
+  justify-content: flex-start;
+  transform: translateY(0);
+}
+.nav-item--center.is-active {
+  height: 72px;
+  gap: 8px;
+  transform: translateY(-24px);
+}
+
+.nav-item.is-active .nav-icon-wrap::before {
+  opacity: 0.92;
+  transform: scale(1);
+  animation: activeAura 2.2s ease-in-out infinite;
+}
+
+.nav-item.is-active .nav-icon {
+  width: 28px;
+  height: 28px;
   opacity: 1;
 }
 
-/* ============================================================
-   Animations
-   ============================================================ */
-
-/* Mount: shell slides up */
-.bottom-navbar {
-  opacity: 0;
-  transform: translateX(-50%) translateY(24px);
+.nav-item--center.is-active .nav-icon {
+  width: 20px;
+  height: 20px;
 }
 
-.bottom-navbar--mounted {
-  animation: bottom-nav-mount 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+.nav-item.is-active .nav-icon-wrap {
+  animation: activeFloat 3s ease-in-out infinite;
 }
 
-/* Center button: scale + bounce on mount */
-.bottom-navbar--mounted .bottom-navbar__center-bg {
-  animation:
-    bottom-nav-center-bounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s forwards,
-    bottom-nav-center-float 3s ease-in-out 0.7s infinite;
+.nav-item.is-active .nav-label {
+  width: 61.5px;
+  filter: drop-shadow(0px 0px 10px rgba(255, 255, 255, 0.24));
+}
+.nav-item--center .nav-label { width: 52px; }
+
+.nav-item.is-popping .nav-icon { animation: iconPop 0.42s var(--spring) both; }
+.nav-item.is-popping .nav-label { animation: labelPop 0.42s ease both; }
+.nav-item--center.is-popping .nav-icon-wrap,
+.nav-item.is-active.is-popping .nav-icon-wrap {
+  animation: buttonPop 0.46s var(--spring) both, activeFloat 3s ease-in-out 0.48s infinite;
 }
 
-.bottom-navbar--mounted .bottom-navbar__center-ring {
-  animation:
-    bottom-nav-center-bounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s forwards,
-    bottom-nav-center-float 3s ease-in-out 0.7s infinite;
+@keyframes navMount {
+  from { opacity: 0; transform: translateX(-50%) translateY(30px) scale(0.965); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+@keyframes activeAura {
+  0%, 100% { opacity: 0.45; transform: scale(0.93); }
+  50% { opacity: 0.96; transform: scale(1.13); }
+}
+@keyframes activeFloat {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -2px; }
+}
+@keyframes shellPulse {
+  0%, 100% { opacity: 0.66; transform: scale(0.992); }
+  50% { opacity: 0.92; transform: scale(1.014); }
+}
+@keyframes stripeMove {
+  from { transform: translateX(-54px); }
+  to { transform: translateX(54px); }
+}
+@keyframes iconPop {
+  0% { transform: scale(0.87); }
+  45% { transform: scale(1.17); }
+  100% { transform: scale(1); }
+}
+@keyframes labelPop {
+  0% { opacity: 0.62; }
+  48% { opacity: 1; filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.38)); }
+  100% { opacity: 1; }
+}
+@keyframes buttonPop {
+  0% { transform: scale(0.86); }
+  55% { transform: scale(1.1); }
+  100% { transform: scale(1); }
 }
 
-@keyframes bottom-nav-mount {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+@media (max-width: 350px) {
+  .burro-navbar__content { left: 10px; right: 10px; gap: 14px; }
+  .nav-group { gap: 4px; }
+  .nav-label { font-size: 8.5px; }
+  .nav-item, .nav-label { width: 58px; }
 }
 
-@keyframes bottom-nav-center-bounce {
-  0% {
-    transform: translate(-50%, -50%) scale(0.75);
-  }
-  60% {
-    transform: translate(-50%, -50%) scale(1.08);
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-@keyframes bottom-nav-center-float {
-  0%, 100% {
-    transform: translate(-50%, calc(-50% + 0px));
-  }
-  50% {
-    transform: translate(-50%, calc(-50% - 2px));
-  }
-}
-
-@keyframes bottom-nav-aura-pulse {
-  0%, 100% {
-    opacity: 0.45;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: translate(-50%, -50%) scale(1.12);
-  }
-}
-
-@keyframes bottom-nav-shimmer {
-  from {
-    background-position: 0 0;
-  }
-  to {
-    background-position: 40px 0;
-  }
-}
-
-/* Active item pulse — fires when an item becomes active (React remounts the
-   icon wrap via key change so the animation restarts each activation). */
-.bottom-navbar__icon-wrap--pulse {
-  animation: bottom-nav-icon-pulse 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes bottom-nav-icon-pulse {
-  0% {
-    transform: scale(0.9);
-    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
-  }
-  55% {
-    transform: scale(1.22);
-    filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.55));
-  }
-  100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.25));
-  }
-}
-
-/* Small cyan dot indicator under active non-center items */
-.bottom-navbar__active-dot {
-  position: absolute;
-  bottom: 6px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, #67ddff, #12B7E5);
-  box-shadow: 0 0 10px rgba(18, 183, 229, 0.85);
-  animation: bottom-nav-dot-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  pointer-events: none;
-}
-
-@keyframes bottom-nav-dot-in {
-  0% {
-    opacity: 0;
-    transform: translateX(-50%) scale(0);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(-50%) scale(1);
-  }
-}
-
-/* ============================================================
-   Responsive
-   ============================================================ */
-@media (max-width: 380px) {
-  .bottom-navbar {
-    --nav-width: calc(100% - 32px);
-    --bump-width: 72px;
-    --center-btn: 46px;
-    --icon-size: 22px;
-    --center-icon: 18px;
-    --bump-rise: 20px;
-    gap: 0;
-    padding: 12px 0 14px;
-  }
-  .bottom-navbar__label {
-    font-size: 8px;
-    max-width: 48px;
-  }
-}
-
-@media (min-width: 420px) {
-  .bottom-navbar {
-    --nav-width: 386px;
+@media (prefers-reduced-motion: reduce) {
+  .burro-navbar *, .burro-navbar *::before, .burro-navbar *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }

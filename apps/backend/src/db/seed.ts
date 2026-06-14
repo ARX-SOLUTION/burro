@@ -33,6 +33,9 @@ type ExType = (typeof EXERCISE_TYPES)[number];
 
 const GLYPHS = ["ا", "ب", "ت", "ث", "ج", "ح", "خ", "د"];
 
+// Latin transliteration options shown in Figma exercise screens (Jeem/Ja/Ha/Kha)
+const OPTION_LABELS = ["Jeem", "Ja", "Ha", "Kha"];
+
 /** Deterministic uuid from a logical key, so re-seeding upserts the same rows. */
 function det(key: string): string {
   const h = createHash("sha1").update(key).digest("hex");
@@ -40,39 +43,48 @@ function det(key: string): string {
 }
 
 const MODULE_COUNT = 8;
-const EXERCISES_PER_MODULE = 6;
+const EXERCISES_PER_MODULE = 10;
+
+// Figma-aligned module titles. Module 2 ("Sa, jim, ha") is the current module
+// on the dashboard, so its content drives the exercise screen too.
+const MODULE_LABELS: Record<number, Record<Lang, { title: string; description: string; estMin: number }>> = {
+  1: {
+    uz: { title: "Alif, ba, ta", description: "3 ta harf bo'yicha mashq", estMin: 10 },
+    ru: { title: "Алиф, ба, та", description: "3 буквы для практики", estMin: 10 },
+    en: { title: "Alif, ba, ta", description: "Practice 3 letters", estMin: 10 }
+  },
+  2: {
+    uz: { title: "Sa, jim, ha", description: "3 ta harf bo'yicha mashq lavhi", estMin: 6 },
+    ru: { title: "Са, джим, ха", description: "Практика 3 букв", estMin: 6 },
+    en: { title: "Sa, jim, ha", description: "Practice 3 letters", estMin: 6 }
+  },
+  3: { uz: { title: "Xa, dol, zol", description: "3 ta harf bo'yicha mashq", estMin: 8 }, ru: { title: "Ха, дол, зол", description: "Практика", estMin: 8 }, en: { title: "Xa, dol, zol", description: "Practice", estMin: 8 } },
+  4: { uz: { title: "Ro, zay, sin", description: "3 ta harf bo'yicha mashq", estMin: 8 }, ru: { title: "Ро, зай, син", description: "Практика", estMin: 8 }, en: { title: "Ro, zay, sin", description: "Practice", estMin: 8 } },
+  5: { uz: { title: "Shin, sod, dod", description: "3 ta harf bo'yicha mashq", estMin: 10 }, ru: { title: "Шин, сод, дод", description: "Практика", estMin: 10 }, en: { title: "Shin, sod, dod", description: "Practice", estMin: 10 } },
+  6: { uz: { title: "To, zo, ayn", description: "Premium modul", estMin: 12 }, ru: { title: "То, зо, айн", description: "Премиум-модуль", estMin: 12 }, en: { title: "To, zo, ayn", description: "Premium module", estMin: 12 } },
+  7: { uz: { title: "G'ayn, fe, qof", description: "3 ta harf bo'yicha mashq", estMin: 10 }, ru: { title: "Гайн, фе, коф", description: "Практика", estMin: 10 }, en: { title: "Gayn, fe, qof", description: "Practice", estMin: 10 } },
+  8: { uz: { title: "Kof, lom, mim", description: "3 ta harf bo'yicha mashq", estMin: 10 }, ru: { title: "Коф, лом, мим", description: "Практика", estMin: 10 }, en: { title: "Kof, lom, mim", description: "Practice", estMin: 10 } }
+};
 
 const AUDIO_MEDIA_ID = det("media:placeholder-audio");
 
-function moduleTitles(seq: number): Record<Lang, { title: string; description: string }> {
-  return {
-    uz: { title: `Modul ${seq}: Arab harflari`, description: `${seq}-modulda arab tovushlari va harflarini o'rganamiz.` },
-    ru: { title: `Модуль ${seq}: Арабские буквы`, description: `В модуле ${seq} учим арабские звуки и буквы.` },
-    en: { title: `Module ${seq}: Arabic letters`, description: `Module ${seq} covers Arabic sounds and letters.` }
-  };
+function moduleTitles(seq: number): Record<Lang, { title: string; description: string; estMin: number }> {
+  return MODULE_LABELS[seq] ?? MODULE_LABELS[1];
 }
 
-function exercisePrompt(seq: number, type: ExType): Record<Lang, string> {
-  const glyph = GLYPHS[(seq - 1) % GLYPHS.length];
+function exercisePrompt(_seq: number, type: ExType): Record<Lang, string> {
+  // Figma exercise screens show the same prompt across find/listen variants:
+  // "Qaysi tovush to'g'ri keladi?" — students see the glyph in the card and pick
+  // its Latin transliteration from the options.
   switch (type) {
     case "find_letter":
-      return {
-        uz: `Qaysi harf "${glyph}" ga mos keladi?`,
-        ru: `Какая буква соответствует "${glyph}"?`,
-        en: `Which letter matches "${glyph}"?`
-      };
     case "find_sound":
       return {
-        uz: `"${glyph}" qaysi tovushni beradi?`,
-        ru: `Какой звук даёт "${glyph}"?`,
-        en: `Which sound does "${glyph}" make?`
+        uz: "Qaysi tovush to'g'ri keladi?",
+        ru: "Какой звук правильный?",
+        en: "Which sound is correct?"
       };
     case "listen_find_letter":
-      return {
-        uz: "Tinglang va to'g'ri harfni tanlang",
-        ru: "Послушайте и выберите правильную букву",
-        en: "Listen and pick the correct letter"
-      };
     case "listen_find_sound":
       return {
         uz: "Tinglang va to'g'ri tovushni tanlang",
@@ -111,22 +123,47 @@ interface OtherStudent {
   totalXp: number;
 }
 
-// Demo student lands mid-pack (rank 6 of 11) so the pinned-rank UI is exercised.
-const OTHER_STUDENTS: OtherStudent[] = [
-  { id: det("user:amina"), firstName: "Amina", username: "amina", avatar: "https://i.pravatar.cc/100?img=1", totalXp: 1400 },
-  { id: det("user:yusuf"), firstName: "Yusuf", username: "yusuf", avatar: "https://i.pravatar.cc/100?img=2", totalXp: 1180 },
-  { id: det("user:zaynab"), firstName: "Zaynab", username: "zaynab", avatar: "https://i.pravatar.cc/100?img=3", totalXp: 980 },
-  { id: det("user:ibrohim"), firstName: "Ibrohim", username: "ibrohim", avatar: "https://i.pravatar.cc/100?img=4", totalXp: 720 },
-  { id: det("user:maryam"), firstName: "Maryam", username: "maryam", avatar: "https://i.pravatar.cc/100?img=5", totalXp: 560 },
-  // demo student (~430) sits here, rank 6
-  { id: det("user:omar"), firstName: "Omar", username: "omar", avatar: "https://i.pravatar.cc/100?img=6", totalXp: 360 },
-  { id: det("user:fotima"), firstName: "Fotima", username: "fotima", avatar: "https://i.pravatar.cc/100?img=7", totalXp: 280 },
-  { id: det("user:said"), firstName: "Said", username: "said", avatar: "https://i.pravatar.cc/100?img=8", totalXp: 190 },
-  { id: det("user:layla"), firstName: "Layla", username: "layla", avatar: "https://i.pravatar.cc/100?img=9", totalXp: 120 },
-  { id: det("user:bilol"), firstName: "Bilol", username: "bilol", avatar: "https://i.pravatar.cc/100?img=10", totalXp: 60 }
+// Figma leaderboard (ref 01) shows demo at rank #32 with 200 XP — pinned card
+// renders because demo is outside top 10. Top 3 + the visible rows below copy
+// the Figma sample names; the long tail is filled to push demo to rank #32.
+const FIGMA_LEADERBOARD: Array<{ firstName: string; username: string; totalXp: number }> = [
+  { firstName: "Malika Karimova", username: "malika", totalXp: 2500 },
+  { firstName: "Umida Mirziyoyeva", username: "umida", totalXp: 2350 },
+  { firstName: "Ahmad To'rayev", username: "ahmad", totalXp: 2100 },
+  { firstName: "Asila Shodmonova", username: "asila", totalXp: 2056 },
+  { firstName: "Laylo Aliyeva", username: "laylo", totalXp: 1950 },
+  { firstName: "Vali Saidova", username: "vali", totalXp: 1825 },
+  { firstName: "Omina Bokieva", username: "omina", totalXp: 1780 },
+  { firstName: "Mubina Rahimova", username: "mubina", totalXp: 1750 }
 ];
 
-const DEMO_TOTAL_XP = 430;
+const FILLER_NAMES = [
+  "Sevinch", "Diyora", "Madina", "Nilufar", "Shahnoza", "Zarina", "Gulnoza", "Komila",
+  "Rustam", "Bobur", "Jasur", "Sardor", "Davron", "Otabek", "Ulug'bek", "Akmal",
+  "Iqbol", "Nodira", "Munisa", "Aziza", "Robiya", "Hilola", "Marjona"
+];
+
+const OTHER_STUDENTS: OtherStudent[] = (() => {
+  const named: OtherStudent[] = FIGMA_LEADERBOARD.map((row, i) => ({
+    id: det(`user:${row.username}`),
+    firstName: row.firstName,
+    username: row.username,
+    avatar: `https://i.pravatar.cc/100?img=${i + 1}`,
+    totalXp: row.totalXp
+  }));
+  const fillers: OtherStudent[] = FILLER_NAMES.map((name, i) => ({
+    id: det(`user:${name.toLowerCase()}`),
+    firstName: name,
+    username: name.toLowerCase(),
+    avatar: `https://i.pravatar.cc/100?img=${(i + 11) % 70 + 1}`,
+    // Smoothly descend from ~1700 (rank 9) down to ~210 (rank 31) so demo (200) is #32.
+    totalXp: Math.max(210, 1700 - i * 65)
+  }));
+  return [...named, ...fillers];
+})();
+
+// Figma's pinned card shows the current student at "200 XP". Demo total matches.
+const DEMO_TOTAL_XP = 200;
 
 function isoDateDaysAgo(daysAgo: number): string {
   const d = new Date();
@@ -152,15 +189,17 @@ async function seedModules() {
     const moduleId = det(`module:${seq}`);
     const { premium } = demoModuleStatus(seq);
 
+    const titles = moduleTitles(seq);
+    const estMin = titles.uz.estMin;
+
     await db
       .insert(schema.modules)
-      .values({ id: moduleId, sequenceNo: seq, slug: `module-${seq}`, status: "published", premiumRequired: premium, estimatedMinutes: 10 })
+      .values({ id: moduleId, sequenceNo: seq, slug: `module-${seq}`, status: "published", premiumRequired: premium, estimatedMinutes: estMin })
       .onConflictDoUpdate({
         target: schema.modules.id,
-        set: { sequenceNo: seq, slug: `module-${seq}`, status: "published", premiumRequired: premium }
+        set: { sequenceNo: seq, slug: `module-${seq}`, status: "published", premiumRequired: premium, estimatedMinutes: estMin }
       });
 
-    const titles = moduleTitles(seq);
     for (const lang of LANGS) {
       await db
         .insert(schema.moduleTranslations)
@@ -209,17 +248,18 @@ async function seedModuleExercises(seq: number, moduleId: string) {
         });
     }
 
-    // 4 options; the correct glyph rotates with the exercise index.
+    // 4 options with Latin transliterations (Jeem/Ja/Ha/Kha per Figma); the
+    // correct option rotates with the exercise index.
     const correctIndex = i % 4;
     for (let o = 0; o < 4; o += 1) {
-      const glyph = GLYPHS[(seq - 1 + o) % GLYPHS.length];
+      const label = OPTION_LABELS[o];
       const optionId = det(`option:${seq}:${i}:${o}`);
       await db
         .insert(schema.exerciseOptions)
-        .values({ id: optionId, exerciseId, optionText: glyph, isCorrect: o === correctIndex, sortOrder: o })
+        .values({ id: optionId, exerciseId, optionText: label, isCorrect: o === correctIndex, sortOrder: o })
         .onConflictDoUpdate({
           target: schema.exerciseOptions.id,
-          set: { optionText: glyph, isCorrect: o === correctIndex, sortOrder: o }
+          set: { optionText: label, isCorrect: o === correctIndex, sortOrder: o }
         });
     }
 
@@ -329,7 +369,8 @@ async function seedDemoModuleProgress(studentId: string) {
     const { status } = demoModuleStatus(seq);
     const completed = status === "completed";
     const inProgress = status === "in_progress";
-    const completedExercises = completed ? EXERCISES_PER_MODULE : inProgress ? 2 : 0;
+    // Figma dashboard shows m2 progress "4/10 savol" — set 4 of 10 when in_progress.
+    const completedExercises = completed ? EXERCISES_PER_MODULE : inProgress ? 4 : 0;
     const progressPercent = Math.round((completedExercises / EXERCISES_PER_MODULE) * 100);
 
     await db
@@ -437,14 +478,33 @@ async function rowCounts() {
   return counts;
 }
 
+/**
+ * DEV ONLY. Wipes all student-derived tables before re-seeding so the demo
+ * dataset stays deterministic when the leaderboard roster is rewritten (e.g.
+ * renaming students to the Figma sample). All rows are immediately recreated
+ * below — no production data loss is possible because this script targets the
+ * local dev DB. The product invariant "never hard-delete learning progress"
+ * applies to RUNTIME, not to deterministic seed.
+ */
+async function wipeStudentDataDevOnly() {
+  await db.execute(sql.raw(`TRUNCATE
+    attempt_answers, attempt_exercises, attempts,
+    xp_transactions, student_xp_totals, student_active_days,
+    student_module_progress,
+    premium_requests, premium_grants,
+    users RESTART IDENTITY CASCADE`));
+}
+
 async function main() {
+  await wipeStudentDataDevOnly();
   await seedMedia();
   await seedModules();
   await seedSounds();
 
   // Insert all student users first so later FK-bearing rows (premium, XP,
   // progress) always reference an existing user regardless of seed order.
-  await upsertStudent(DEMO_STUDENT_ID, "Demo Student", "demo_student", "https://i.pravatar.cc/100?img=12", 100000001);
+  // Figma dashboard greets "Salom, Azizbek!"; we use that as the demo first name.
+  await upsertStudent(DEMO_STUDENT_ID, "Azizbek", "azizbek", "https://i.pravatar.cc/100?img=12", 100000001);
   for (let i = 0; i < OTHER_STUDENTS.length; i += 1) {
     const s = OTHER_STUDENTS[i];
     await upsertStudent(s.id, s.firstName, s.username, s.avatar, 100000100 + i);

@@ -90,8 +90,17 @@ export interface AttemptsStorePort {
   applyAnswer(input: ApplyAnswerInput): Promise<ApplyAnswerResult>;
 }
 
+export type CatalogLanguage = "uz" | "ru" | "en";
+
+export interface CatalogLookupOptions {
+  /** Explicit language override; wins over studentId. */
+  language?: CatalogLanguage;
+  /** When set without `language`, the catalog resolves the user's preferredLanguage. */
+  studentId?: string;
+}
+
 export interface ExerciseCatalogPort {
-  getModule(moduleId: string): Promise<ModuleContentRecord | undefined>;
+  getModule(moduleId: string, options?: CatalogLookupOptions): Promise<ModuleContentRecord | undefined>;
 }
 
 export const ATTEMPTS_STORE = Symbol("ATTEMPTS_STORE");

@@ -1,168 +1,295 @@
-import { useState, useEffect, useCallback, type FC } from "react";
+import { useCallback, useEffect, useRef, useState, type FC } from "react";
 import "./BottomNavbar.css";
+
+/**
+ * BottomNavbar — 1:1 port of /Users/admin/Pictures/burro-navbar-artifact/index.html.
+ * The notch + cyan center button slide to whichever item is active, the SVG
+ * clip-path is rebuilt per active position, and the shell glow follows.
+ */
+
+type IconKey = "home" | "modules" | "learn" | "leaderboard" | "profile";
 
 type NavItem = {
   id: string;
   label: string;
-  icon: "home" | "grid" | "play" | "chart" | "user";
+  icon: IconKey;
   ariaLabel: string;
-  isCenter?: boolean;
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { id: "dashboard", label: "Asosiy", icon: "home", ariaLabel: "Asosiy sahifaga o‘tish" },
-  { id: "modules", label: "Modullar", icon: "grid", ariaLabel: "Modullar sahifasiga o‘tish" },
-  { id: "learn", label: "O‘rganish", icon: "play", ariaLabel: "O‘rganish bo‘limiga o‘tish", isCenter: true },
-  { id: "leaderboard", label: "Reyting", icon: "chart", ariaLabel: "Reyting sahifasiga o‘tish" },
-  { id: "profile", label: "Profil", icon: "user", ariaLabel: "Profil sahifasiga o‘tish" },
+  { id: "dashboard", label: "Asosiy", icon: "home", ariaLabel: "Asosiy sahifaga o'tish" },
+  { id: "modules", label: "Modullar", icon: "modules", ariaLabel: "Modullar sahifasiga o'tish" },
+  { id: "learn", label: "O'rganish", icon: "learn", ariaLabel: "O'rganish bo'limiga o'tish" },
+  { id: "leaderboard", label: "Reyting", icon: "leaderboard", ariaLabel: "Reyting sahifasiga o'tish" },
+  { id: "profile", label: "Profil", icon: "profile", ariaLabel: "Profil sahifasiga o'tish" }
 ];
 
-const GRADIENT_ID = "nav-icon-grad";
+const ICON_URLS: Record<IconKey, string> = {
+  home: "/assets/icons/nav-home.svg",
+  modules: "/assets/icons/nav-modules.svg",
+  learn: "/assets/icons/nav-learn.svg",
+  leaderboard: "/assets/icons/nav-leaderboard.svg",
+  profile: "/assets/icons/nav-profile.svg"
+};
 
-function NavIcon({ icon, size = 28 }: { icon: string; size?: number }) {
-  switch (icon) {
-    case "home":
-      return (
-        <svg width={size} height={size} viewBox="0 0 24 24" fill={`url(#${GRADIENT_ID})`}>
-          <path d="M3 14h2v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7h2a.998.998 0 0 0 .913-.593.998.998 0 0 0-.17-1.076l-9-10c-.379-.422-1.107-.422-1.486 0l-9 10A1 1 0 0 0 3 14zm5.949-.316C8.98 13.779 9.762 16 12 16c2.269 0 3.042-2.287 3.05-2.311l1.9.621C16.901 14.461 15.703 18 12 18s-4.901-3.539-4.95-3.689l1.899-.627z"/>
-        </svg>
-      );
-    case "grid":
-      return (
-        <svg width={size} height={size} viewBox="0 0 24 24" fill={`url(#${GRADIENT_ID})`}>
-          <path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z"/>
-        </svg>
-      );
-    case "chart":
-      return (
-        <svg width={size} height={size} viewBox="0 0 24 24" fill={`url(#${GRADIENT_ID})`}>
-          <path d="M6 21H3a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1zm7 0h-3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v17a1 1 0 0 1-1 1zm7 0h-3a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1z"/>
-        </svg>
-      );
-    case "user":
-      return (
-        <svg width={size} height={size} viewBox="0 0 24 24" fill={`url(#${GRADIENT_ID})`}>
-          <path d="M8 12.052c1.995 0 3.5-1.505 3.5-3.5s-1.505-3.5-3.5-3.5-3.5 1.505-3.5 3.5 1.505 3.5 3.5 3.5zM9 13H7c-2.757 0-5 2.243-5 5v1h12v-1c0-2.757-2.243-5-5-5zm11.294-4.708-4.3 4.292-1.292-1.292-1.414 1.414 2.706 2.704 5.712-5.702z"/>
-        </svg>
-      );
-    case "play":
-      return (
-        <svg width={size} height={size} viewBox="0 0 24 24" fill="white">
-          <polygon points="8,5 19,12 8,19"/>
-        </svg>
-      );
-    default:
-      return null;
-  }
+const fmt = (n: number) => Number(n).toFixed(3).replace(/\.000$/, "");
+
+/** Dynamic Union path keyed by the active item's x in source coords (0..386). */
+function figmaPath(cx: number): string {
+  const c = Number(cx);
+  const leftShoulder = c - 57.032;
+  const rightShoulder = c + 57.032;
+  const rightTop =
+    rightShoulder <= 354
+      ? [`H354`, `C371.673 22.939 386 37.265 386 54.939`]
+      : [`C${fmt(Math.min(386, rightShoulder + 18))} 22.939 386 37.265 386 54.939`];
+  const leftTop =
+    leftShoulder >= 32
+      ? [`C0 37.265 14.327 22.939 32 22.939`, `H${fmt(leftShoulder)}`]
+      : [`C0 37.265 ${fmt(Math.max(0, leftShoulder - 18))} 22.939 ${fmt(leftShoulder)} 22.939`];
+  return [
+    `M${fmt(c)} 0`,
+    `C${fmt(c + 9.301)} 0 ${fmt(c + 17.895)} 3.023 ${fmt(c + 24.854)} 8.141`,
+    `C${fmt(c + 34.544)} 15.265 ${fmt(c + 45.005)} 22.939 ${fmt(rightShoulder)} 22.939`,
+    ...rightTop,
+    `V89`,
+    `C386 106.673 371.673 121 354 121`,
+    `H32`,
+    `C14.327 121 0 106.673 0 89`,
+    `V54.939`,
+    ...leftTop,
+    `C${fmt(c - 45.005)} 22.939 ${fmt(c - 34.544)} 15.265 ${fmt(c - 24.854)} 8.141`,
+    `C${fmt(c - 17.895)} 3.023 ${fmt(c - 9.301)} 0 ${fmt(c)} 0`,
+    `Z`
+  ].join(" ");
 }
+
+const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
 export const BottomNavbar: FC<{ active?: string; onChange?: (id: string) => void }> = ({
   active = "dashboard",
-  onChange,
+  onChange
 }) => {
-  const [current, setCurrent] = useState(active);
-  const [mounted, setMounted] = useState(false);
+  const navRef = useRef<HTMLElement | null>(null);
+  const clipPathRef = useRef<SVGPathElement | null>(null);
+  const strokePathRef = useRef<SVGPathElement | null>(null);
+  const activeGlowRef = useRef<SVGCircleElement | null>(null);
+  const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const rafRef = useRef<number | null>(null);
+  const currentXRef = useRef(193);
 
+  const startIndex = Math.max(0, NAV_ITEMS.findIndex((item) => item.id === active));
+  const [activeIndex, setActiveIndex] = useState(startIndex === -1 ? 0 : startIndex);
+  const [poppingIndex, setPoppingIndex] = useState<number | null>(null);
+
+  // Keep state in sync if router-driven active prop changes.
   useEffect(() => {
-    setCurrent(active);
+    const i = NAV_ITEMS.findIndex((item) => item.id === active);
+    if (i >= 0) setActiveIndex(i);
   }, [active]);
 
-  useEffect(() => {
-    const t = requestAnimationFrame(() => setMounted(true));
-    return () => cancelAnimationFrame(t);
+  const drawShell = useCallback((cx: number, glowX: number) => {
+    const d = figmaPath(cx);
+    clipPathRef.current?.setAttribute("d", d);
+    strokePathRef.current?.setAttribute("d", d);
+    activeGlowRef.current?.setAttribute("cx", String(glowX));
   }, []);
 
-  const handleTap = useCallback(
-    (id: string) => {
-      setCurrent(id);
-      onChange?.(id);
+  const itemCenterInSourcePx = useCallback((index: number): number => {
+    const nav = navRef.current;
+    const item = itemRefs.current[index];
+    if (!nav || !item) return 193;
+    const navRect = nav.getBoundingClientRect();
+    const itemRect = item.getBoundingClientRect();
+    const rendered = itemRect.left + itemRect.width / 2 - navRect.left;
+    const scale = 386 / navRect.width;
+    return rendered * scale;
+  }, []);
+
+  const setShellX = useCallback(
+    (x: number, instant = false) => {
+      const clamped = Math.max(58, Math.min(328, x));
+      navRef.current?.style.setProperty("--active-x-visual", `${clamped}px`);
+      if (instant) {
+        currentXRef.current = clamped;
+        drawShell(clamped, clamped);
+        return;
+      }
+      const start = currentXRef.current;
+      const delta = clamped - start;
+      const startedAt = performance.now();
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - startedAt) / 520);
+        const next = start + delta * easeOutCubic(t);
+        currentXRef.current = next;
+        drawShell(next, clamped);
+        if (t < 1) rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
     },
-    [onChange],
+    [drawShell]
   );
 
+  // Recompute shell position whenever active changes or the navbar resizes.
+  useEffect(() => {
+    const update = (instant: boolean) => setShellX(itemCenterInSourcePx(activeIndex), instant);
+    update(true);
+    const onResize = () => update(true);
+    window.addEventListener("resize", onResize, { passive: true });
+    let ro: ResizeObserver | undefined;
+    if (typeof ResizeObserver !== "undefined" && navRef.current) {
+      ro = new ResizeObserver(() => update(true));
+      ro.observe(navRef.current);
+    }
+    return () => {
+      window.removeEventListener("resize", onResize);
+      ro?.disconnect();
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    setShellX(itemCenterInSourcePx(activeIndex), false);
+    setPoppingIndex(activeIndex);
+    const t = window.setTimeout(() => setPoppingIndex(null), 520);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeIndex]);
+
+  const handleClick = (index: number) => {
+    setActiveIndex(index);
+    onChange?.(NAV_ITEMS[index].id);
+  };
+
+  const handleKey = (event: React.KeyboardEvent, index: number) => {
+    if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+      event.preventDefault();
+      const direction = event.key === "ArrowRight" ? 1 : -1;
+      const next = (index + direction + NAV_ITEMS.length) % NAV_ITEMS.length;
+      itemRefs.current[next]?.focus();
+      setActiveIndex(next);
+      onChange?.(NAV_ITEMS[next].id);
+    }
+  };
+
+  const renderItem = (item: NavItem, index: number) => {
+    const isActive = index === activeIndex;
+    const isCenter = index === 2;
+    const isPopping = poppingIndex === index;
+    const className = [
+      "nav-item",
+      isCenter ? "nav-item--center" : "",
+      isActive ? "is-active" : "",
+      isPopping ? "is-popping" : ""
+    ]
+      .filter(Boolean)
+      .join(" ");
+    return (
+      <button
+        key={item.id}
+        ref={(el) => {
+          itemRefs.current[index] = el;
+        }}
+        type="button"
+        role="listitem"
+        className={className}
+        data-index={index}
+        aria-label={item.ariaLabel}
+        aria-current={isActive ? "page" : undefined}
+        onClick={() => handleClick(index)}
+        onKeyDown={(event) => handleKey(event, index)}
+      >
+        <span className="nav-icon-wrap">
+          <span
+            className="nav-icon"
+            style={{ ["--icon" as string]: `url("${ICON_URLS[item.icon]}")` }}
+          />
+        </span>
+        <span className="nav-label">{item.label}</span>
+      </button>
+    );
+  };
+
   return (
-    <nav
-      className={`bottom-navbar${mounted ? " bottom-navbar--mounted" : ""}`}
-      aria-label="Asosiy navigatsiya"
-    >
-      {/* Hidden SVG gradient defs for icon fills */}
-      <svg width={0} height={0} aria-hidden="true" style={{ position: "absolute" }}>
-        <defs>
-          <linearGradient id={GRADIENT_ID} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#FFFFFF" />
-            <stop offset="100%" stopColor="rgba(255,255,255,0.5)" />
-          </linearGradient>
-        </defs>
-      </svg>
+    <nav ref={navRef} className="burro-navbar" aria-label="Asosiy pastki navigatsiya">
+      <div className="burro-navbar__scale">
+        <span className="burro-navbar__glow" aria-hidden="true" />
 
-      {/* Center bump background shape */}
-      <div className="bottom-navbar__bump" aria-hidden="true" />
+        <svg className="burro-navbar__svg" viewBox="0 0 386 121" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="baseBlue" x1="193" y1="0" x2="193" y2="121" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stopColor="#203480" />
+              <stop offset="1" stopColor="#1B359A" />
+            </linearGradient>
+            <linearGradient id="cyanA" x1="103" y1="5" x2="367" y2="112" gradientUnits="userSpaceOnUse">
+              <stop offset="0.6978" stopColor="#12B7E5" stopOpacity="0" />
+              <stop offset="0.9827" stopColor="#12B7E5" stopOpacity="0.2" />
+            </linearGradient>
+            <linearGradient id="cyanB" x1="344" y1="-23" x2="95" y2="128" gradientUnits="userSpaceOnUse">
+              <stop offset="0.6079" stopColor="#12B7E5" stopOpacity="0" />
+              <stop offset="1" stopColor="#12B7E5" stopOpacity="0.2" />
+            </linearGradient>
+            <linearGradient id="topGloss" x1="193" y1="0" x2="193" y2="81" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#FFFFFF" stopOpacity="0.085" />
+              <stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
+            </linearGradient>
+            <radialGradient id="activeGlow" cx="50%" cy="14%" r="55%">
+              <stop offset="0" stopColor="#12B7E5" stopOpacity="0.22" />
+              <stop offset="0.52" stopColor="#12B7E5" stopOpacity="0.07" />
+              <stop offset="1" stopColor="#12B7E5" stopOpacity="0" />
+            </radialGradient>
+            <clipPath id="shellClip">
+              <path ref={clipPathRef} d="" />
+            </clipPath>
+            <filter id="innerSoft" x="-10%" y="-10%" width="120%" height="130%">
+              <feFlood floodColor="#FFFFFF" floodOpacity="0.09" result="flood" />
+              <feComposite in="flood" in2="SourceAlpha" operator="out" result="composite" />
+              <feGaussianBlur in="composite" stdDeviation="6.7" />
+              <feComposite operator="atop" in2="SourceGraphic" />
+            </filter>
+          </defs>
 
-      {/* Center button aura */}
-      <div className="bottom-navbar__aura" aria-hidden="true" />
+          <g clipPath="url(#shellClip)" filter="url(#innerSoft)">
+            <rect width="386" height="121" fill="url(#baseBlue)" />
+            <rect width="386" height="121" fill="url(#cyanA)" />
+            <rect width="386" height="121" fill="url(#cyanB)" />
+            <rect className="shell-top-light" width="386" height="121" fill="url(#topGloss)" />
+            <circle
+              ref={activeGlowRef}
+              className="shell-active-light"
+              cx="193"
+              cy="22"
+              r="72"
+              fill="url(#activeGlow)"
+            />
+            <g className="shell-stripes">
+              <path
+                d="M-86 121L-27 0H-18L-77 121H-86ZM-42 121L17 0H26L-33 121H-42ZM2 121L61 0H70L11 121H2ZM46 121L105 0H114L55 121H46ZM90 121L149 0H158L99 121H90ZM134 121L193 0H202L143 121H134ZM178 121L237 0H246L187 121H178ZM222 121L281 0H290L231 121H222ZM266 121L325 0H334L275 121H266ZM310 121L369 0H378L319 121H310ZM354 121L413 0H422L363 121H354ZM398 121L457 0H466L407 121H398Z"
+                fill="#FFFFFF"
+              />
+            </g>
+          </g>
+          <path ref={strokePathRef} d="" fill="none" stroke="rgba(255,255,255,.08)" strokeWidth="1" />
+        </svg>
 
-      {/* Diagonal texture overlay */}
-      <div className="bottom-navbar__texture" aria-hidden="true" />
+        <div className="burro-navbar__content" role="list">
+          <div className="nav-group" role="presentation">
+            {renderItem(NAV_ITEMS[0], 0)}
+            {renderItem(NAV_ITEMS[1], 1)}
+          </div>
 
-      {/* Menu items */}
-      {NAV_ITEMS.map((item) => {
-        const isActive = current === item.id;
-        const isCenter = Boolean(item.isCenter);
+          <div className="nav-center-slot" role="presentation">
+            {renderItem(NAV_ITEMS[2], 2)}
+          </div>
 
-        return (
-          <button
-            key={item.id}
-            type="button"
-            className={[
-              "bottom-navbar__item",
-              isCenter ? "bottom-navbar__item--center" : "",
-              isActive ? "bottom-navbar__item--active" : "",
-            ]
-              .filter(Boolean)
-              .join(" ")}
-            onClick={() => handleTap(item.id)}
-            aria-label={item.ariaLabel}
-            aria-current={isActive ? "page" : undefined}
-          >
-            {/* Center button background glow */}
-            {isCenter && (
-              <>
-                <span className="bottom-navbar__center-bg" aria-hidden="true" />
-                <span className="bottom-navbar__center-ring" aria-hidden="true" />
-              </>
-            )}
-
-            <span
-              key={isActive ? `${item.id}-active` : item.id}
-              className={[
-                "bottom-navbar__icon-wrap",
-                isCenter ? "bottom-navbar__icon-wrap--center" : "",
-                isActive && !isCenter ? "bottom-navbar__icon-wrap--active" : "",
-                isActive ? "bottom-navbar__icon-wrap--pulse" : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
-            >
-              <NavIcon icon={item.icon} size={isCenter ? 20 : 28} />
-            </span>
-
-            {isActive && !isCenter && (
-              <span className="bottom-navbar__active-dot" aria-hidden="true" />
-            )}
-
-            <span
-              className={[
-                "bottom-navbar__label",
-                isActive ? "bottom-navbar__label--active" : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
-            >
-              {item.label}
-            </span>
-          </button>
-        );
-      })}
+          <div className="nav-group nav-group--right" role="presentation">
+            {renderItem(NAV_ITEMS[3], 3)}
+            {renderItem(NAV_ITEMS[4], 4)}
+          </div>
+        </div>
+      </div>
     </nav>
   );
 };

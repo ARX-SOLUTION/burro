@@ -43,7 +43,7 @@ export class AttemptEngine {
   ) {}
 
   async start(studentId: string, req: StartAttemptRequest): Promise<AttemptView> {
-    const module = await this.catalog.getModule(req.moduleId);
+    const module = await this.catalog.getModule(req.moduleId, { studentId });
     if (!module) {
       throw new AttemptNotFoundError(`module ${req.moduleId} not found`);
     }
@@ -68,7 +68,7 @@ export class AttemptEngine {
     if (!attempt || attempt.studentId !== studentId) {
       throw new AttemptNotFoundError(`attempt ${attemptId} not found`);
     }
-    const module = await this.catalog.getModule(attempt.moduleId);
+    const module = await this.catalog.getModule(attempt.moduleId, { studentId });
     if (!module) {
       throw new AttemptNotFoundError(`module ${attempt.moduleId} not found`);
     }
