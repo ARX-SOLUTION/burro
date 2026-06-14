@@ -102,7 +102,9 @@ function Podium({ entries }: { entries: LeaderboardEntryDto[] }) {
 function PodiumColumn({ entry, place, height }: { entry: LeaderboardEntryDto; place: 1 | 2 | 3; height: "tall" | "short" }) {
   return (
     <article className={`podium-col podium-col--${place} podium-col--${height}`}>
-      {place === 1 && <span className="podium-col__crown" aria-hidden="true">👑</span>}
+      {place === 1 && (
+        <img className="podium-col__crown" src="/assets/icons/crown.svg" alt="" aria-hidden="true" width={28} height={28} />
+      )}
       <span className="podium-col__rank">
         #{place}
         {entry.isCurrentStudent && <span className="leaderboard-row__you" style={{ marginLeft: 4 }}>Siz</span>}

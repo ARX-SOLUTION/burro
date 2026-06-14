@@ -99,13 +99,12 @@
 
 .podium-col__crown {
   position: absolute;
-  top: -6px;
+  top: -10px;
   left: 50%;
   transform: translateX(-50%);
-  width: 100%;
-  font-size: 22px;
-  line-height: 1;
-  text-align: center;
+  width: 28px;
+  height: 28px;
+  display: block;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .35));
   pointer-events: none;
 }
