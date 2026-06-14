@@ -3,6 +3,7 @@ import { AnswerAttemptRequest, AttemptView } from "@burro/shared";
 import { InMemoryAttemptsStore } from "./adapters/in-memory-attempts.store";
 import { InMemoryExerciseCatalog } from "./adapters/in-memory-exercise.catalog";
 import { AttemptEngine, AttemptError } from "./attempt-engine";
+import type { CatalogLookupOptions, ExerciseCatalogPort, ModuleContentRecord } from "./attempts.ports";
 
 const MODULE_ID = "module-letters-1";
 const STUDENT_ID = "student-test";
@@ -308,5 +309,23 @@ describe("AttemptEngine", () => {
 
     expect(secondResult.attempt.answeredCount).toBe(2);
     expect(secondResult.attempt.xpEarned).toBe(20);
+  });
+
+  it("forwards studentId to the catalog so language can be resolved per-user", async () => {
+    const calls: Array<{ moduleId: string; options?: CatalogLookupOptions }> = [];
+    const inner = new InMemoryExerciseCatalog();
+    const recording: ExerciseCatalogPort = {
+      async getModule(moduleId, options): Promise<ModuleContentRecord | undefined> {
+        calls.push({ moduleId, options });
+        return inner.getModule(moduleId);
+      }
+    };
+    const engine = new AttemptEngine(new InMemoryAttemptsStore(), recording);
+
+    await engine.start(STUDENT_ID, { moduleId: MODULE_ID, mode: "practice" });
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0].moduleId).toBe(MODULE_ID);
+    expect(calls[0].options?.studentId).toBe(STUDENT_ID);
   });
 });

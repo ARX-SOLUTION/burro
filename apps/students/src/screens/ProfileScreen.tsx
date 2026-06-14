@@ -53,7 +53,7 @@ export function ProfileScreen() {
       <>
         <section className="profile-replica-card" aria-label="Profil ma'lumotlari">
           <div className="profile-replica-avatar" aria-hidden="true">
-            {data.avatarUrl ? <img src={data.avatarUrl} alt="" /> : <span>{data.displayName.slice(0, 1)}</span>}
+            {data.avatarUrl ? <img src={data.avatarUrl} alt="" width={56} height={56} /> : <span>{data.displayName.slice(0, 1)}</span>}
           </div>
           <div className="profile-replica-identity">
             <strong className="profile-replica-name">{data.displayName}</strong>

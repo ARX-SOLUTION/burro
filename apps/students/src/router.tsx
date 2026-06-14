@@ -36,13 +36,23 @@ function RootLayout() {
     // Resolve the current/next learnable module from the live path rather than
     // a hardcoded slug (the old "module-letters-1" was a dev fixture and 500s
     // against the seeded UUID-keyed catalog).
-    const res = await fetch("/student/path");
-    const json = await res.json();
-    const modules: Array<{ id: string; status: string }> = json?.data?.modules ?? [];
-    const target =
-      modules.find((m) => m.status === "current") ??
-      modules.find((m) => m.status === "available") ??
-      modules[0];
+    let target: { id: string; status: string } | undefined;
+    try {
+      const res = await fetch("/student/path");
+      if (!res.ok) {
+        console.error("goLearn: /student/path returned", res.status);
+        return;
+      }
+      const json = await res.json();
+      const modules: Array<{ id: string; status: string }> = json?.data?.modules ?? [];
+      target =
+        modules.find((m) => m.status === "current") ??
+        modules.find((m) => m.status === "available") ??
+        modules[0];
+    } catch (error) {
+      console.error("goLearn: failed to fetch /student/path", error);
+      return;
+    }
     if (target) {
       navigate({ to: "/modules/$moduleId/practice", params: { moduleId: target.id } });
     }

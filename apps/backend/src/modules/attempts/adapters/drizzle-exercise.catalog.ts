@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import type { BurroDb } from "../../../db/client";
 import {
   exerciseOptions,
@@ -20,6 +20,19 @@ import {
 } from "../attempts.ports";
 
 const DEFAULT_LANGUAGE: CatalogLanguage = "uz";
+const SUPPORTED_LANGUAGES = new Set<CatalogLanguage>(["uz", "ru", "en"]);
+
+/**
+ * Maps a raw user.preferredLanguage value (any string from the DB) to a
+ * supported CatalogLanguage. Unknown / null / empty values fall back to uz.
+ * Exported for unit testing — does not depend on the database.
+ */
+export function coerceLanguage(value: string | null | undefined): CatalogLanguage {
+  if (value && SUPPORTED_LANGUAGES.has(value as CatalogLanguage)) {
+    return value as CatalogLanguage;
+  }
+  return DEFAULT_LANGUAGE;
+}
 
 /**
  * Reads module content from PostgreSQL. Text comes from the per-language
@@ -67,14 +80,12 @@ export class DrizzleExerciseCatalog implements ExerciseCatalogPort {
       ? await this.database
           .select()
           .from(exerciseOptions)
+          .where(inArray(exerciseOptions.exerciseId, exerciseIds))
           .orderBy(asc(exerciseOptions.exerciseId), asc(exerciseOptions.sortOrder))
       : [];
 
     const optionsByExercise = new Map<string, ExerciseRecord["options"]>();
     for (const option of optionRows) {
-      if (!exerciseIds.includes(option.exerciseId)) {
-        continue;
-      }
       const list = optionsByExercise.get(option.exerciseId) ?? [];
       list.push({ id: option.id, label: option.optionText, isCorrect: option.isCorrect });
       optionsByExercise.set(option.exerciseId, list);
@@ -114,6 +125,6 @@ export class DrizzleExerciseCatalog implements ExerciseCatalogPort {
       .from(users)
       .where(eq(users.id, studentId))
       .limit(1);
-    return (row?.language as CatalogLanguage) ?? DEFAULT_LANGUAGE;
+    return coerceLanguage(row?.language);
   }
 }

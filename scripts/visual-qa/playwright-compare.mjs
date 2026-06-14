@@ -1,18 +1,26 @@
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 
-const repo = "/Users/admin/Developer/Projects/burro/burro-dev";
-const outDir = "/private/tmp/burro-playwright-visual-qa";
-const baseUrl = "http://127.0.0.1:5173";
-const chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const runtimeNodeModules = "/Users/admin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules";
-const runtimeRequire = createRequire(`${runtimeNodeModules}/`);
-const playwrightMod = await import(runtimeRequire.resolve("playwright"));
+// Script lives in scripts/visual-qa/; the repo root is two dirs up.
+const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+const outDir = process.env.BURRO_VISUAL_QA_OUT ?? path.join(os.tmpdir(), "burro-playwright-visual-qa");
+const baseUrl = process.env.BURRO_VISUAL_QA_BASE_URL ?? "http://127.0.0.1:5173";
+// chromePath: when unset we let Playwright use its bundled chromium.
+const chromePath = process.env.BURRO_VISUAL_QA_CHROME_PATH || undefined;
+// runtimeNodeModules: optional override pointing at an external node_modules
+// (e.g. a Codex runtime cache). Default: resolve via the script's own node_modules.
+const runtimeNodeModules = process.env.BURRO_VISUAL_QA_RUNTIME_NODE_MODULES || null;
+const resolveDep = runtimeNodeModules
+  ? createRequire(`${runtimeNodeModules}/`).resolve
+  : (name) => name;
+const playwrightMod = await import(resolveDep("playwright"));
 const chromium = playwrightMod.chromium ?? playwrightMod.default?.chromium;
-const { default: pixelmatch } = await import(runtimeRequire.resolve("pixelmatch"));
-const { PNG } = await import(runtimeRequire.resolve("pngjs"));
-const { default: sharp } = await import(runtimeRequire.resolve("sharp"));
+const { default: pixelmatch } = await import(resolveDep("pixelmatch"));
+const { PNG } = await import(resolveDep("pngjs"));
+const { default: sharp } = await import(resolveDep("sharp"));
 
 const scenarios = [
   {
@@ -54,7 +62,7 @@ const scenarios = [
 await fs.mkdir(outDir, { recursive: true });
 
 const browser = await chromium.launch({
-  executablePath: chromePath,
+  ...(chromePath ? { executablePath: chromePath } : {}),
   headless: true,
   args: ["--no-sandbox", "--disable-gpu", "--force-device-scale-factor=1"]
 });
