@@ -49,8 +49,8 @@
   --shadow-red-glow: 0 0 0 2px rgba(255, 96, 96, 0.35), 0 8px 24px rgba(243, 67, 67, 0.35);
 
   /* Layout */
-  --bottom-nav-height: 96px;
-  --bottom-nav-reserved: calc(112px + env(safe-area-inset-bottom));
+  --bottom-nav-height: 108px;
+  --bottom-nav-reserved: calc(130px + env(safe-area-inset-bottom));
   --screen-x-padding: 20px;
 
   /* Font stacks */
