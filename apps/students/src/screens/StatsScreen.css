@@ -1,0 +1,340 @@
+/* Scoped 1:1 pass for docs/design/reference-screens/17-statistics.png. */
+.stats17-shell {
+  position: relative;
+  margin: -24px -18px -108px;
+  min-height: max(874px, 100vh);
+}
+
+.stats17-shell .app-background,
+.stats17-shell .app-background__content {
+  min-height: max(874px, 100vh);
+}
+
+.stats17-shell .app-background {
+  background-color: #0c1b45;
+  background-image:
+    linear-gradient(180deg, rgba(11, 25, 67, .76) 0%, rgba(11, 27, 70, .74) 52%, rgba(7, 22, 60, .84) 100%),
+    url("/assets/backgrounds/burro-mosque-bg.jpg");
+  background-position: center top;
+  background-size: cover;
+  background-attachment: scroll;
+}
+
+.stats17-shell .app-background__overlay {
+  position: absolute;
+  background: rgba(4, 14, 45, .22);
+}
+
+.stats17-shell .app-background__content {
+  overflow: hidden;
+  padding: 0;
+}
+
+.content:has(.stats17-shell) + .bottom-nav {
+  display: none;
+}
+
+.stats17-frame {
+  position: relative;
+  width: min(402px, 100vw);
+  min-height: max(874px, 100vh);
+  padding: 16px 20px 64px;
+  color: #ffffff;
+}
+
+.stats17-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 14px;
+  padding: 0 16px;
+  margin-bottom: 30px;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.stats17-status__time {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.stats17-status__icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.stats17-status__icons svg {
+  display: block;
+  fill: #ffffff;
+  stroke: #ffffff;
+}
+
+.stats17-status__signal {
+  width: 18px;
+  height: 12px;
+}
+
+.stats17-status__icons .stats17-status__wifi {
+  width: 16px;
+  height: 12px;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.stats17-status__icons .stats17-status__battery {
+  width: 25px;
+  height: 12px;
+  fill: none;
+  stroke-width: 1.5;
+}
+
+.stats17-status__battery rect:nth-child(2) {
+  fill: #ffffff;
+  stroke: none;
+}
+
+.stats17-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 44px;
+  margin-bottom: 16px;
+}
+
+.stats17-back {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .12);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.stats17-back__arrow {
+  width: 12px;
+  height: 12px;
+  border-bottom: 2.5px solid currentColor;
+  border-left: 2.5px solid currentColor;
+  transform: translateX(2px) rotate(45deg);
+}
+
+.stats17-header__title {
+  margin: 0;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.stats17-content {
+  display: grid;
+  gap: 8px;
+}
+
+.stats17-card,
+.stats17-mini-card,
+.stats17-state {
+  color: #111827;
+  background: var(--burro-card);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .18), 0 12px 28px rgba(5, 21, 60, .10);
+}
+
+.stats17-card {
+  border-radius: 23px;
+  padding: 26px 24px 22px;
+}
+
+.stats17-card--chart {
+  height: 280px;
+}
+
+.stats17-card--reviews {
+  height: 314px;
+  padding-top: 25px;
+}
+
+.stats17-card__title {
+  margin: 0;
+  color: #111827;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 20px;
+}
+
+.stats17-chart {
+  width: 100%;
+  height: 181px;
+  margin-top: 21px;
+}
+
+.stats17-chart__bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+  height: 181px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stats17-chart__col {
+  display: grid;
+  grid-template-rows: 17px 134px 20px;
+  justify-items: center;
+  align-items: end;
+  width: 36px;
+  height: 181px;
+  row-gap: 5px;
+}
+
+.stats17-chart__value {
+  align-self: start;
+  color: #11aee5;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 15px;
+  white-space: nowrap;
+}
+
+.stats17-chart__value--peak {
+  color: #108ee5;
+  font-weight: 800;
+}
+
+.stats17-chart__bar {
+  align-self: end;
+  display: block;
+  width: 36px;
+  min-height: 0;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(180deg, #87d9f1 0%, #87c9f1 100%);
+}
+
+.stats17-chart__bar--peak {
+  background: linear-gradient(180deg, #108ae5 0%, #0e6ee5 100%);
+}
+
+.stats17-chart__label {
+  align-self: end;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.stats17-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  height: 80px;
+}
+
+.stats17-mini-card {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 5px;
+  height: 80px;
+  border-radius: 22px;
+}
+
+.stats17-mini-card__value {
+  color: #111827;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 25px;
+}
+
+.stats17-mini-card__label {
+  color: #7d8390;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.stats17-reviews {
+  display: grid;
+  gap: 9px;
+  margin: 15px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stats17-review {
+  display: grid;
+  align-content: center;
+  width: 100%;
+  height: 70px;
+  padding: 12px 15px 11px;
+  border: 1px solid #eef0f3;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, .96);
+}
+
+.stats17-review__eyebrow {
+  display: block;
+  overflow: hidden;
+  color: #a2aaba;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stats17-review__title {
+  display: block;
+  overflow: hidden;
+  margin-top: 5px;
+  color: #111827;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stats17-reviews__empty,
+.stats17-state {
+  margin: 15px 0 0;
+  padding: 18px;
+  border-radius: 18px;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.stats17-state {
+  color: #111827;
+}
+
+.stats17-state--error {
+  display: grid;
+  gap: 6px;
+}
+
+.stats17-state--error h2,
+.stats17-state--error p {
+  margin: 0;
+}
+
+@media (max-width: 380px) {
+  .stats17-shell {
+    margin-right: -14px;
+    margin-left: -14px;
+  }
+
+  .stats17-frame {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+}

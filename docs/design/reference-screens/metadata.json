@@ -138,5 +138,12 @@
     "width": 402,
     "height": 874,
     "description": "Modules path view with connected learning nodes"
+  },
+  {
+    "file": "21-add-edit-child.png",
+    "source": "iPhone 16 & 17 Pro - 29.png",
+    "width": 402,
+    "height": 874,
+    "description": "Add/edit child form with gender selection (shared design with parent app)"
   }
 ]

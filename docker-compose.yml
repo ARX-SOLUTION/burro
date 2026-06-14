@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: burro-postgres
+    environment:
+      POSTGRES_USER: burro
+      POSTGRES_PASSWORD: burro
+      POSTGRES_DB: burro
+    ports:
+      - "54329:5432"
+    volumes:
+      - burro-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U burro -d burro"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  burro-pgdata:

@@ -125,6 +125,20 @@ Rule: max 2 active parents per student. Only admin can remove.
 
 Unique: module_id + language.
 
+### module_feedback
+
+Per-module answer feedback copy.
+
+- id uuid pk
+- module_id fk modules
+- language enum default uz
+- correct_title text
+- correct_message text
+- incorrect_title text
+- incorrect_message text
+
+Unique: module_id + language.
+
 ### media_assets
 
 - id uuid pk
@@ -211,18 +225,41 @@ Used when quiz_source = manual.
 - score int nullable
 - hearts_start int nullable
 - hearts_remaining int nullable
+- correct_count int default 0
+- xp_earned int default 0
 - started_at
 - completed_at nullable
+
+### attempt_exercises
+
+Frozen exercise order for an attempt. Required because practice and quiz attempts may shuffle or sample questions, and a student must resume the same attempt order after a process restart.
+
+- id uuid pk
+- attempt_id fk attempts
+- exercise_id fk exercises
+- sort_order int
+
+Unique:
+
+- attempt_id + exercise_id
+- attempt_id + sort_order
 
 ### attempt_answers
 
 - id uuid pk
 - attempt_id fk attempts
 - exercise_id fk exercises
+- client_answer_id text
 - selected_option_id fk exercise_options
 - correct_option_id fk exercise_options
 - is_correct boolean
+- xp_delta int default 0
 - answered_at
+
+Unique:
+
+- attempt_id + exercise_id
+- attempt_id + client_answer_id
 
 ### student_module_progress
 
@@ -247,18 +284,20 @@ Immutable ledger.
 - id uuid pk
 - student_user_id fk users
 - source_type text
-- source_id uuid nullable
+- source_id uuid not null
 - xp_delta int
 - reason text
 - created_at
 
-Unique anti-duplication: student_user_id + source_type + source_id.
+Unique anti-duplication: student_user_id + source_type + source_id. source_id must be NOT NULL: Postgres treats NULLs as distinct in unique indexes, so nullable source_id would allow duplicate grants.
 
 ### student_xp_totals
 
 - student_user_id pk fk users
 - total_xp int
 - updated_at
+
+**Note:** Student level is derived from `total_xp` using `xpForLevel(n) = 50 × n × (n − 1)`. No `student_levels` table exists. Computation is in `@burro/shared/contracts/levels`.
 
 ### student_active_days
 

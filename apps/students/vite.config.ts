@@ -8,6 +8,8 @@ export default defineConfig({
   server: {
     proxy: {
       "/student": "http://localhost:4000",
+      "/leaderboards": "http://localhost:4000",
+      "/auth": "http://localhost:4000",
       "/health": "http://localhost:4000"
     }
   }

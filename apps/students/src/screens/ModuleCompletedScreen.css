@@ -1,0 +1,205 @@
+.module-completed-replica-shell {
+  position: relative;
+  margin: -24px -18px -108px;
+  min-height: max(874px, 100vh);
+  overflow: hidden;
+}
+
+.module-completed-replica-shell ~ .bottom-nav {
+  display: none;
+}
+
+.module-completed-replica-shell .app-background,
+.module-completed-replica-shell .app-background__content {
+  min-height: max(874px, 100vh);
+}
+
+.module-completed-replica-shell .app-background {
+  background-image:
+    linear-gradient(180deg, rgba(7, 26, 68, .68), rgba(6, 22, 64, .78)),
+    var(--app-bg-image);
+}
+
+.module-completed-replica-shell .app-background__overlay {
+  background: rgba(2, 10, 34, .22);
+}
+
+.module-completed-replica-shell .app-background__content {
+  display: flex;
+  padding: 0;
+}
+
+.module-completed-replica-screen {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  width: 100%;
+  min-height: max(874px, 100vh);
+  padding:
+    calc(env(safe-area-inset-top) + 207px)
+    24px
+    calc(env(safe-area-inset-bottom) + 38px);
+  color: #ffffff;
+  text-align: center;
+}
+
+.module-completed-replica-state {
+  margin: auto;
+  padding: 20px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, .96);
+  color: var(--burro-text-primary);
+  font-weight: 800;
+}
+
+.module-completed-replica-state--error {
+  display: grid;
+  gap: 10px;
+}
+
+.module-completed-replica-hero {
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+}
+
+.module-completed-replica-hero__circle {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 119px;
+  height: 119px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, .24);
+}
+
+.module-completed-replica-hero__circle::before {
+  content: "";
+  position: absolute;
+  inset: 31px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #1c863b, #26a23a);
+}
+
+.module-completed-replica-hero__check {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  width: 31px;
+  height: 18px;
+  margin-top: -4px;
+  border-left: 6px solid #ffffff;
+  border-bottom: 6px solid #ffffff;
+  border-radius: 0 0 0 3px;
+  transform: rotate(-45deg);
+}
+
+.module-completed-replica-headline {
+  display: grid;
+  gap: 16px;
+  margin-top: 23px;
+}
+
+.module-completed-replica-headline h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 29px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, .3);
+}
+
+.module-completed-replica-headline p {
+  max-width: 238px;
+  margin: 0 auto;
+  color: rgba(200, 210, 228, .88);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.45;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, .28);
+}
+
+.module-completed-replica-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: 330px;
+  max-width: 100%;
+  margin: 25px auto 0;
+}
+
+.module-completed-replica-stat {
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  min-height: 79px;
+  padding: 19px 14px 15px;
+  border-radius: 20px;
+  background:
+    repeating-linear-gradient(120deg, rgba(12, 63, 145, .035) 0 6px, transparent 6px 16px),
+    rgba(255, 255, 255, .96);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, .14), 0 14px 25px rgba(2, 20, 60, .18);
+}
+
+.module-completed-replica-stat strong {
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.module-completed-replica-stat--xp strong {
+  color: #fbbf24;
+}
+
+.module-completed-replica-stat--accuracy strong {
+  color: #29ad39;
+}
+
+.module-completed-replica-stat span {
+  color: #5f6985;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.module-completed-replica-actions {
+  display: grid;
+  gap: 18px;
+  width: 350px;
+  max-width: 100%;
+  margin: auto auto 0;
+}
+
+.module-completed-replica-actions .gradient-button {
+  min-height: 58px;
+  border-radius: 14px;
+  padding: 15px 20px;
+  background: linear-gradient(180deg, #5dceed 0%, #3dc6ee 50%, #5eb8ed 100%);
+  box-shadow:
+    0 6px 0 rgba(8, 40, 86, .65),
+    0 0 0 1px rgba(158, 237, 255, .75),
+    0 13px 28px rgba(33, 190, 245, .43);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.module-completed-replica-secondary {
+  border: 0;
+  padding: 8px 0 0;
+  background: transparent;
+  color: rgba(180, 195, 215, .75);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, .3);
+  cursor: pointer;
+}
+
+.module-completed-replica-secondary:hover,
+.module-completed-replica-secondary:focus-visible {
+  color: #ffffff;
+}

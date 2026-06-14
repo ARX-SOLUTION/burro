@@ -5,6 +5,24 @@ export const burroTailwindPreset = {
     extend: {
       colors: {
         burro: {
+          // Spec-named tokens (doc 12 §5)
+          bg950: burroTokens.bg950,
+          bg900: burroTokens.bg900,
+          bg850: burroTokens.bg850,
+          navy: burroTokens.navy,
+          textPrimary: burroTokens.textPrimary,
+          textOnDark: burroTokens.textOnDark,
+          textMutedSpec: burroTokens.textMuted,
+          cyan500: burroTokens.cyan500,
+          cyan400: burroTokens.cyan400,
+          blue500: burroTokens.blue500,
+          blue600: burroTokens.blue600,
+          green500: burroTokens.green500,
+          green600: burroTokens.green600,
+          red500: burroTokens.red500,
+          yellow500: burroTokens.yellow500,
+          cardSoft: burroTokens.cardSoft,
+          // Legacy aliases (kept so existing utility classes keep resolving)
           bgDeep: burroTokens.bgDeep,
           bgNavy: burroTokens.bgNavy,
           primary: burroTokens.primary,
@@ -18,18 +36,24 @@ export const burroTailwindPreset = {
           muted: burroTokens.textMuted
         }
       },
+      fontFamily: {
+        burroSans: burroTokens.fontSans.split(",").map((part) => part.trim()),
+        burroArabic: burroTokens.fontArabic.split(",").map((part) => part.trim())
+      },
       borderRadius: {
+        burroXs: "10px",
         burroSm: "14px",
         burroMd: "18px",
-        burroLg: "22px",
-        burroXl: "28px"
+        burroLg: "24px",
+        burroXl: "30px",
+        burroPill: "999px"
       },
       boxShadow: {
         burroCard: burroTokens.shadowCard,
         burroGlow: burroTokens.shadowGlow,
-        burroCyan: "0 0 0 2px rgba(85,216,246,0.55), 0 8px 24px rgba(21,185,240,0.45)",
-        burroGreen: "0 0 0 2px rgba(71,236,107,0.35), 0 8px 24px rgba(32,178,75,0.35)",
-        burroRed: "0 0 0 2px rgba(255,96,96,0.35), 0 8px 24px rgba(243,67,67,0.35)"
+        burroCyan: burroTokens.shadowCyanGlow,
+        burroGreen: burroTokens.shadowGreenGlow,
+        burroRed: burroTokens.shadowRedGlow
       }
     }
   }

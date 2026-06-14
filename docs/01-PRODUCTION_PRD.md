@@ -213,6 +213,36 @@ XP sources:
 
 Repeated practice after failed final quiz does not duplicate XP. Final quiz retry does not duplicate XP for the same question already rewarded.
 
+## 20.1. Levels
+
+Levels are derived from total XP. No separate storage.
+
+Formula:
+
+```txt
+xpForLevel(n) = 50 × n × (n − 1)
+```
+
+Thresholds:
+
+- Level 1: 0 XP
+- Level 2: 100 XP
+- Level 3: 300 XP
+- Level 4: 600 XP
+- Level 5: 1,000 XP
+- Level 10: 4,500 XP
+- Level 20: 19,000 XP
+- Level 30: 43,500 XP (max)
+
+Max level: 30. Computation lives in `@burro/shared` contracts.
+
+Levels visible in:
+
+- Student Dashboard (progress bar)
+- Student Top Bar (badge)
+- Student Profile
+- Parent Dashboard (future)
+
 ## 21. Active Days
 
 MVP uses Active Days instead of resettable streaks. A day becomes active when student submits at least 5 answers. Correctness does not matter.

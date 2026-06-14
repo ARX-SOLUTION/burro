@@ -6,11 +6,13 @@ import {
   StartAttemptRequest
 } from "@burro/shared";
 import {
+  AttemptAnswerRecord,
   AttemptRecord,
   AttemptsStorePort,
   ExerciseCatalogPort,
   ExerciseRecord,
-  ModuleContentRecord
+  ModuleContentRecord,
+  XpGrantRequest
 } from "./attempts.ports";
 
 export class AttemptError extends Error {
@@ -40,8 +42,8 @@ export class AttemptEngine {
     private readonly catalog: ExerciseCatalogPort
   ) {}
 
-  start(studentId: string, req: StartAttemptRequest): AttemptView {
-    const module = this.catalog.getModule(req.moduleId);
+  async start(studentId: string, req: StartAttemptRequest): Promise<AttemptView> {
+    const module = await this.catalog.getModule(req.moduleId);
     if (!module) {
       throw new AttemptNotFoundError(`module ${req.moduleId} not found`);
     }
@@ -57,22 +59,32 @@ export class AttemptEngine {
       correctCount: 0,
       xpEarned: 0
     };
-    this.store.saveAttempt(attempt);
+    await this.store.saveAttempt(attempt);
     return this.toView(attempt, module);
   }
 
-  answer(studentId: string, attemptId: string, req: AnswerAttemptRequest): AnswerResultView {
-    const attempt = this.store.getAttempt(attemptId);
+  async answer(studentId: string, attemptId: string, req: AnswerAttemptRequest): Promise<AnswerResultView> {
+    const attempt = await this.store.getAttempt(attemptId);
     if (!attempt || attempt.studentId !== studentId) {
       throw new AttemptNotFoundError(`attempt ${attemptId} not found`);
     }
-    if (attempt.status !== "in_progress") {
-      throw new AttemptInvalidError("attempt is finished");
-    }
-    const module = this.catalog.getModule(attempt.moduleId);
+    const module = await this.catalog.getModule(attempt.moduleId);
     if (!module) {
       throw new AttemptNotFoundError(`module ${attempt.moduleId} not found`);
     }
+
+    const replayedAnswer = await this.store.getAnswerByClientAnswerId(attempt.id, req.clientAnswerId);
+    if (replayedAnswer) {
+      if (replayedAnswer.exerciseId !== req.exerciseId || replayedAnswer.selectedOptionId !== req.selectedOptionId) {
+        throw new AttemptInvalidError("clientAnswerId has already been used for a different answer");
+      }
+      return this.toAnswerResult(attempt, module, replayedAnswer);
+    }
+
+    if (attempt.status !== "in_progress") {
+      throw new AttemptInvalidError("attempt is finished");
+    }
+
     const currentExerciseId = attempt.exerciseIds[attempt.answeredExerciseIds.length];
     if (req.exerciseId !== currentExerciseId) {
       throw new AttemptInvalidError(`exercise ${req.exerciseId} is not the current exercise`);
@@ -91,12 +103,13 @@ export class AttemptEngine {
     }
 
     const isCorrect = option.isCorrect;
-    const xpDelta = isCorrect
-      ? this.store.grantXpOnce(studentId, "correct_answer", `${attempt.moduleId}:${exercise.id}`, module.correctAnswerXp)
-      : 0;
     attempt.answeredExerciseIds.push(exercise.id);
     attempt.correctCount += isCorrect ? 1 : 0;
-    attempt.xpEarned += xpDelta;
+
+    const answerXpGrant: XpGrantRequest | null = isCorrect
+      ? { sourceType: "correct_answer", sourceId: exercise.id, xpDelta: module.correctAnswerXp }
+      : null;
+    const completionXpGrants: XpGrantRequest[] = [];
 
     if (attempt.mode === "final_quiz" && !isCorrect) {
       attempt.heartsRemaining -= 1;
@@ -108,27 +121,18 @@ export class AttemptEngine {
     if (attempt.status === "in_progress" && attempt.answeredExerciseIds.length === attempt.exerciseIds.length) {
       if (attempt.mode === "practice") {
         attempt.status = "completed";
-        attempt.xpEarned += this.store.grantXpOnce(
-          studentId,
-          "practice_completion",
-          attempt.moduleId,
-          module.practiceCompletionXp
-        );
+        completionXpGrants.push({
+          sourceType: "practice_completion",
+          sourceId: attempt.moduleId,
+          xpDelta: module.practiceCompletionXp
+        });
       } else {
         const score = (attempt.correctCount / attempt.exerciseIds.length) * 100;
         if (score >= module.passScore) {
           attempt.status = "passed";
-          attempt.xpEarned += this.store.grantXpOnce(
-            studentId,
-            "final_quiz_pass",
-            attempt.moduleId,
-            module.finalQuizPassXp
-          );
-          attempt.xpEarned += this.store.grantXpOnce(
-            studentId,
-            "module_completion",
-            attempt.moduleId,
-            module.moduleCompletionXp
+          completionXpGrants.push(
+            { sourceType: "final_quiz_pass", sourceId: attempt.moduleId, xpDelta: module.finalQuizPassXp },
+            { sourceType: "module_completion", sourceId: attempt.moduleId, xpDelta: module.moduleCompletionXp }
           );
         } else {
           attempt.status = "failed";
@@ -136,16 +140,36 @@ export class AttemptEngine {
       }
     }
 
-    this.store.saveAttempt(attempt);
+    const { grantedTotal, answer } = await this.store.applyAnswer({
+      attempt,
+      answer: {
+        attemptId: attempt.id,
+        exerciseId: exercise.id,
+        clientAnswerId: req.clientAnswerId,
+        selectedOptionId: option.id,
+        correctOptionId: correctOption.id,
+        isCorrect
+      },
+      answerXpGrant,
+      completionXpGrants
+    });
+    const persistedAttempt = await this.store.getAttempt(attempt.id);
+    return this.toAnswerResult(persistedAttempt ?? { ...attempt, xpEarned: attempt.xpEarned + grantedTotal }, module, answer);
+  }
 
+  private toAnswerResult(
+    attempt: AttemptRecord,
+    module: ModuleContentRecord,
+    answer: AttemptAnswerRecord
+  ): AnswerResultView {
     return {
       attempt: this.toView(attempt, module),
-      exerciseId: exercise.id,
-      selectedOptionId: option.id,
-      correctOptionId: correctOption.id,
-      isCorrect,
-      xpDelta,
-      feedback: isCorrect
+      exerciseId: answer.exerciseId,
+      selectedOptionId: answer.selectedOptionId,
+      correctOptionId: answer.correctOptionId,
+      isCorrect: answer.isCorrect,
+      xpDelta: answer.xpDelta,
+      feedback: answer.isCorrect
         ? { title: module.feedback.correctTitle, message: module.feedback.correctMessage }
         : { title: module.feedback.incorrectTitle, message: module.feedback.incorrectMessage }
     };

@@ -81,7 +81,7 @@ export class InMemoryExerciseCatalog implements ExerciseCatalogPort {
     ]
   ]);
 
-  getModule(moduleId: string): ModuleContentRecord | undefined {
+  async getModule(moduleId: string): Promise<ModuleContentRecord | undefined> {
     return this.modules.get(moduleId);
   }
 }
