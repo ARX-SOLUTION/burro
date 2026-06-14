@@ -118,9 +118,25 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background:
-    radial-gradient(circle at var(--active-x) 0%, rgba(18, 183, 229, 0.18), transparent 27%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 45%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 45%);
+}
+
+/* Cyan glow that follows the active item along the body top — extracted from
+   body::after so the position can actually transition (CSS vars in
+   background-image gradients snap, they don't interpolate). */
+.burro-navbar__active-spot {
+  position: absolute;
+  z-index: 1;
+  left: calc(var(--active-x) - 70px);
+  top: calc(var(--shell-h) - var(--body-h));
+  width: 140px;
+  height: 38px;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 0%, rgba(18, 183, 229, 0.32), transparent 70%);
+  filter: blur(2px);
+  opacity: 0.9;
+  transition: left 0.56s var(--spring);
+  transform: translateZ(0);
 }
 
 .burro-navbar__edge-light {
@@ -173,6 +189,14 @@
     transform 0.34s var(--ease-out),
     filter 0.34s var(--ease-out);
   -webkit-tap-highlight-color: transparent;
+  animation: navItemIntro 0.46s var(--ease-out) backwards;
+  animation-delay: calc(0.18s + var(--item-index, 0) * 0.055s);
+}
+
+@media (hover: hover) {
+  .nav-item:hover:not(.is-active) {
+    opacity: 0.92;
+  }
 }
 
 .nav-item::after {
@@ -361,6 +385,13 @@
   0% { opacity: 0.72; }
   45% { opacity: 1; filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.38)); }
   100% { opacity: 1; }
+}
+
+@keyframes navItemIntro {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
