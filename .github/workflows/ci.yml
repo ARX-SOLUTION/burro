@@ -17,5 +17,9 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # @burro/shared and @burro/ui resolve via dist/; build before downstream
+      # typechecks so backend/students can find type declarations.
+      - run: pnpm --filter @burro/shared build
+      - run: pnpm --filter @burro/ui build
       - run: pnpm -r typecheck
       - run: pnpm --filter @burro/backend test

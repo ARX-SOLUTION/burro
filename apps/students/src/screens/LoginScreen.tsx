@@ -15,13 +15,18 @@ export function LoginScreen() {
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const canSubmit = login.trim().length > 0 && password.trim().length > 0 && !submitting;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError(null);
     if (!canSubmit) return;
     setSubmitting(true);
+    // Production auth is Telegram OTP (doc 12 §9.2). For dev the bypass runs
+    // server-side via x-student-id, so we navigate straight to /dashboard.
+    // A real submission failure (network / 401) would set `error` here.
     navigate({ to: "/dashboard" });
   }
 
@@ -81,6 +86,12 @@ export function LoginScreen() {
               <span aria-hidden="true" className="login-remember__box" />
               <span className="login-remember__label">Esda saqlash</span>
             </label>
+
+            {error && (
+              <p className="login-error" role="alert" aria-live="polite">
+                {error}
+              </p>
+            )}
           </div>
 
           <div className="login-cta-wrap">

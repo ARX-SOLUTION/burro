@@ -1493,6 +1493,17 @@ a:focus-visible {
   outline-offset: 3px;
 }
 
+.login-error {
+  margin: 4px 0 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 80, 96, .14);
+  color: #ff8893;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 .login-cta-wrap {
   margin-top: auto;
   padding-top: 40px;

@@ -487,6 +487,11 @@ async function rowCounts() {
  * applies to RUNTIME, not to deterministic seed.
  */
 async function wipeStudentDataDevOnly() {
+  // Hard guard: refuse to truncate against a production DB even if the script
+  // is invoked with an unintended DATABASE_URL. The seed only ever runs in dev.
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("seed.ts: refusing to TRUNCATE student tables in production. NODE_ENV=production");
+  }
   await db.execute(sql.raw(`TRUNCATE
     attempt_answers, attempt_exercises, attempts,
     xp_transactions, student_xp_totals, student_active_days,

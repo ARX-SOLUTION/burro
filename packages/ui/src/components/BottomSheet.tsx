@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 export type BottomSheetProps = {
   /** Optional sheet title (passed in already localized). */
@@ -14,6 +14,18 @@ export type BottomSheetProps = {
  * Used for the profile language selector. Safe-area aware at the bottom.
  */
 export function BottomSheet({ title, onClose, closeLabel, children }: BottomSheetProps) {
+  // Escape closes the sheet (modal-escape rule). Cleanup on unmount.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   return (
     <div className="bottom-sheet" role="dialog" aria-modal="true" aria-label={title}>
       <button
