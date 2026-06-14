@@ -6,6 +6,17 @@ import "./BottomNavbar.css";
  * The raised bump, glow, and active item follow whichever tab is selected.
  */
 
+type TelegramHaptic = {
+  selectionChanged?: () => void;
+  impactOccurred?: (style: "light" | "medium" | "heavy" | "rigid" | "soft") => void;
+};
+
+function getTelegramHaptic(): TelegramHaptic | null {
+  if (typeof window === "undefined") return null;
+  const webApp = (window as unknown as { Telegram?: { WebApp?: { HapticFeedback?: TelegramHaptic } } }).Telegram?.WebApp;
+  return webApp?.HapticFeedback ?? null;
+}
+
 type IconKey = "home" | "modules" | "learn" | "leaderboard" | "profile";
 
 type NavItem = {
@@ -42,6 +53,7 @@ export const BottomNavbar: FC<{ active?: string; onChange?: (id: string) => void
 }) => {
   const navRef = useRef<HTMLElement | null>(null);
   const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const isFirstPopRef = useRef(true);
   const [activeIndex, setActiveIndex] = useState(() => activeIndexFor(active));
   const [poppingIndex, setPoppingIndex] = useState<number | null>(null);
 
@@ -82,6 +94,12 @@ export const BottomNavbar: FC<{ active?: string; onChange?: (id: string) => void
   }, [updateBump]);
 
   useEffect(() => {
+    // Skip the pop animation on initial mount so route-driven activations
+    // don't flash on first render. Only animate when the user actually taps.
+    if (isFirstPopRef.current) {
+      isFirstPopRef.current = false;
+      return;
+    }
     setPoppingIndex(activeIndex);
     const timeout = window.setTimeout(() => setPoppingIndex(null), 430);
     return () => window.clearTimeout(timeout);
@@ -89,6 +107,7 @@ export const BottomNavbar: FC<{ active?: string; onChange?: (id: string) => void
 
   const setActive = (index: number) => {
     setActiveIndex(index);
+    getTelegramHaptic()?.selectionChanged?.();
     onChange?.(NAV_ITEMS[index].id);
   };
 
@@ -108,6 +127,7 @@ export const BottomNavbar: FC<{ active?: string; onChange?: (id: string) => void
         <span className="burro-navbar__glow" aria-hidden="true" />
         <span className="burro-navbar__bump" aria-hidden="true" />
         <span className="burro-navbar__body" aria-hidden="true" />
+        <span className="burro-navbar__active-spot" aria-hidden="true" />
         <span className="burro-navbar__edge-light" aria-hidden="true" />
 
         <div className="burro-navbar__items" role="list">
@@ -129,6 +149,7 @@ export const BottomNavbar: FC<{ active?: string; onChange?: (id: string) => void
                 role="listitem"
                 data-index={index}
                 data-icon={item.icon}
+                style={{ ["--item-index" as string]: index }}
                 aria-label={item.ariaLabel}
                 aria-current={isActive ? "page" : undefined}
                 onClick={() => setActive(index)}
