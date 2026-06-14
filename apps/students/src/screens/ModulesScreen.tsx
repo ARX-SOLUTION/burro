@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { GlassCard, LearningPathNode } from "@burro/ui";
-import type { ModuleCardDto, ModuleStatus } from "../features/modules/mock";
+import type { ModuleCardDto, ModuleCardStatus } from "@burro/shared";
 import { useStudentModules } from "../features/modules/hooks";
+import "./ModulesScreen.css";
 
 /**
  * Modules screen (docs/12 §9.4 + §9.5, docs/13 §9).
@@ -18,10 +19,27 @@ const MODULES_VIEW_STORAGE_KEY = "burro.modules.view";
 const DEFAULT_VIEW: ModulesView = "path";
 
 /** Statuses that route into the per-module detail screen. */
-const ROUTABLE_STATUSES: ModuleStatus[] = ["completed", "current", "available"];
+const ROUTABLE_STATUSES: ModuleCardStatus[] = ["completed", "current", "available"];
 
 /** Arabic letters used as path-node glyphs when the backend has none. */
 const FALLBACK_NODE_GLYPHS = ["ا", "ب", "ت", "ث", "ج", "ح", "خ", "د"];
+
+type PathPoint = {
+  x: number;
+  y: number;
+};
+
+const PATH_CANVAS_WIDTH = 402;
+const REFERENCE_PATH_POINTS: PathPoint[] = [
+  { x: 91, y: 190 },
+  { x: 223, y: 235 },
+  { x: 316, y: 332 },
+  { x: 141, y: 404 },
+  { x: 253, y: 491 },
+  { x: 109, y: 578 },
+  { x: 267, y: 647 },
+  { x: 333, y: 760 }
+];
 
 function readUrlView(): ModulesView | null {
   if (typeof window === "undefined") {
@@ -94,6 +112,59 @@ function pathGlyphFor(module: ModuleCardDto, index: number): string {
   return FALLBACK_NODE_GLYPHS[index] ?? titleFirst ?? "•";
 }
 
+function pathPointFor(index: number): PathPoint {
+  const reference = REFERENCE_PATH_POINTS[index];
+  if (reference) {
+    return reference;
+  }
+
+  const extraIndex = index - REFERENCE_PATH_POINTS.length;
+  const previous = REFERENCE_PATH_POINTS[REFERENCE_PATH_POINTS.length - 1]!;
+  const lane = extraIndex % 2 === 0 ? 91 : 267;
+
+  return {
+    x: lane,
+    y: previous.y + 88 * (extraIndex + 1)
+  };
+}
+
+function pathContentHeight(moduleCount: number): number {
+  if (moduleCount === 0) {
+    return 874;
+  }
+
+  return Math.max(874, pathPointFor(moduleCount - 1).y + 126);
+}
+
+function connectorPath(from: PathPoint, to: PathPoint): string {
+  const controlX = (from.x + to.x) / 2;
+  const controlY = from.y + (to.y - from.y) * 0.28;
+
+  return `M ${from.x} ${from.y} Q ${controlX} ${controlY} ${to.x} ${to.y}`;
+}
+
+function pathItemStyle(index: number): CSSProperties {
+  const point = pathPointFor(index);
+
+  return {
+    "--path-node-x": `${point.x}px`,
+    "--path-node-y": `${point.y}px`
+  } as CSSProperties;
+}
+
+function moduleGridStatusText(module: ModuleCardDto): string {
+  if (module.status === "completed") {
+    return "Tugallangan";
+  }
+  if (module.status === "premium_locked") {
+    return "Premium";
+  }
+  if (module.status === "locked") {
+    return "Qulflangan";
+  }
+  return formatDuration(module);
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 // Grid view
 // ────────────────────────────────────────────────────────────────────────────
@@ -108,9 +179,6 @@ function ModuleGridCard({ module }: { module: ModuleCardDto }) {
       data-status={module.status}
       aria-disabled={!isRoutable(module) && !isPremium}
     >
-      <span className="modules-grid-card__seq" aria-hidden="true">
-        {module.sequenceNo}
-      </span>
       <div className="modules-grid-card__body">
         <h3 className="modules-grid-card__title">{module.title}</h3>
         <p className="modules-grid-card__subtitle">{module.description}</p>
@@ -119,12 +187,12 @@ function ModuleGridCard({ module }: { module: ModuleCardDto }) {
         {isDone ? (
           <span className="modules-grid-card__pill modules-grid-card__pill--done">
             <span className="modules-grid-card__pill-icon modules-grid-card__pill-icon--check" aria-hidden="true" />
-            Tugallandi
+            {moduleGridStatusText(module)}
           </span>
         ) : (
           <span className={`modules-grid-card__pill modules-grid-card__pill--${module.status}`}>
             <span className="modules-grid-card__pill-icon modules-grid-card__pill-icon--clock" aria-hidden="true" />
-            {formatDuration(module)}
+            {moduleGridStatusText(module)}
           </span>
         )}
       </div>
@@ -186,7 +254,6 @@ function ModulePathItem({
   index: number;
   onSelect: (module: ModuleCardDto) => void;
 }) {
-  const side = index % 2 === 0 ? "left" : "right";
   const isBlocked = module.status === "locked" || module.status === "premium_locked";
   const labelStatus =
     module.status === "completed"
@@ -200,7 +267,12 @@ function ModulePathItem({
             : "Qulflangan";
 
   return (
-    <li className={`modules-path__item modules-path__item--${side}`} data-status={module.status}>
+    <li
+      className="modules-path__item"
+      data-current={module.status === "current" ? "true" : undefined}
+      data-status={module.status}
+      style={pathItemStyle(index)}
+    >
       <div className="modules-path__node">
         <LearningPathNode
           status={module.status}
@@ -224,8 +296,23 @@ function ModulesPathView({
   modules: ModuleCardDto[];
   onSelect: (module: ModuleCardDto) => void;
 }) {
+  const contentHeight = pathContentHeight(modules.length);
+  const points = modules.map((_, index) => pathPointFor(index));
+
   return (
-    <ol className="modules-path" aria-label="O'quv modullari yo'li">
+    <ol className="modules-path" aria-label="O'quv modullari yo'li" style={{ minHeight: contentHeight }}>
+      <svg
+        className="modules-path__connector"
+        width={PATH_CANVAS_WIDTH}
+        height={contentHeight}
+        viewBox={`0 0 ${PATH_CANVAS_WIDTH} ${contentHeight}`}
+        aria-hidden="true"
+        focusable="false"
+      >
+        {points.slice(0, -1).map((point, index) => (
+          <path key={`${point.x}-${point.y}`} d={connectorPath(point, points[index + 1]!)} />
+        ))}
+      </svg>
       {modules.map((module, index) => (
         <ModulePathItem key={module.id} module={module} index={index} onSelect={onSelect} />
       ))}
@@ -255,20 +342,27 @@ function ModulesViewToggle({
   view: ModulesView;
   onChange: (next: ModulesView) => void;
 }) {
-  // When path view is active we show the grid icon (tap to go to grid).
-  // When grid view is active we show the path icon (tap to go to path).
-  const next: ModulesView = view === "path" ? "grid" : "path";
-  const label = next === "grid" ? "Katak ko'rinishi" : "Yo'l ko'rinishi";
-
   return (
-    <button
-      type="button"
-      className={`modules-view-fab modules-view-fab--to-${next}`}
-      aria-label={label}
-      onClick={() => onChange(next)}
-    >
-      <span className={`modules-view-fab__icon modules-view-fab__icon--${next}`} aria-hidden="true" />
-    </button>
+    <div className="modules-view-toggle" role="group" aria-label="Modul ko'rinishi">
+      <button
+        type="button"
+        className={`modules-view-toggle__button modules-view-toggle__button--path${view === "path" ? " is-active" : ""}`}
+        aria-label="Yo'l ko'rinishi"
+        aria-pressed={view === "path"}
+        onClick={() => onChange("path")}
+      >
+        <span className="modules-view-toggle__icon modules-view-toggle__icon--path" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        className={`modules-view-toggle__button modules-view-toggle__button--grid${view === "grid" ? " is-active" : ""}`}
+        aria-label="Katak ko'rinishi"
+        aria-pressed={view === "grid"}
+        onClick={() => onChange("grid")}
+      >
+        <span className="modules-view-toggle__icon modules-view-toggle__icon--grid" aria-hidden="true" />
+      </button>
+    </div>
   );
 }
 
@@ -300,37 +394,57 @@ export function ModulesScreen() {
     navigate({ to: "/modules/$moduleId", params: { moduleId: module.id } });
   }
 
+  useEffect(() => {
+    if (view !== "path" || !modules) {
+      return;
+    }
+
+    const scroller = document.querySelector<HTMLElement>(".modules-screen--path .modules-screen__body");
+    const currentNode = scroller?.querySelector<HTMLElement>(".modules-path__item[data-current='true']");
+    if (!scroller || !currentNode) {
+      return;
+    }
+
+    scroller.scrollTop = Math.max(0, currentNode.offsetTop - scroller.clientHeight / 2 + currentNode.offsetHeight / 2);
+  }, [modules, view]);
+
   if (isPending) {
     return (
-      <section className="modules-screen" aria-busy="true">
+      <section className="modules-screen modules-screen--state" aria-busy="true">
         <ModulesHeader />
-        <GlassCard>
-          <p>Modullar yuklanmoqda...</p>
-        </GlassCard>
+        <div className="modules-screen__state-card">
+          <GlassCard>
+            <p>Modullar yuklanmoqda...</p>
+          </GlassCard>
+        </div>
       </section>
     );
   }
 
   if (isError || !modules) {
     return (
-      <section className="modules-screen" role="alert">
+      <section className="modules-screen modules-screen--state" role="alert">
         <ModulesHeader />
-        <GlassCard>
-          <h2>Xatolik</h2>
-          <p>Modullar ro'yxatini yuklab bo'lmadi.</p>
-        </GlassCard>
+        <div className="modules-screen__state-card">
+          <GlassCard>
+            <h2>Xatolik</h2>
+            <p>Modullar ro'yxatini yuklab bo'lmadi.</p>
+          </GlassCard>
+        </div>
       </section>
     );
   }
 
   if (modules.length === 0) {
     return (
-      <section className="modules-screen">
+      <section className="modules-screen modules-screen--state">
         <ModulesHeader />
-        <GlassCard>
-          <h2>Hozircha modul yo'q</h2>
-          <p>Modullar tez orada qo'shiladi.</p>
-        </GlassCard>
+        <div className="modules-screen__state-card">
+          <GlassCard>
+            <h2>Hozircha modul yo'q</h2>
+            <p>Modullar tez orada qo'shiladi.</p>
+          </GlassCard>
+        </div>
       </section>
     );
   }

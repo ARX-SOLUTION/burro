@@ -10,6 +10,7 @@ import {
 } from "@burro/ui";
 import type { ChoiceButtonState } from "@burro/ui";
 import { useAnswerAttempt, useStartAttempt } from "./hooks";
+import "./ExercisePlayer.css";
 
 /**
  * State machine (doc 12 §10):
@@ -290,9 +291,13 @@ export function ExercisePlayer({ moduleId, mode }: { moduleId: string; mode: Lea
     );
   }
 
+  if (state.phase === "answered") {
+    return <ExerciseFeedbackScreen result={state.result} onContinue={handleContinue} />;
+  }
+
   // ---- Active question ----
   const { attempt } = state;
-  const exercise = state.phase === "answered" ? state.exercise : attempt.currentExercise;
+  const exercise = attempt.currentExercise;
   if (!exercise) {
     return (
       <ExerciseScaffold>
@@ -304,7 +309,6 @@ export function ExercisePlayer({ moduleId, mode }: { moduleId: string; mode: Lea
   }
 
   const isListen = exercise.audioUrl != null;
-  const isAnswered = state.phase === "answered";
   const isChecking = state.phase === "checking";
   const canCheck = state.phase === "playing" && Boolean(state.selectedOptionId);
 
@@ -313,12 +317,9 @@ export function ExercisePlayer({ moduleId, mode }: { moduleId: string; mode: Lea
     ? Math.round((attempt.answeredCount / attempt.totalExercises) * 100)
     : 0;
 
-  // XP preview shown in the top bar:
-  // - while answering: total xp earned so far (or "+0 XP" at start, to match ref 05)
-  // - after a correct answer: the delta gained on this question
-  const xpPreview = state.phase === "answered" && state.result.isCorrect
-    ? state.result.xpDelta
-    : attempt.xpEarned;
+  // XP preview shown in the top bar while answering. Answer result has its own
+  // full-screen feedback state (ref 15), so the top bar is gone after submit.
+  const xpPreview = attempt.xpEarned;
 
   // Hearts are only meaningful for final_quiz (doc 12 §9.6 hearts requirement).
   const heartsPreview = mode === "final_quiz" ? Math.max(0, attempt.heartsRemaining) : undefined;
@@ -337,22 +338,13 @@ export function ExercisePlayer({ moduleId, mode }: { moduleId: string; mode: Lea
           {state.error}
         </div>
       )}
-      {isAnswered ? (
-        <PrimaryGlowButton
-          variant={state.result.isCorrect ? "success" : "danger"}
-          onClick={handleContinue}
-        >
-          {TEXT.continue}
-        </PrimaryGlowButton>
-      ) : (
-        <PrimaryGlowButton
-          disabled={!canCheck}
-          loading={isChecking}
-          onClick={handleCheck}
-        >
-          {isChecking ? TEXT.checking : TEXT.check}
-        </PrimaryGlowButton>
-      )}
+      <PrimaryGlowButton
+        disabled={!canCheck}
+        loading={isChecking}
+        onClick={handleCheck}
+      >
+        {isChecking ? TEXT.checking : TEXT.check}
+      </PrimaryGlowButton>
     </>
   );
 
@@ -402,13 +394,40 @@ export function ExercisePlayer({ moduleId, mode }: { moduleId: string; mode: Lea
               key={option.id}
               label={option.label}
               state={optionState(option.id)}
-              disabled={isAnswered || isChecking}
+              disabled={isChecking}
               onClick={() => selectOption(option.id)}
             />
           ))}
         </div>
       </QuizShell>
     </ExerciseScaffold>
+  );
+}
+
+function ExerciseFeedbackScreen({
+  result,
+  onContinue
+}: {
+  result: AnswerResultView;
+  onContinue: () => void;
+}) {
+  const tone = result.isCorrect ? "correct" : "wrong";
+  const icon = result.isCorrect ? "✓" : "×";
+
+  return (
+    <section className={`exercise-feedback-screen exercise-feedback-screen--${tone}`} role="status">
+      <div className="exercise-feedback-card">
+        <div className="exercise-feedback-card__center">
+          <div className="exercise-feedback-check" aria-hidden="true">
+            <span>{icon}</span>
+          </div>
+          <h2 className="exercise-feedback-title">{result.feedback.title}</h2>
+        </div>
+      </div>
+      <PrimaryGlowButton className="exercise-feedback-continue" onClick={onContinue}>
+        {TEXT.continue}
+      </PrimaryGlowButton>
+    </section>
   );
 }
 
@@ -496,4 +515,3 @@ function pickGlyph(exercise: ExerciseView): string {
   }
   return "ا";
 }
-

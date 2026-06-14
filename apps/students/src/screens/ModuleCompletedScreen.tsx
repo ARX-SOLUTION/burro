@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { AppBackground, PrimaryGlowButton } from "@burro/ui";
 import { useModuleResult, useNextModule } from "../features/learning/hooks";
+import "./ModuleCompletedScreen.css";
 
 /**
  * Module completion screen (doc 12 §9.11, ref docs/design/reference-screens/16-module-completed.png).
@@ -28,11 +29,11 @@ export function ModuleCompletedScreen({ moduleId }: { moduleId: string }) {
 
   const body = (() => {
     if (isPending) {
-      return <p className="module-completed-screen__state">Yuklanmoqda...</p>;
+      return <p className="module-completed-replica-state">Yuklanmoqda...</p>;
     }
     if (isError || !result) {
       return (
-        <div className="module-completed-screen__state module-completed-screen__state--error" role="alert">
+        <div className="module-completed-replica-state module-completed-replica-state--error" role="alert">
           <h2>Xatolik</h2>
           <p>Modul natijasini yuklab bo‘lmadi.</p>
           <PrimaryGlowButton type="button" onClick={goHome}>Bosh sahifa</PrimaryGlowButton>
@@ -42,33 +43,33 @@ export function ModuleCompletedScreen({ moduleId }: { moduleId: string }) {
 
     return (
       <>
-        <div className="module-completed-hero" aria-hidden="true">
-          <span className="module-completed-hero__circle">
-            <span className="module-completed-hero__check" />
+        <div className="module-completed-replica-hero" aria-hidden="true">
+          <span className="module-completed-replica-hero__circle">
+            <span className="module-completed-replica-hero__check" />
           </span>
         </div>
 
-        <header className="module-completed-headline">
+        <header className="module-completed-replica-headline">
           <h1>Modul Yakunlandi!</h1>
           <p>Barakalla! Siz ajoyib natija ko‘rsatdingiz.</p>
         </header>
 
-        <section className="module-completed-stats" aria-label="Sizning natijangiz">
-          <article className="module-completed-stat module-completed-stat--xp">
+        <section className="module-completed-replica-stats" aria-label="Sizning natijangiz">
+          <article className="module-completed-replica-stat module-completed-replica-stat--xp">
             <strong>{result.xpEarned} XP</strong>
             <span>Ball</span>
           </article>
-          <article className="module-completed-stat module-completed-stat--accuracy">
+          <article className="module-completed-replica-stat module-completed-replica-stat--accuracy">
             <strong>{result.accuracy}%</strong>
             <span>Aniqlik</span>
           </article>
         </section>
 
-        <div className="module-completed-actions">
+        <div className="module-completed-replica-actions">
           <PrimaryGlowButton type="button" onClick={goNext}>
-            {nextModule ? "Keyingi modul" : "Modullarga qaytish"}
+            Keyingi modul
           </PrimaryGlowButton>
-          <button type="button" className="module-completed-secondary" onClick={goHome}>
+          <button type="button" className="module-completed-replica-secondary" onClick={goHome}>
             Bosh sahifa
           </button>
         </div>
@@ -77,9 +78,9 @@ export function ModuleCompletedScreen({ moduleId }: { moduleId: string }) {
   })();
 
   return (
-    <div className="module-completed-shell">
-      <AppBackground variant="app">
-        <section className="module-completed-screen" aria-labelledby="module-completed-title">
+    <div className="module-completed-replica-shell">
+      <AppBackground variant="app" overlay="light">
+        <section className="module-completed-replica-screen" aria-labelledby="module-completed-title">
           <span id="module-completed-title" className="sr-only">Modul yakunlandi</span>
           {body}
         </section>

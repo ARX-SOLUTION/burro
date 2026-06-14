@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { AppBackground, AudioCircleButton, PrimaryGlowButton } from "@burro/ui";
 import { useModuleExercises } from "../features/learning/hooks";
+import "./SoundInfoScreen.css";
 
 /**
  * Sound info screen (doc 12 §9.9, refs 13-sound-info-default.png + 14-sound-info-playing.png).

@@ -1,5 +1,8 @@
+import type { ReactNode } from "react";
 import type { LeaderboardEntryDto } from "@burro/shared";
+import { AppBackground } from "@burro/ui";
 import { useLeaderboard } from "../features/leaderboard/hooks";
+import "./LeaderboardScreen.css";
 
 /**
  * Leaderboard (doc 12 §9.14, ref 01-leaderboard.png).
@@ -13,18 +16,18 @@ export function LeaderboardScreen() {
 
   if (isPending) {
     return (
-      <section className="leaderboard-screen" aria-busy="true">
+      <LeaderboardFrame ariaBusy>
         <header className="leaderboard-screen__header"><h1>Leaderboard</h1></header>
         <p className="leaderboard-screen__status">Yuklanmoqda…</p>
-      </section>
+      </LeaderboardFrame>
     );
   }
   if (isError || !data) {
     return (
-      <section className="leaderboard-screen" role="alert">
+      <LeaderboardFrame role="alert">
         <header className="leaderboard-screen__header"><h1>Leaderboard</h1></header>
         <p className="leaderboard-screen__status">Ma'lumotni yuklab bo'lmadi.</p>
-      </section>
+      </LeaderboardFrame>
     );
   }
 
@@ -35,12 +38,12 @@ export function LeaderboardScreen() {
   const showPinned = pinned && !pinnedAlreadyInList;
 
   return (
-    <section className="leaderboard-screen">
+    <LeaderboardFrame>
       <header className="leaderboard-screen__header">
         <h1>Leaderboard</h1>
       </header>
 
-      {top.length > 0 && <Podium entries={top} />}
+      {top.length > 0 ? <Podium entries={top} /> : <p className="leaderboard-screen__status">Hozircha reyting yo'q.</p>}
 
       {rest.length > 0 && (
         <ol className="leaderboard-list" aria-label="Ro'yxat">
@@ -54,10 +57,30 @@ export function LeaderboardScreen() {
 
       {showPinned && pinned && (
         <div className="leaderboard-pinned" aria-label="Sizning o'rningiz">
-          <RankRow entry={pinned} variant="pinned" youLabel="Siz" />
+          <RankRow entry={pinned} variant="pinned" isCurrentUser />
         </div>
       )}
-    </section>
+    </LeaderboardFrame>
+  );
+}
+
+function LeaderboardFrame({
+  children,
+  ariaBusy,
+  role
+}: {
+  children: ReactNode;
+  ariaBusy?: boolean;
+  role?: "alert";
+}) {
+  return (
+    <div className="leaderboard-screen-shell">
+      <AppBackground variant="app" overlay="light">
+        <section className="leaderboard-screen" aria-busy={ariaBusy || undefined} role={role}>
+          {children}
+        </section>
+      </AppBackground>
+    </div>
   );
 }
 
@@ -80,16 +103,20 @@ function PodiumColumn({ entry, place, height }: { entry: LeaderboardEntryDto; pl
   return (
     <article className={`podium-col podium-col--${place} podium-col--${height}`}>
       {place === 1 && <span className="podium-col__crown" aria-hidden="true">👑</span>}
-      <span className="podium-col__rank">#{place}</span>
+      <span className="podium-col__rank">
+        #{place}
+        {entry.isCurrentStudent && <span className="leaderboard-row__you" style={{ marginLeft: 4 }}>Siz</span>}
+      </span>
       <Avatar entry={entry} size={place === 1 ? "lg" : "md"} ringed />
       <strong className="podium-col__name" title={entry.telegramFirstName}>{entry.telegramFirstName}</strong>
-      <span className="podium-col__class">{classLabel(entry)}</span>
-      <span className="podium-col__xp">{formatXp(entry.totalXp)}</span>
+      <span className="podium-col__class">{secondaryLabel(entry)}</span>
+      <span className="podium-col__xp">{formatXp(entry.score)}</span>
     </article>
   );
 }
 
-function RankRow({ entry, variant, youLabel }: { entry: LeaderboardEntryDto; variant?: "pinned"; youLabel?: string }) {
+function RankRow({ entry, variant, isCurrentUser }: { entry: LeaderboardEntryDto; variant?: "pinned"; isCurrentUser?: boolean }) {
+  const showYou = isCurrentUser || entry.isCurrentStudent;
   const classes = ["leaderboard-row", variant === "pinned" ? "leaderboard-row--pinned" : ""].filter(Boolean).join(" ");
   return (
     <div className={classes}>
@@ -98,11 +125,11 @@ function RankRow({ entry, variant, youLabel }: { entry: LeaderboardEntryDto; var
       <div className="leaderboard-row__id">
         <strong className="leaderboard-row__name" title={entry.telegramFirstName}>
           {entry.telegramFirstName}
-          {youLabel && <span className="leaderboard-row__you">{youLabel}</span>}
+          {showYou && <span className="leaderboard-row__you">Siz</span>}
         </strong>
-        <span className="leaderboard-row__class">{classLabel(entry)}</span>
+        <span className="leaderboard-row__class">{secondaryLabel(entry)}</span>
       </div>
-      <span className="leaderboard-row__xp">{formatXp(entry.totalXp)}</span>
+      <span className="leaderboard-row__xp">{formatXp(entry.score)}</span>
     </div>
   );
 }
@@ -115,13 +142,8 @@ function Avatar({ entry, size, ringed }: { entry: LeaderboardEntryDto; size: "sm
   return <span className={classes} aria-hidden="true">{entry.telegramFirstName.slice(0, 1).toUpperCase()}</span>;
 }
 
-/**
- * Class/group label is optional in the DTO contract (doc 12 §9.14). The current
- * `LeaderboardEntryDto` does not carry it yet; render an empty placeholder so
- * the row keeps two lines but never invents a value.
- */
-function classLabel(_entry: LeaderboardEntryDto): string {
-  return "";
+function secondaryLabel(entry: LeaderboardEntryDto): string {
+  return entry.telegramUsername ? `@${entry.telegramUsername}` : "";
 }
 
 function formatXp(xp: number): string {

@@ -1,0 +1,534 @@
+/* ============================================================
+   ExercisePlayer — letter & listen variants (doc 12 §9.6, §9.7).
+   References:
+     05-exercise-letter-default.png    (idle)
+     06-exercise-letter-selected.png   (option selected)
+     07-exercise-letter-correct.png    (correct feedback)
+     08-exercise-letter-wrong.png      (wrong feedback)
+     09-exercise-listen-default.png    (audio idle)
+     10-exercise-listen-playing.png    (audio playing)
+   Canvas 402×874, full-bleed mosque background, single QuizShell scaffold.
+   ============================================================ */
+
+/* Full-bleed: break out of the default .phone padding so the AppBackground
+   spans the whole 402×874 canvas (matches the Welcome / Login / Stats
+   pattern used elsewhere in this stylesheet). */
+.exercise-screen-shell {
+  position: relative;
+  margin: -24px -18px -108px;
+  min-height: max(874px, 100vh);
+}
+
+.exercise-screen-shell .app-background,
+.exercise-screen-shell .app-background__content {
+  min-height: max(874px, 100vh);
+}
+
+.exercise-screen-shell .app-background__content {
+  display: flex;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.exercise-screen-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  width: 100%;
+  box-sizing: border-box;
+  padding:
+    calc(env(safe-area-inset-top) + 16px)
+    18px
+    calc(env(safe-area-inset-bottom) + 20px);
+}
+
+/* QuizShell tuning to match the Figma 402×874 layout. The shared
+   QuizShell renders a top bar + scrollable question area + footer; we
+   only override visuals here so the shell stays reusable. */
+.exercise-screen-content > .quiz-shell {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 14px;
+  flex: 1 1 auto;
+}
+
+/* Top white pill bar: X close · cyan progress · hearts · +XP (ref 05). */
+.exercise-screen-content .quiz-shell__bar {
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px 8px 8px;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 6px 0 rgba(7, 17, 43, .12), 0 14px 28px rgba(2, 20, 60, .14);
+}
+
+.exercise-screen-content .quiz-shell__close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 14px;
+  color: #4a5775;
+  background: transparent;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.exercise-screen-content .quiz-shell__close:hover,
+.exercise-screen-content .quiz-shell__close:focus-visible {
+  background: #f1f4fb;
+  color: #11224c;
+}
+
+.exercise-screen-content .quiz-shell__progress {
+  flex: 1 1 auto;
+  height: 12px;
+  margin: 0 4px;
+  border-radius: 999px;
+  background: #e6ecf6;
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, .04);
+}
+
+.exercise-screen-content .quiz-shell__progress-fill {
+  background: linear-gradient(90deg, var(--burro-cyan-400) 0%, var(--burro-blue-500) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35);
+}
+
+/* Hearts pill in the top bar: small red heart + count. The QuizShell
+   already renders a `.heart-counter__dot` before the number; we tighten
+   the wrapper colour/size to match the figma reference. */
+.exercise-screen-content .quiz-shell__hearts {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  background: transparent;
+  color: #ff3046;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.exercise-screen-content .quiz-shell__hearts .heart-counter__dot {
+  width: 13px;
+  height: 13px;
+  background: #ff3046;
+}
+
+/* +XP pill: small yellow/gold label in the top bar. */
+.exercise-screen-content .quiz-shell__xp {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: #1f8a3a;
+  background: #d6f5df;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.exercise-screen-content .quiz-shell__question {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.exercise-screen-content .quiz-shell__footer {
+  display: grid;
+  gap: 10px;
+  padding-bottom: env(safe-area-inset-bottom);
+  margin-top: auto;
+}
+
+/* The big white question card. Contains either the Arabic glyph (letter
+   variant) or the centered audio button (listen variant). The figma
+   reference shows a single white rounded card filling most of the
+   middle of the screen. */
+.exercise-card-figma {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 18px;
+  align-items: center;
+  justify-items: center;
+  min-height: 290px;
+  padding: 30px 22px 36px;
+  border-radius: 28px;
+  text-align: center;
+  color: #11224c;
+  background: #ffffff;
+  box-shadow: 0 8px 0 rgba(7, 17, 43, .12), 0 18px 38px rgba(2, 20, 60, .18);
+}
+
+.exercise-card-figma__prompt {
+  margin: 0;
+  color: #11224c;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -.01em;
+}
+
+.exercise-card-figma__media {
+  display: grid;
+  place-items: center;
+  width: 100%;
+}
+
+.exercise-card-figma__glyph {
+  display: inline-grid;
+  place-items: center;
+  font-size: 112px;
+  line-height: 1;
+  color: var(--burro-cyan-500);
+  text-shadow: 0 2px 0 rgba(8, 125, 230, .12);
+}
+
+/* Audio button (listen variant). Larger than the shared default to match
+   ref 09/10 sizing, with a soft cyan halo when playing. */
+.exercise-card-figma .audio-circle {
+  width: 92px;
+  height: 92px;
+  margin: 0;
+  border: 0;
+  border-radius: 50%;
+}
+
+.exercise-card-figma .audio-circle--idle {
+  background: #ffffff;
+  color: var(--burro-cyan-500);
+  box-shadow:
+    0 0 0 8px #eaf6fd,
+    0 6px 0 rgba(7, 17, 43, .08),
+    inset 0 0 0 1px #d3e4f3;
+}
+
+.exercise-card-figma .audio-circle--playing {
+  background: linear-gradient(135deg, var(--burro-cyan-400) 0%, var(--burro-blue-500) 100%);
+  color: #ffffff;
+  box-shadow:
+    0 0 0 14px rgba(85, 216, 246, .22),
+    0 8px 0 rgba(0, 79, 174, .22);
+}
+
+/* Override the shared triangle icon — the listen card uses a speaker
+   glyph instead (matches ref 09/10). The icon is built from layered
+   pseudo-elements; the inner triangle becomes the speaker cone, the
+   outer one becomes the trapezoidal back. */
+.exercise-card-figma .audio-circle__icon {
+  position: relative;
+  width: 28px;
+  height: 22px;
+  margin: 0;
+  border: 0;
+}
+
+.exercise-card-figma .audio-circle__icon::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 8px;
+  height: 10px;
+  background: currentColor;
+  border-radius: 2px;
+}
+
+.exercise-card-figma .audio-circle__icon::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 0;
+  width: 0;
+  height: 0;
+  border-top: 11px solid transparent;
+  border-bottom: 11px solid transparent;
+  border-left: 16px solid currentColor;
+}
+
+/* Info button below the card (bottom-left), ref 05 ⓘ. */
+.exercise-info-button {
+  align-self: flex-start;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin: -4px 0 0;
+  border: 0;
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--burro-blue-500);
+  box-shadow: 0 4px 0 rgba(7, 17, 43, .12);
+  cursor: pointer;
+}
+
+.exercise-info-button__mark {
+  font-family: var(--burro-font-sans);
+  font-size: 16px;
+  font-weight: 900;
+  font-style: italic;
+  line-height: 1;
+}
+
+/* 2×2 options grid. Pixel-tunes the shared .answer-option look. */
+.exercise-options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* Visual refinements over the baseline .answer-option / .choice-button
+   so the states match the figma reference exactly:
+     selected: cyan ring (no background tint)
+     correct:  solid green fill, white text, check icon
+     wrong:    solid red fill, white text, X icon
+*/
+.exercise-options-grid .answer-option {
+  min-height: 64px;
+  border-radius: 18px;
+  padding: 12px 14px;
+  background: #ffffff;
+  color: #11224c;
+  box-shadow:
+    0 4px 0 rgba(7, 17, 43, .14),
+    inset 0 0 0 1px #e1e7f3;
+  font-size: 17px;
+  font-weight: 900;
+  text-align: center;
+  letter-spacing: -.01em;
+  transition: transform .08s ease, box-shadow .08s ease;
+}
+
+.exercise-options-grid .answer-option:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow:
+    0 2px 0 rgba(7, 17, 43, .14),
+    inset 0 0 0 1px #e1e7f3;
+}
+
+.exercise-options-grid .answer-option.selected {
+  background: #ffffff;
+  color: var(--burro-blue-500);
+  box-shadow:
+    0 4px 0 rgba(0, 82, 176, .18),
+    inset 0 0 0 3px var(--burro-cyan-400);
+}
+
+.exercise-options-grid .answer-option.correct {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(180deg, #2bbd55 0%, #189940 100%);
+  color: #ffffff;
+  box-shadow:
+    0 4px 0 rgba(15, 104, 42, .26),
+    inset 0 0 0 1px rgba(255, 255, 255, .22);
+}
+
+.exercise-options-grid .answer-option.correct .choice-button__label {
+  text-align: center;
+}
+
+.exercise-options-grid .answer-option.correct .choice-button__icon {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
+}
+
+.exercise-options-grid .answer-option.wrong {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(180deg, #ff5a5a 0%, #df2c2c 100%);
+  color: #ffffff;
+  box-shadow:
+    0 4px 0 rgba(124, 30, 30, .26),
+    inset 0 0 0 1px rgba(255, 255, 255, .22);
+}
+
+.exercise-options-grid .answer-option.wrong .choice-button__label {
+  text-align: center;
+}
+
+.exercise-options-grid .answer-option.wrong .choice-button__icon {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
+}
+
+.exercise-options-grid .answer-option:disabled {
+  cursor: default;
+}
+
+/* After submit, the remaining (non-correct / non-selected-wrong) options
+   stay full-opacity in the figma reference (07 / 08). Override the shared
+   .choice-button:disabled dimming, which would otherwise fade them to 65%. */
+.exercise-options-grid .answer-option:disabled:not(.selected):not(.correct):not(.wrong) {
+  opacity: 1;
+}
+
+/* Inline error (transient submit failure, not feedback). */
+.exercise-screen__inline-error {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 18px;
+  background: rgba(243, 67, 67, .14);
+  color: #ffd9d9;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+/* Loading / error / finished state cards (full-bleed screen, doc 12 §13
+   loading/empty/error/forbidden). */
+.exercise-screen--state {
+  display: grid;
+  gap: 14px;
+  place-content: center;
+  flex: 1 1 auto;
+  padding: 24px;
+  min-height: 60vh;
+  text-align: center;
+}
+
+.exercise-screen__state-title {
+  margin: 0;
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.1;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, .3);
+}
+
+.exercise-screen__state {
+  margin: 0;
+  color: rgba(255, 255, 255, .92);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, .25);
+}
+
+/* Footer CTA — match the figma cyan glow profile used on the Tekshirish
+   button: 22px radius, soft cyan halo, taller hit target. */
+.exercise-screen-content .quiz-shell__footer .gradient-button {
+  min-height: 58px;
+  border-radius: 22px;
+  font-size: 17px;
+  letter-spacing: -.01em;
+}
+
+/* ============================================================
+   Feedback screen (ref 15-feedback-correct.png, doc 12 §9.10).
+   Full-screen answer result overlay: dark background, white panel
+   centered with status mark, title, and Davom etish CTA.
+   ============================================================ */
+
+.exercise-feedback-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 52px 20px calc(env(safe-area-inset-bottom) + 30px);
+  background: rgba(4, 14, 45, .92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: feedback-fade-in .25s ease;
+}
+
+@keyframes feedback-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.exercise-feedback-card {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 362px;
+  min-height: 320px;
+  padding: 56px 24px 44px;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 6px 0 rgba(7, 17, 43, .18), 0 18px 36px rgba(2, 20, 60, .16);
+}
+
+.exercise-feedback-card__center {
+  display: grid;
+  justify-items: center;
+  gap: 24px;
+}
+
+.exercise-feedback-check {
+  display: grid;
+  place-items: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #20b34d;
+  color: #ffffff;
+  box-shadow: 0 0 0 16px #dcf8e0;
+}
+
+.exercise-feedback-screen--wrong .exercise-feedback-check {
+  background: #ef3e45;
+  box-shadow: 0 0 0 16px #ffe2e4;
+}
+
+.exercise-feedback-check span {
+  display: block;
+  font-size: 36px;
+  font-weight: 1000;
+  line-height: 1;
+}
+
+.exercise-feedback-title {
+  margin: 0;
+  color: #11224c;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -.01em;
+  text-align: center;
+}
+
+.exercise-feedback-continue {
+  width: calc(100% - 32px);
+  max-width: 330px;
+  min-height: 58px;
+  margin: 28px auto 0;
+  border-radius: 18px;
+  font-size: 17px;
+  font-weight: 800;
+  box-shadow: 0 6px 0 rgba(3, 125, 207, .72), 0 16px 30px rgba(64, 213, 255, .42);
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, .12) 0 6px, rgba(255, 255, 255, 0) 6px 14px),
+    linear-gradient(135deg, #67ddff 0%, #31bdf3 48%, #0c88ea 100%);
+  color: #ffffff;
+  border: 0;
+  cursor: pointer;
+}
+
+.exercise-feedback-screen--wrong .exercise-feedback-continue {
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, .12) 0 6px, rgba(255, 255, 255, 0) 6px 14px),
+    linear-gradient(135deg, #ff7a7a 0%, #ef3e45 48%, #d42a2a 100%);
+  box-shadow: 0 6px 0 rgba(180, 20, 20, .65), 0 16px 30px rgba(255, 64, 64, .38);
+}

@@ -30,8 +30,12 @@ These PNG files are copied from the uploaded Figma flow and are used as visual i
 | 18 | [18-profile-language-sheet.png](18-profile-language-sheet.png) | Profile settings and language bottom sheet |
 | 19 | [19-modules-grid.png](19-modules-grid.png) | Modules grid view |
 | 20 | [20-modules-path.png](20-modules-path.png) | Modules path view |
+| 21 | [21-add-edit-child.png](21-add-edit-child.png) | Add/edit child form with gender selection |
 
 ## Notes
+
+- Screen 21 source: `images/students/iPhone 16 & 17 Pro - 29.png`
+- Figma raster assets extracted to: `docs/design/figma-assets/` (canvas renders + Arabic text assets)
 
 - Canvas size: 402 × 874 px.
 - Design target: Telegram Mini App first, then mobile web.
