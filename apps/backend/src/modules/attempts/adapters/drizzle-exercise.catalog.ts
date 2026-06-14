@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import type { BurroDb } from "../../../db/client";
 import {
   exerciseOptions,
@@ -67,14 +67,12 @@ export class DrizzleExerciseCatalog implements ExerciseCatalogPort {
       ? await this.database
           .select()
           .from(exerciseOptions)
+          .where(inArray(exerciseOptions.exerciseId, exerciseIds))
           .orderBy(asc(exerciseOptions.exerciseId), asc(exerciseOptions.sortOrder))
       : [];
 
     const optionsByExercise = new Map<string, ExerciseRecord["options"]>();
     for (const option of optionRows) {
-      if (!exerciseIds.includes(option.exerciseId)) {
-        continue;
-      }
       const list = optionsByExercise.get(option.exerciseId) ?? [];
       list.push({ id: option.id, label: option.optionText, isCorrect: option.isCorrect });
       optionsByExercise.set(option.exerciseId, list);
