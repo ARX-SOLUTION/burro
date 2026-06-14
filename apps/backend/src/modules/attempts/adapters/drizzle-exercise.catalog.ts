@@ -20,6 +20,19 @@ import {
 } from "../attempts.ports";
 
 const DEFAULT_LANGUAGE: CatalogLanguage = "uz";
+const SUPPORTED_LANGUAGES = new Set<CatalogLanguage>(["uz", "ru", "en"]);
+
+/**
+ * Maps a raw user.preferredLanguage value (any string from the DB) to a
+ * supported CatalogLanguage. Unknown / null / empty values fall back to uz.
+ * Exported for unit testing — does not depend on the database.
+ */
+export function coerceLanguage(value: string | null | undefined): CatalogLanguage {
+  if (value && SUPPORTED_LANGUAGES.has(value as CatalogLanguage)) {
+    return value as CatalogLanguage;
+  }
+  return DEFAULT_LANGUAGE;
+}
 
 /**
  * Reads module content from PostgreSQL. Text comes from the per-language
@@ -112,6 +125,6 @@ export class DrizzleExerciseCatalog implements ExerciseCatalogPort {
       .from(users)
       .where(eq(users.id, studentId))
       .limit(1);
-    return (row?.language as CatalogLanguage) ?? DEFAULT_LANGUAGE;
+    return coerceLanguage(row?.language);
   }
 }
