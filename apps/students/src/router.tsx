@@ -32,13 +32,29 @@ function RootLayout() {
     !pathname.startsWith("/welcome") &&
     !pathname.startsWith("/login");
 
+  const goLearn = async () => {
+    // Resolve the current/next learnable module from the live path rather than
+    // a hardcoded slug (the old "module-letters-1" was a dev fixture and 500s
+    // against the seeded UUID-keyed catalog).
+    const res = await fetch("/student/path");
+    const json = await res.json();
+    const modules: Array<{ id: string; status: string }> = json?.data?.modules ?? [];
+    const target =
+      modules.find((m) => m.status === "current") ??
+      modules.find((m) => m.status === "available") ??
+      modules[0];
+    if (target) {
+      navigate({ to: "/modules/$moduleId/practice", params: { moduleId: target.id } });
+    }
+  };
+
   return <StudentShell>
     <Outlet />
     {showNav && <BottomNav
       active={active}
       onChange={(tab) => {
         if (tab === "learn") {
-          navigate({ to: "/modules/$moduleId/practice", params: { moduleId: "module-letters-1" } });
+          void goLearn();
           return;
         }
         navigate({ to: `/${tab}` });

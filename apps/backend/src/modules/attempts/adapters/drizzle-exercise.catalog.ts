@@ -8,11 +8,18 @@ import {
   media,
   moduleExercises,
   moduleFeedback,
-  modules
+  modules,
+  users
 } from "../../../db/schema";
-import { ExerciseCatalogPort, ExerciseRecord, ModuleContentRecord } from "../attempts.ports";
+import {
+  CatalogLanguage,
+  CatalogLookupOptions,
+  ExerciseCatalogPort,
+  ExerciseRecord,
+  ModuleContentRecord
+} from "../attempts.ports";
 
-const DEFAULT_LANGUAGE = "uz" as const;
+const DEFAULT_LANGUAGE: CatalogLanguage = "uz";
 
 /**
  * Reads module content from PostgreSQL. Text comes from the per-language
@@ -24,16 +31,18 @@ const DEFAULT_LANGUAGE = "uz" as const;
 export class DrizzleExerciseCatalog implements ExerciseCatalogPort {
   constructor(private readonly database: BurroDb) {}
 
-  async getModule(moduleId: string): Promise<ModuleContentRecord | undefined> {
+  async getModule(moduleId: string, options?: CatalogLookupOptions): Promise<ModuleContentRecord | undefined> {
     const [module] = await this.database.select().from(modules).where(eq(modules.id, moduleId)).limit(1);
     if (!module) {
       return undefined;
     }
 
+    const language: CatalogLanguage = options?.language ?? (await this.resolveLanguage(options?.studentId));
+
     const [feedbackRow] = await this.database
       .select()
       .from(moduleFeedback)
-      .where(and(eq(moduleFeedback.moduleId, moduleId), eq(moduleFeedback.language, DEFAULT_LANGUAGE)))
+      .where(and(eq(moduleFeedback.moduleId, moduleId), eq(moduleFeedback.language, language)))
       .limit(1);
 
     const exerciseRows = await this.database
@@ -47,7 +56,7 @@ export class DrizzleExerciseCatalog implements ExerciseCatalogPort {
       .innerJoin(exercises, eq(moduleExercises.exerciseId, exercises.id))
       .leftJoin(
         exerciseTranslations,
-        and(eq(exerciseTranslations.exerciseId, exercises.id), eq(exerciseTranslations.language, DEFAULT_LANGUAGE))
+        and(eq(exerciseTranslations.exerciseId, exercises.id), eq(exerciseTranslations.language, language))
       )
       .leftJoin(media, eq(exercises.mediaId, media.id))
       .where(eq(moduleExercises.moduleId, moduleId))
@@ -94,5 +103,17 @@ export class DrizzleExerciseCatalog implements ExerciseCatalogPort {
         incorrectMessage: feedbackRow?.incorrectMessage ?? ""
       }
     };
+  }
+
+  private async resolveLanguage(studentId?: string): Promise<CatalogLanguage> {
+    if (!studentId) {
+      return DEFAULT_LANGUAGE;
+    }
+    const [row] = await this.database
+      .select({ language: users.preferredLanguage })
+      .from(users)
+      .where(eq(users.id, studentId))
+      .limit(1);
+    return (row?.language as CatalogLanguage) ?? DEFAULT_LANGUAGE;
   }
 }

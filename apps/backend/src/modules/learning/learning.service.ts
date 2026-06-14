@@ -53,7 +53,7 @@ export class LearningService {
     if (status === "premium_locked") {
       throw new ForbiddenException("This module requires premium access.");
     }
-    const module = await this.catalog.getModule(moduleId);
+    const module = await this.catalog.getModule(moduleId, { studentId });
     if (!module) {
       throw new NotFoundException(`module ${moduleId} not found`);
     }
