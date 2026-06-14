@@ -133,16 +133,22 @@ export const BottomNavbar: FC<{ active?: string; onChange?: (id: string) => void
             )}
 
             <span
+              key={isActive ? `${item.id}-active` : item.id}
               className={[
                 "bottom-navbar__icon-wrap",
                 isCenter ? "bottom-navbar__icon-wrap--center" : "",
                 isActive && !isCenter ? "bottom-navbar__icon-wrap--active" : "",
+                isActive ? "bottom-navbar__icon-wrap--pulse" : "",
               ]
                 .filter(Boolean)
                 .join(" ")}
             >
               <NavIcon icon={item.icon} size={isCenter ? 20 : 28} />
             </span>
+
+            {isActive && !isCenter && (
+              <span className="bottom-navbar__active-dot" aria-hidden="true" />
+            )}
 
             <span
               className={[
